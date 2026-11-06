@@ -93,12 +93,12 @@ const MomoChat: React.FC<MomoChatProps> = ({ vendors }) => {
   };
 
   return (
-    <Card className="h-full flex flex-col bg-white/95 backdrop-blur-md border-2 border-purple-200 shadow-2xl">
+    <Card className="h-full flex flex-col bg-white/95 backdrop-blur-md border-2 border-blue-200 shadow-2xl">
       <CardContent className="p-0 flex flex-col h-full">
         {/* Header */}
-        <div className="p-6 border-b border-purple-200 bg-gradient-to-r from-purple-50 to-pink-50">
+        <div className="p-6 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-sky-50">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/20">
               <Bot className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -109,22 +109,22 @@ const MomoChat: React.FC<MomoChatProps> = ({ vendors }) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-white to-purple-50/30">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-white to-blue-50/30">
           {messages.map((message) => (
             <div
               key={message.id}
               className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {message.role === 'assistant' && (
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-sky-500 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                   <Bot className="w-4 h-4 text-white" />
                 </div>
               )}
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${
                   message.role === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white'
-                    : 'bg-white border-2 border-purple-100 text-gray-800'
+                    ? 'bg-gradient-to-r from-blue-600 to-sky-600 text-white'
+                    : 'bg-white border-2 border-blue-100 text-gray-800 shadow-sm'
                 }`}
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
@@ -133,7 +133,7 @@ const MomoChat: React.FC<MomoChatProps> = ({ vendors }) => {
                 </p>
               </div>
               {message.role === 'user' && (
-                <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-sky-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
                   <User className="w-4 h-4 text-white" />
                 </div>
               )}
@@ -141,11 +141,11 @@ const MomoChat: React.FC<MomoChatProps> = ({ vendors }) => {
           ))}
           {isLoading && (
             <div className="flex gap-3 justify-start">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-sky-500 rounded-full flex items-center justify-center flex-shrink-0">
                 <Bot className="w-4 h-4 text-white" />
               </div>
-              <div className="bg-white border-2 border-purple-100 rounded-2xl px-4 py-3">
-                <Loader2 className="w-5 h-5 text-purple-500 animate-spin" />
+              <div className="bg-white border-2 border-blue-100 rounded-2xl px-4 py-3 shadow-sm">
+                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
               </div>
             </div>
           )}
@@ -153,7 +153,7 @@ const MomoChat: React.FC<MomoChatProps> = ({ vendors }) => {
         </div>
 
         {/* Input */}
-        <div className="p-6 border-t border-purple-200 bg-white">
+        <div className="p-6 border-t border-blue-100 bg-white">
           <div className="flex gap-3">
             <input
               type="text"
@@ -161,13 +161,13 @@ const MomoChat: React.FC<MomoChatProps> = ({ vendors }) => {
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask Momo about vendors, recommendations, or event planning..."
-              className="flex-1 px-4 py-3 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              className="flex-1 px-4 py-3 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
               disabled={isLoading}
             />
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-6 rounded-xl shadow-lg"
+              className="bg-gradient-to-r from-blue-600 to-sky-600 hover:from-blue-700 hover:to-sky-700 text-white px-6 rounded-xl shadow-lg shadow-blue-500/20"
               size="lg"
             >
               {isLoading ? (

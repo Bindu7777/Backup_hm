@@ -32,17 +32,41 @@ import {
   Phone,
   Mail,
   Sliders,
-  Tv
+  Tv,
+  Share2,
+  FileText,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  MessageSquare,
+  Calendar,
+  DollarSign,
+  Layers,
+  Globe,
+  FileSpreadsheet,
+  KeyRound,
+  Lock
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Vendor } from "@/lib/supabase";
-import { getAllVendorsForAdmin, updateVendor, deleteVendor, getAllPendingChanges, reviewVendorProfileChange, getAdminLostDealsAndStats } from "@/services/supabaseService";
+import { 
+  getAllVendorsForAdmin, 
+  updateVendor, 
+  deleteVendor, 
+  getAllPendingChanges, 
+  reviewVendorProfileChange, 
+  getAdminLostDealsAndStats,
+  getAllVendorCredentials
+} from "@/services/supabaseService";
 import { adminSendCustomerToVendor } from "@/services/adminApiService";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import SuccessModal from "@/components/SuccessModal";
 import InputModal from "@/components/InputModal";
 import AdminSendCustomerModal from "@/components/AdminSendCustomerModal";
 import MomoChat from "@/components/MomoChat";
+import ExcelSheetModal, { ExcelColumn } from "@/components/admin/ExcelSheetModal";
+import VendorCredentialsModal from "@/components/admin/VendorCredentialsModal";
+import { normalizeCategoryToStandard } from "@/constants/categories";
 
 export interface EventSpace {
   id: string;
@@ -193,6 +217,13 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("vendors");
   const [pendingChanges, setPendingChanges] = useState<any[]>([]);
   const [reviewingChange, setReviewingChange] = useState<number | null>(null);
+  const [viewingApplication, setViewingApplication] = useState<Vendor | null>(null);
+  const [applicationSearchTerm, setApplicationSearchTerm] = useState("");
+  const [applicationStatusFilter, setApplicationStatusFilter] = useState("all");
+  const [showApplicationsExcel, setShowApplicationsExcel] = useState(false);
+  const [showVendorsExcel, setShowVendorsExcel] = useState(false);
+  const [credentialsVendor, setCredentialsVendor] = useState<Vendor | null>(null);
+  const [vendorCredentialsMap, setVendorCredentialsMap] = useState<Record<string, any>>({});
   const [currentGreeting, setCurrentGreeting] = useState("");
   const [demonControlLevel, setDemonControlLevel] = useState(0);
   const [adminName, setAdminName] = useState("");
@@ -516,16 +547,24 @@ const AdminDashboard = () => {
     fetchPendingChanges();
     getRandomGreeting();
     setRandomAdminName();
-    
+  }, [navigate]);
+
+  useEffect(() => {
     // Calculate demon control level based on completed tasks
     const completedTasks = vendors.filter(v => v.verified).length + 
                           vendors.filter(v => v.currently_available).length;
     setDemonControlLevel(Math.min(completedTasks * 5, 100));
-  }, [navigate, vendors]);
+  }, [vendors]);
 
   useEffect(() => {
     filterVendors();
   }, [vendors, searchTerm, filterStatus, filterCategory]);
+
+  useEffect(() => {
+    getAllVendorCredentials().then((creds) => {
+      if (creds) setVendorCredentialsMap(creds);
+    });
+  }, [vendors]);
 
   useEffect(() => {
     if (activeTab === "analytics") {
@@ -817,6 +856,122 @@ const AdminDashboard = () => {
     }
   };
 
+  const getVendorInfo = (v: any) => {
+    if (!v || !v.additional_info) return {};
+    if (typeof v.additional_info === 'string') {
+      try {
+        return JSON.parse(v.additional_info);
+      } catch {
+        return {};
+      }
+    }
+    return v.additional_info;
+  };
+
+  const handleApproveApplication = async (vendor: Vendor) => {
+    try {
+      const info = getVendorInfo(vendor);
+      const updatedInfo = {
+        ...info,
+        application_status: 'Approved',
+        reviewed_at: new Date().toISOString()
+      };
+
+      // Extract and normalize categories so standard categories (e.g. Event Planners, Photography/Videography) are included
+      const existingCats = Array.isArray(vendor.category)
+        ? vendor.category
+        : (Array.isArray(vendor.categories)
+            ? vendor.categories
+            : [vendor.category].filter(Boolean));
+
+      const normalizedCats = Array.from(new Set([
+        ...existingCats,
+        ...existingCats.map((c: string) => normalizeCategoryToStandard(c))
+      ])).filter(Boolean);
+
+      await updateVendor(vendor.vendor_id, {
+        verified: true,
+        currently_available: true,
+        category: normalizedCats,
+        categories: normalizedCats,
+        additional_info: updatedInfo
+      });
+
+      setVendors((prev) =>
+        prev.map((v) =>
+          v.vendor_id === vendor.vendor_id
+            ? { 
+                ...v, 
+                verified: true, 
+                currently_available: true, 
+                category: normalizedCats,
+                categories: normalizedCats,
+                additional_info: updatedInfo 
+              }
+            : v
+        )
+      );
+
+      setSuccessModal({
+        isOpen: true,
+        title: 'Vendor Application Approved!',
+        message: `${vendor.brand_name} is now verified and active in the Happy Moments marketplace.`
+      });
+
+      if (viewingApplication && viewingApplication.vendor_id === vendor.vendor_id) {
+        setViewingApplication({
+          ...viewingApplication,
+          verified: true,
+          currently_available: true,
+          category: normalizedCats,
+          categories: normalizedCats,
+          additional_info: updatedInfo
+        });
+      }
+    } catch (err: any) {
+      alert(`Failed to approve vendor: ${err?.message || 'Unknown error'}`);
+    }
+  };
+
+  const handleRejectApplication = async (vendor: Vendor) => {
+    if (!confirm(`Are you sure you want to mark the application for "${vendor.brand_name}" as Rejected?`)) {
+      return;
+    }
+    try {
+      const info = getVendorInfo(vendor);
+      const updatedInfo = {
+        ...info,
+        application_status: 'Rejected',
+        reviewed_at: new Date().toISOString()
+      };
+
+      await updateVendor(vendor.vendor_id, {
+        verified: false,
+        currently_available: false,
+        additional_info: updatedInfo
+      });
+
+      setVendors((prev) =>
+        prev.map((v) =>
+          v.vendor_id === vendor.vendor_id
+            ? { ...v, verified: false, currently_available: false, additional_info: updatedInfo }
+            : v
+        )
+      );
+
+      if (viewingApplication && viewingApplication.vendor_id === vendor.vendor_id) {
+        setViewingApplication({
+          ...viewingApplication,
+          verified: false,
+          currently_available: false,
+          additional_info: updatedInfo
+        });
+      }
+    } catch (err: any) {
+      alert(`Failed to reject application: ${err?.message || 'Unknown error'}`);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("adminLoggedIn");
     localStorage.removeItem("adminUser");
@@ -923,6 +1078,149 @@ const AdminDashboard = () => {
   };
 
   const categories = [...new Set(vendors.map(v => v.category))];
+
+  // Filter vendor onboarding applicants
+  const applicantVendors = vendors.filter((v) => {
+    const info = getVendorInfo(v);
+    return (
+      info.source === 'vendor_onboarding_form' ||
+      info.application_status !== undefined ||
+      info.application_id !== undefined ||
+      (!v.verified && (info.submitted_at || info.areas_served))
+    );
+  });
+
+  const pendingApplicantsCount = applicantVendors.filter((v) => {
+    const status = getVendorInfo(v).application_status || (v.verified ? 'Approved' : 'Pending review');
+    return status === 'Pending review';
+  }).length;
+
+  const filteredApplications = applicantVendors.filter((v) => {
+    const info = getVendorInfo(v);
+    const status = info.application_status || (v.verified ? 'Approved' : 'Pending review');
+    if (applicationStatusFilter !== 'all' && status !== applicationStatusFilter) {
+      return false;
+    }
+    if (applicationSearchTerm.trim()) {
+      const q = applicationSearchTerm.toLowerCase();
+      const matchBrand = (v.brand_name || '').toLowerCase().includes(q);
+      const matchSpoc = (v.spoc_name || '').toLowerCase().includes(q);
+      const matchPhone = (v.phone_number || '').includes(q);
+      const matchAppId = (info.application_id || '').toLowerCase().includes(q);
+      const matchCity = (info.city || v.address || '').toLowerCase().includes(q);
+      return matchBrand || matchSpoc || matchPhone || matchAppId || matchCity;
+    }
+    return true;
+  });
+
+  // Excel Columns & Rows Mapping for Vendor Applications
+  const applicationExcelColumns: ExcelColumn[] = [
+    { key: 'application_id', header: 'Application ID', width: 18 },
+    { key: 'submitted_at', header: 'Submitted Date', width: 20 },
+    { key: 'status', header: 'Status', width: 16 },
+    { key: 'brand_name', header: 'Brand / Business Name', width: 24 },
+    { key: 'login_username', header: 'Login Username / ID', width: 20 },
+    { key: 'login_password', header: 'Login Password', width: 18 },
+    { key: 'spoc_name', header: 'Contact Person (SPOC)', width: 20 },
+    { key: 'phone_number', header: 'Phone Number', width: 16 },
+    { key: 'whatsapp_number', header: 'WhatsApp Number', width: 16 },
+    { key: 'email', header: 'Email Address', width: 22 },
+    { key: 'city', header: 'City', width: 16 },
+    { key: 'state', header: 'State', width: 16 },
+    { key: 'areas_served', header: 'Areas Served', width: 25 },
+    { key: 'categories', header: 'Service Categories', width: 30 },
+    { key: 'other_category', header: 'Other Category Details', width: 22 },
+    { key: 'experience', header: 'Years of Experience', width: 18 },
+    { key: 'pricing', header: 'Starting Price / Range', width: 22 },
+    { key: 'specialties', header: 'Events Served / Specialties', width: 26 },
+    { key: 'description', header: 'Description of Services', width: 40 },
+    { key: 'preferred_contact', header: 'Preferred Contact Method', width: 18 },
+    { key: 'best_time', header: 'Best Contact Time', width: 22 },
+    { key: 'website_or_ig', header: 'Website / Instagram', width: 25 },
+    { key: 'verified', header: 'Verified', width: 12 },
+    { key: 'portfolio_count', header: 'Portfolio Photos Count', width: 16 }
+  ];
+
+  const applicationExcelRows = applicantVendors.map((v) => {
+    const info = getVendorInfo(v);
+    const cats = Array.isArray(v.categories)
+      ? v.categories
+      : (Array.isArray(v.category) ? v.category : [v.category].filter(Boolean));
+    const cred = vendorCredentialsMap[String(v.vendor_id)];
+
+    return {
+      application_id: info.application_id || `HM-VND-${v.vendor_id}`,
+      submitted_at: info.submitted_at ? new Date(info.submitted_at).toLocaleString() : 'N/A',
+      status: info.application_status || (v.verified ? 'Approved' : 'Pending review'),
+      brand_name: v.brand_name || '',
+      login_username: cred?.username || String(v.vendor_id),
+      login_password: cred?.password || 'Not Set',
+      spoc_name: v.spoc_name || '',
+      phone_number: v.phone_number || '',
+      whatsapp_number: v.whatsapp_number || v.phone_number || '',
+      email: v.email || '',
+      city: info.city || v.address || '',
+      state: info.state || '',
+      areas_served: info.areas_served || '',
+      categories: cats.join(', '),
+      other_category: info.other_category || '',
+      experience: v.experience || '',
+      pricing: info.share_price_after_discussion
+        ? 'Share after discussion'
+        : (v.starting_price ? `₹ ${v.starting_price} ${info.pricing_unit || ''}` : '0'),
+      specialties: (info.events_served_specialties || []).join(', '),
+      description: v.detailed_intro || v.quick_intro || '',
+      preferred_contact: info.preferred_contact_method || 'Phone',
+      best_time: info.best_time_to_contact || 'Anytime',
+      website_or_ig: v.instagram || '',
+      verified: v.verified ? 'Yes' : 'No',
+      portfolio_count: info.portfolio_photos?.length || 0
+    };
+  });
+
+  // Excel Columns & Rows Mapping for All Vendors
+  const vendorExcelColumns: ExcelColumn[] = [
+    { key: 'vendor_id', header: 'Vendor ID', width: 12 },
+    { key: 'brand_name', header: 'Brand Name', width: 25 },
+    { key: 'login_username', header: 'Login Username / ID', width: 20 },
+    { key: 'login_password', header: 'Login Password', width: 18 },
+    { key: 'login_status', header: 'Account Status', width: 15 },
+    { key: 'spoc_name', header: 'Contact Person (SPOC)', width: 20 },
+    { key: 'phone_number', header: 'Phone Number', width: 16 },
+    { key: 'email', header: 'Email Address', width: 22 },
+    { key: 'category', header: 'Categories', width: 26 },
+    { key: 'experience', header: 'Experience', width: 16 },
+    { key: 'starting_price', header: 'Starting Price (₹)', width: 16 },
+    { key: 'rating', header: 'Rating', width: 10 },
+    { key: 'review_count', header: 'Reviews Count', width: 12 },
+    { key: 'verified', header: 'Verified', width: 12 },
+    { key: 'currently_available', header: 'Active / Available', width: 14 },
+    { key: 'last_login', header: 'Last Login', width: 20 },
+    { key: 'address', header: 'Address', width: 30 }
+  ];
+
+  const vendorExcelRows = vendors.map((v) => {
+    const cred = vendorCredentialsMap[String(v.vendor_id)];
+    return {
+      vendor_id: v.vendor_id,
+      brand_name: v.brand_name || '',
+      login_username: cred?.username || String(v.vendor_id),
+      login_password: cred?.password || 'Not Set',
+      login_status: cred?.is_active === false ? 'Locked' : 'Active',
+      spoc_name: v.spoc_name || '',
+      phone_number: v.phone_number || '',
+      email: v.email || '',
+      category: Array.isArray(v.categories) ? v.categories.join(', ') : (Array.isArray(v.category) ? v.category.join(', ') : v.category || ''),
+      experience: v.experience || '',
+      starting_price: v.starting_price || 0,
+      rating: v.rating || 0,
+      review_count: v.review_count || 0,
+      verified: v.verified ? 'Yes' : 'No',
+      currently_available: v.currently_available ? 'Yes' : 'No',
+      last_login: cred?.last_login ? new Date(cred.last_login).toLocaleString() : 'Never',
+      address: v.address || ''
+    };
+  });
 
   if (loading) {
     return (
@@ -1104,6 +1402,31 @@ const AdminDashboard = () => {
               </div>
               
               <button
+                onClick={() => navigate("/admin/momo")}
+                className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-2xl flex items-center shadow-lg hover:shadow-blue-500/25 hover:scale-105 transition-all duration-300 font-semibold cursor-pointer border border-blue-300/40"
+                title="Open Momo Bot AI Business Intelligence & Messaging Assistant"
+              >
+                <div className="w-7 h-7 rounded-full overflow-hidden mr-2.5 border-2 border-white/80 shadow-sm shrink-0 bg-white">
+                  <img src="/momo-avatar.png" alt="Momo Bot Mascot" className="w-full h-full object-cover" />
+                </div>
+                <span>Momo Bot</span>
+                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-white/25 text-white font-bold">
+                  ✨ AI
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  const url = window.location.origin + "/vendor-onboarding";
+                  navigator.clipboard.writeText(url);
+                  alert("Vendor Onboarding Link copied to clipboard!\n\n" + url);
+                }}
+                className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-6 py-3 rounded-2xl flex items-center shadow-lg hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 font-semibold"
+                title="Copy link to send to vendors to self-register"
+              >
+                <Share2 className="h-4 w-4 mr-2" />
+                Share Onboarding Form
+              </button>
+              <button
                 onClick={() => navigate("/admin/vendor/new")}
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-3 rounded-2xl flex items-center shadow-lg hover:shadow-blue-500/25 hover:scale-105 transition-all duration-300 font-semibold"
               >
@@ -1188,6 +1511,22 @@ const AdminDashboard = () => {
                 Vendor Management ({vendors.length})
               </button>
               <button
+                onClick={() => setActiveTab("applications")}
+                className={`py-6 px-4 border-b-3 font-semibold text-sm relative transition-all duration-300 rounded-t-2xl ${
+                  activeTab === "applications"
+                    ? "border-orange-500 text-slate-800 bg-gradient-to-b from-orange-50 to-transparent"
+                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                }`}
+              >
+                <FileText className="w-5 h-5 inline-block mr-3 text-orange-600" />
+                Vendor Applications ({applicantVendors.length})
+                {pendingApplicantsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white text-xs rounded-full min-w-5 h-5 px-1.5 flex items-center justify-center shadow-lg font-bold animate-pulse">
+                    {pendingApplicantsCount}
+                  </span>
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab("event-spaces")}
                 className={`py-6 px-4 border-b-3 font-semibold text-sm transition-all duration-300 rounded-t-2xl ${
                   activeTab === "event-spaces"
@@ -1215,15 +1554,16 @@ const AdminDashboard = () => {
                 )}
               </button>
               <button
-                onClick={() => setActiveTab("momo")}
-                className={`py-6 px-4 border-b-3 font-semibold text-sm transition-all duration-300 rounded-t-2xl ${
-                  activeTab === "momo"
-                    ? "border-purple-500 text-slate-800 bg-gradient-to-b from-purple-50 to-transparent"
-                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
-                }`}
+                onClick={() => navigate("/admin/momo")}
+                className="py-6 px-4 border-b-3 font-semibold text-sm transition-all duration-300 rounded-t-2xl border-transparent text-blue-700 hover:text-blue-900 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer"
               >
-                <Bot className="w-5 h-5 inline-block mr-3" />
-                Momo AI Advisor
+                <span className="w-7 h-7 rounded-full overflow-hidden inline-flex mr-2.5 shadow-sm border border-blue-300/60 align-middle bg-white">
+                  <img src="/momo-avatar.png" alt="Momo" className="w-full h-full object-cover" />
+                </span>
+                Momo Bot
+                <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase">
+                  AI Agent
+                </span>
               </button>
               <button
                 onClick={() => setActiveTab("analytics")}
@@ -1298,6 +1638,37 @@ const AdminDashboard = () => {
               <Zap className="w-4 h-4 inline mr-2" />
               Mass Rituals ({selectedVendors.length})
             </button>
+          </div>
+
+          {/* Excel View & Quick Filter Toolbar */}
+          <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowVendorsExcel(true)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#107c41] hover:bg-[#0e6b37] text-white shadow-xs hover:scale-105 transition-all"
+                title="View full vendors list in interactive Excel sheet"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                View as Excel Sheet
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterStatus("all");
+                  setActiveTab("applications");
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-orange-50 hover:bg-orange-100 text-orange-800 border border-orange-200 transition-all"
+              >
+                <FileText className="w-3.5 h-3.5 text-orange-600" />
+                View Onboarding Applications ({applicantVendors.length})
+              </button>
+            </div>
+
+            <div className="text-xs text-slate-500">
+              Showing <span className="font-bold text-slate-800">{filteredVendors.length}</span> of {vendors.length} vendors
+            </div>
           </div>
 
           {/* Bulk Actions */}
@@ -1422,6 +1793,22 @@ const AdminDashboard = () => {
                           <div className="text-sm text-wedding-gray">
                             {vendor.spoc_name} • ID: {vendor.vendor_id}
                           </div>
+                          <div className="flex items-center gap-1.5 mt-1">
+                            <button
+                              type="button"
+                              onClick={() => setCredentialsVendor(vendor)}
+                              className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 transition-colors"
+                              title="Click to view or edit login credentials"
+                            >
+                              <KeyRound className="w-3 h-3 text-amber-600" />
+                              <span>Login ID: {vendorCredentialsMap[String(vendor.vendor_id)]?.username || vendor.vendor_id}</span>
+                            </button>
+                            {vendorCredentialsMap[String(vendor.vendor_id)]?.password && (
+                              <span className="text-[10px] text-slate-400 font-mono">
+                                • Password Set
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -1483,6 +1870,13 @@ const AdminDashboard = () => {
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
+                          onClick={() => setCredentialsVendor(vendor)}
+                          className="p-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow-lg hover:scale-110 transition-all duration-200"
+                          title="View & Edit Vendor Login ID and Password"
+                        >
+                          <KeyRound className="h-4 w-4" />
+                        </button>
+                        <button
                           onClick={() => handleSendCustomer(vendor)}
                           className="p-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow-lg hover:scale-110 transition-all duration-200"
                           title="Send Customer to Vendor"
@@ -1519,6 +1913,678 @@ const AdminDashboard = () => {
           )}
         </div>
         </>
+        )}
+
+        {/* Vendor Applications Tab */}
+        {activeTab === "applications" && (
+          <div className="space-y-6">
+            {/* Header & Stat Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-white/80 backdrop-blur-md border border-orange-200/80 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Applications</p>
+                    <p className="text-3xl font-extrabold text-slate-900 mt-1">{applicantVendors.length}</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                    <FileText className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 backdrop-blur-md border border-amber-200/80 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-amber-700 uppercase tracking-wider">Pending Review</p>
+                    <p className="text-3xl font-extrabold text-amber-900 mt-1 flex items-center gap-2">
+                      {pendingApplicantsCount}
+                      {pendingApplicantsCount > 0 && (
+                        <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 animate-pulse">
+                          Needs Action
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                    <Clock className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white/80 backdrop-blur-md border border-emerald-200/80 rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Approved & Live</p>
+                    <p className="text-3xl font-extrabold text-emerald-900 mt-1">
+                      {applicantVendors.filter(v => v.verified).length}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-500 to-amber-600 rounded-2xl p-5 text-white shadow-md flex flex-col justify-between">
+                <div>
+                  <p className="text-xs font-bold text-orange-100 uppercase tracking-wider">Onboarding Form URL</p>
+                  <p className="text-sm font-medium text-white/90 mt-1 line-clamp-1">Share with new vendors</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = `${window.location.origin}/vendor-onboarding`;
+                    navigator.clipboard.writeText(url);
+                    alert(`Vendor Onboarding link copied to clipboard:\n${url}`);
+                  }}
+                  className="mt-3 inline-flex items-center justify-center gap-2 bg-white text-orange-800 hover:bg-orange-50 font-bold text-xs py-2 px-3 rounded-xl transition-all shadow-sm"
+                >
+                  <Share2 className="w-4 h-4" />
+                  Copy Onboarding Link
+                </button>
+              </div>
+            </div>
+
+            {/* Filter and Search Bar */}
+            <div className="bg-white/80 backdrop-blur-md border border-wedding-orange/20 shadow-md rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="relative flex-1 w-full">
+                <Search className="absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search applications by Brand, SPOC, Phone, City, or ID..."
+                  value={applicationSearchTerm}
+                  onChange={(e) => setApplicationSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 text-slate-800"
+                />
+                {applicationSearchTerm && (
+                  <button
+                    onClick={() => setApplicationSearchTerm("")}
+                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                {[
+                  { id: 'all', label: 'All', count: applicantVendors.length },
+                  { id: 'Pending review', label: 'Pending Review', count: pendingApplicantsCount },
+                  { id: 'Approved', label: 'Approved', count: applicantVendors.filter(v => v.verified).length },
+                  { id: 'Rejected', label: 'Rejected', count: applicantVendors.filter(v => (getVendorInfo(v).application_status === 'Rejected')).length }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setApplicationStatusFilter(tab.id)}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                      applicationStatusFilter === tab.id
+                        ? 'bg-orange-600 text-white shadow-sm'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    }`}
+                  >
+                    {tab.label} ({tab.count})
+                  </button>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => setShowApplicationsExcel(true)}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#107c41] hover:bg-[#0e6b37] text-white shadow-xs hover:scale-105 transition-all whitespace-nowrap ml-1"
+                  title="View all applications in full interactive Excel spreadsheet"
+                >
+                  <FileSpreadsheet className="w-4 h-4" />
+                  View as Excel
+                </button>
+              </div>
+            </div>
+
+            {/* Applications List */}
+            {filteredApplications.length === 0 ? (
+              <div className="bg-white/80 backdrop-blur-md border border-slate-200 shadow-md rounded-2xl p-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900">No Applications Found</h3>
+                <p className="text-sm text-slate-500 max-w-md mx-auto mt-1">
+                  {applicationSearchTerm || applicationStatusFilter !== 'all'
+                    ? 'No vendor applications match your current filters. Try changing your search or status filter.'
+                    : 'Vendors who submit the self-serve onboarding registration form will appear here automatically for review and one-click verification.'}
+                </p>
+                <div className="mt-5 flex items-center justify-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowApplicationsExcel(true)}
+                    className="bg-[#107c41] hover:bg-[#0e6b37] text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md flex items-center gap-2"
+                  >
+                    <FileSpreadsheet className="w-4 h-4" />
+                    View as Excel Sheet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const url = `${window.location.origin}/vendor-onboarding`;
+                      navigator.clipboard.writeText(url);
+                      alert(`Onboarding link copied:\n${url}`);
+                    }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-md flex items-center gap-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    Share Registration Form
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => window.open('/vendor-onboarding', '_blank')}
+                    className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Open Form In New Tab
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredApplications.map((vendor) => {
+                  const info = getVendorInfo(vendor);
+                  const status = info.application_status || (vendor.verified ? 'Approved' : 'Pending review');
+                  const isPending = status === 'Pending review';
+                  const isApproved = status === 'Approved' || vendor.verified;
+                  const isRejected = status === 'Rejected';
+
+                  // Parse categories array
+                  const categoriesList: string[] = Array.isArray(vendor.categories)
+                    ? vendor.categories
+                    : (Array.isArray(vendor.category) ? vendor.category : [vendor.category].filter(Boolean));
+
+                  // Portfolio images
+                  const portfolioPhotos: string[] = info.portfolio_photos || [];
+
+                  // Clean phone for WhatsApp
+                  const rawPhone = (vendor.whatsapp_number || vendor.phone_number || '').replace(/[^0-9]/g, '');
+                  const formattedWaNumber = rawPhone.length === 10 ? `91${rawPhone}` : rawPhone;
+                  const waText = encodeURIComponent(
+                    `Hello ${vendor.spoc_name || ''}, this is Happy Moments Partner Relations team regarding your vendor onboarding application for ${vendor.brand_name}. We reviewed your application and would like to finalize your profile!`
+                  );
+
+                  return (
+                    <div
+                      key={vendor.vendor_id}
+                      className="bg-white/90 backdrop-blur-md border border-slate-200 hover:border-orange-300 rounded-2xl p-6 shadow-md transition-all duration-200"
+                    >
+                      {/* Top Row: Brand, ID, Status, Timestamp */}
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                        <div className="flex items-start gap-4">
+                          {/* Logo or placeholder */}
+                          <div className="w-14 h-14 rounded-2xl overflow-hidden bg-slate-100 border border-slate-200 flex-shrink-0 flex items-center justify-center shadow-xs">
+                            {info.brand_logo_url ? (
+                              <img
+                                src={info.brand_logo_url}
+                                alt={vendor.brand_name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <Building2 className="w-7 h-7 text-slate-400" />
+                            )}
+                          </div>
+
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <h4 className="text-lg font-bold text-slate-900">{vendor.brand_name}</h4>
+                              {info.application_id && (
+                                <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                                  {info.application_id}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
+                              <span>Submitted: {info.submitted_at ? new Date(info.submitted_at).toLocaleString() : 'Recent application'}</span>
+                              {info.source && (
+                                <span className="inline-block px-1.5 py-0.2 rounded text-[10px] bg-blue-50 text-blue-700 font-medium border border-blue-200">
+                                  Self-Serve Portal
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Status Badge */}
+                        <div className="flex items-center gap-2">
+                          {isPending && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                              <Clock className="w-3.5 h-3.5" />
+                              Pending Review
+                            </span>
+                          )}
+                          {isApproved && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                              Verified & Active
+                            </span>
+                          )}
+                          {isRejected && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                              <XCircle className="w-3.5 h-3.5" />
+                              Rejected
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Middle Details Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 py-4 text-xs">
+                        {/* Contact info */}
+                        <div className="space-y-1.5">
+                          <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Contact Person</span>
+                          <p className="font-semibold text-slate-900 text-sm flex items-center gap-1.5">
+                            <Users className="w-4 h-4 text-slate-400" />
+                            {vendor.spoc_name || 'Not provided'}
+                          </p>
+                          <p className="text-slate-700 flex items-center gap-1.5">
+                            <Phone className="w-3.5 h-3.5 text-slate-400" />
+                            <a href={`tel:${vendor.phone_number}`} className="hover:text-orange-600 underline">
+                              {vendor.phone_number}
+                            </a>
+                          </p>
+                          {vendor.email && (
+                            <p className="text-slate-600 flex items-center gap-1.5 truncate">
+                              <Mail className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                              <a href={`mailto:${vendor.email}`} className="hover:text-orange-600 underline truncate">
+                                {vendor.email}
+                              </a>
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Location & Areas */}
+                        <div className="space-y-1.5">
+                          <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Location & Coverage</span>
+                          <p className="font-semibold text-slate-900 flex items-center gap-1.5">
+                            <MapPin className="w-4 h-4 text-orange-500 flex-shrink-0" />
+                            {[info.city || vendor.address, info.state].filter(Boolean).join(', ') || 'Location on file'}
+                          </p>
+                          <p className="text-slate-600 text-xs line-clamp-2">
+                            <span className="font-medium text-slate-700">Areas served:</span>{' '}
+                            {info.areas_served || 'Standard service region'}
+                          </p>
+                        </div>
+
+                        {/* Experience & Pricing */}
+                        <div className="space-y-1.5">
+                          <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Experience & Pricing</span>
+                          <p className="font-semibold text-slate-900">
+                            Experience: <span className="text-orange-700">{vendor.experience || 'Not specified'}</span>
+                          </p>
+                          <p className="text-slate-700 font-medium">
+                            {info.share_price_after_discussion ? (
+                              <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                Share after discussion
+                              </span>
+                            ) : (
+                              <span>Starting: ₹{vendor.starting_price || 0} {info.pricing_unit ? `(${info.pricing_unit})` : ''}</span>
+                            )}
+                          </p>
+                          {info.best_time_to_contact && (
+                            <p className="text-slate-500 text-[11px]">
+                              Best contact time: {info.best_time_to_contact}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Categories */}
+                        <div className="space-y-1.5">
+                          <span className="font-bold text-slate-500 uppercase tracking-wider block text-[10px]">Categories</span>
+                          <div className="flex flex-wrap gap-1">
+                            {categoriesList.slice(0, 4).map((cat) => (
+                              <span
+                                key={cat}
+                                className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-orange-50 text-orange-900 border border-orange-200"
+                              >
+                                {cat}
+                              </span>
+                            ))}
+                            {categoriesList.length > 4 && (
+                              <span className="px-1.5 py-0.5 rounded-md text-[10px] bg-slate-100 text-slate-600">
+                                +{categoriesList.length - 4} more
+                              </span>
+                            )}
+                          </div>
+                          {info.other_category && (
+                            <p className="text-[11px] text-amber-800 mt-1 italic">
+                              Other: {info.other_category}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Description snippet */}
+                      {vendor.detailed_intro && (
+                        <div className="mt-2 p-3 bg-slate-50 rounded-xl border border-slate-100 text-xs text-slate-700">
+                          <span className="font-bold text-slate-800 mr-1.5">Service Description:</span>
+                          {vendor.detailed_intro}
+                        </div>
+                      )}
+
+                      {/* Portfolio photos preview */}
+                      {portfolioPhotos.length > 0 && (
+                        <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
+                          <span className="text-[11px] font-bold text-slate-500 mr-1 flex-shrink-0">Portfolio ({portfolioPhotos.length}):</span>
+                          {portfolioPhotos.map((url, idx) => (
+                            <a
+                              key={idx}
+                              href={url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="w-12 h-12 rounded-lg overflow-hidden border border-slate-200 hover:border-orange-400 transition-all flex-shrink-0 shadow-xs"
+                            >
+                              <img src={url} alt={`Portfolio ${idx + 1}`} className="w-full h-full object-cover" />
+                            </a>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Action Buttons */}
+                      <div className="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2">
+                          <a
+                            href={`https://wa.me/${formattedWaNumber}?text=${waText}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all"
+                          >
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            Chat on WhatsApp
+                          </a>
+
+                          <a
+                            href={`tel:${vendor.phone_number}`}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-xs transition-all"
+                          >
+                            <Phone className="w-3.5 h-3.5 text-slate-500" />
+                            Call ({vendor.phone_number})
+                          </a>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setViewingApplication(vendor)}
+                            className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 transition-all"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            View Full Application
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => setCredentialsVendor(vendor)}
+                            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 transition-all"
+                            title="View & Edit Vendor Login ID and Password"
+                          >
+                            <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                            Credentials
+                          </button>
+
+                          {isPending && (
+                            <button
+                              type="button"
+                              onClick={() => handleApproveApplication(vendor)}
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md hover:scale-105 transition-all"
+                            >
+                              <CheckCircle className="w-3.5 h-3.5" />
+                              Approve & Verify
+                            </button>
+                          )}
+
+                          {!isRejected && (
+                            <button
+                              type="button"
+                              onClick={() => handleRejectApplication(vendor)}
+                              className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 hover:bg-rose-50 border border-rose-200 transition-all"
+                            >
+                              <XCircle className="w-3.5 h-3.5" />
+                              Reject
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Application Detail Inspection Modal */}
+            {viewingApplication && (
+              <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
+                <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+                  {/* Modal Header */}
+                  <div className="p-6 border-b border-slate-100 sticky top-0 bg-white/95 backdrop-blur-md z-10 flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-bold text-orange-600 uppercase tracking-wider">Vendor Onboarding Application</span>
+                      <h3 className="text-2xl font-extrabold text-slate-900 mt-0.5">{viewingApplication.brand_name}</h3>
+                      <p className="text-xs text-slate-500">
+                        Application Ref: {getVendorInfo(viewingApplication).application_id || viewingApplication.vendor_id}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setViewingApplication(null)}
+                      className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600"
+                    >
+                      <XCircle className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  {/* Modal Body */}
+                  <div className="p-6 space-y-6 text-sm text-slate-800">
+                    {/* Section 1 */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <h5 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-base">
+                        <Users className="w-4 h-4 text-orange-600" />
+                        1. Vendor and Contact Details
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <span className="text-slate-500 block">Brand / Business Name</span>
+                          <span className="font-bold text-slate-900">{viewingApplication.brand_name}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Contact Person (SPOC)</span>
+                          <span className="font-bold text-slate-900">{viewingApplication.spoc_name}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Phone Number</span>
+                          <span className="font-bold text-slate-900">{viewingApplication.phone_number}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">WhatsApp Number</span>
+                          <span className="font-bold text-slate-900">{viewingApplication.whatsapp_number || viewingApplication.phone_number}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Email Address</span>
+                          <span className="font-bold text-slate-900">{viewingApplication.email || 'None provided'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Website / Instagram</span>
+                          <span className="font-bold text-slate-900">
+                            {viewingApplication.instagram ? (
+                              <a href={viewingApplication.instagram} target="_blank" rel="noreferrer" className="text-blue-600 underline">
+                                {viewingApplication.instagram}
+                              </a>
+                            ) : (
+                              'None provided'
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section 2 */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <h5 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-base">
+                        <MapPin className="w-4 h-4 text-orange-600" />
+                        2. Location and Services
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="sm:col-span-2">
+                          <span className="text-slate-500 block">Business Address</span>
+                          <span className="font-semibold text-slate-900">{viewingApplication.address || 'None provided'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">City & State</span>
+                          <span className="font-bold text-slate-900">
+                            {[getVendorInfo(viewingApplication).city, getVendorInfo(viewingApplication).state].filter(Boolean).join(', ') || 'N/A'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Areas Served</span>
+                          <span className="font-bold text-slate-900">{getVendorInfo(viewingApplication).areas_served || 'N/A'}</span>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <span className="text-slate-500 block mb-1">Service Categories</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {(Array.isArray(viewingApplication.categories)
+                              ? viewingApplication.categories
+                              : (Array.isArray(viewingApplication.category) ? viewingApplication.category : [viewingApplication.category].filter(Boolean))
+                            ).map((cat) => (
+                              <span key={cat} className="px-2.5 py-1 rounded-lg text-xs font-bold bg-orange-100 text-orange-900 border border-orange-200">
+                                {cat}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                        {getVendorInfo(viewingApplication).other_category && (
+                          <div className="sm:col-span-2">
+                            <span className="text-slate-500 block">Other Service Specification</span>
+                            <span className="font-bold text-amber-800">{getVendorInfo(viewingApplication).other_category}</span>
+                          </div>
+                        )}
+                        <div className="sm:col-span-2">
+                          <span className="text-slate-500 block mb-1">Services Description</span>
+                          <p className="bg-white p-3 rounded-xl border border-slate-200 text-slate-800">
+                            {viewingApplication.detailed_intro || viewingApplication.quick_intro || 'No description entered.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section 3 */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <h5 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-base">
+                        <DollarSign className="w-4 h-4 text-orange-600" />
+                        3. Experience, Pricing, and Portfolio
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <span className="text-slate-500 block">Years of Experience</span>
+                          <span className="font-bold text-slate-900">{viewingApplication.experience || 'N/A'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Starting Price</span>
+                          <span className="font-bold text-slate-900">
+                            {getVendorInfo(viewingApplication).share_price_after_discussion
+                              ? 'Share after discussion'
+                              : `₹ ${viewingApplication.starting_price || 0} ${getVendorInfo(viewingApplication).pricing_unit ? `(${getVendorInfo(viewingApplication).pricing_unit})` : ''}`}
+                          </span>
+                        </div>
+                        <div className="sm:col-span-2">
+                          <span className="text-slate-500 block">Events Served / Specialties</span>
+                          <span className="font-semibold text-slate-900">
+                            {(getVendorInfo(viewingApplication).events_served_specialties || []).join(', ') || 'Not specified'}
+                          </span>
+                        </div>
+                        {getVendorInfo(viewingApplication).portfolio_photos?.length > 0 && (
+                          <div className="sm:col-span-2">
+                            <span className="text-slate-500 block mb-2">Portfolio Photos ({getVendorInfo(viewingApplication).portfolio_photos.length})</span>
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                              {getVendorInfo(viewingApplication).portfolio_photos.map((imgUrl: string, idx: number) => (
+                                <a
+                                  key={idx}
+                                  href={imgUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="h-20 rounded-xl overflow-hidden border border-slate-200 hover:scale-105 transition-all shadow-xs block"
+                                >
+                                  <img src={imgUrl} alt={`Upload ${idx + 1}`} className="w-full h-full object-cover" />
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Section 4 */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                      <h5 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-base">
+                        <CheckCircle2 className="w-4 h-4 text-orange-600" />
+                        4. Follow-up, Review & Permissions
+                      </h5>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div>
+                          <span className="text-slate-500 block">Preferred Contact Method</span>
+                          <span className="font-bold text-slate-900">{getVendorInfo(viewingApplication).preferred_contact_method || 'Phone'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Best Time to Contact</span>
+                          <span className="font-bold text-slate-900">{getVendorInfo(viewingApplication).best_time_to_contact || 'Anytime'}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Details Accurate Confirmation</span>
+                          <span className="font-bold text-emerald-700">✓ Confirmed by Vendor</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block">Onboarding Permission Granted</span>
+                          <span className="font-bold text-emerald-700">✓ Granted Permission</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Modal Footer Actions */}
+                  <div className="p-5 border-t border-slate-100 bg-white sticky bottom-0 flex flex-wrap items-center justify-between gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setViewingApplication(null)}
+                      className="px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 hover:bg-slate-50 text-slate-700"
+                    >
+                      Close
+                    </button>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = viewingApplication;
+                          setCredentialsVendor(v);
+                        }}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1.5"
+                        title="View and edit vendor login credentials"
+                      >
+                        <KeyRound className="w-3.5 h-3.5 text-amber-600" />
+                        Credentials
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRejectApplication(viewingApplication)}
+                        className="px-4 py-2.5 rounded-xl text-xs font-bold text-rose-700 hover:bg-rose-50 border border-rose-200"
+                      >
+                        Reject Application
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleApproveApplication(viewingApplication)}
+                        className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white shadow-md"
+                      >
+                        Approve & Verify Vendor
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
         {/* Approvals Tab */}
@@ -3136,6 +4202,41 @@ const AdminDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Interactive Excel Sheet Modal for Vendor Applications */}
+      <ExcelSheetModal
+        isOpen={showApplicationsExcel}
+        onClose={() => setShowApplicationsExcel(false)}
+        title="Vendor Onboarding Applications (Interactive Excel Spreadsheet)"
+        filename="HappyMoments_Vendor_Applications.xlsx"
+        sheetName="Vendor Applications"
+        columns={applicationExcelColumns}
+        data={applicationExcelRows}
+      />
+
+      {/* Interactive Excel Sheet Modal for All Vendors */}
+      <ExcelSheetModal
+        isOpen={showVendorsExcel}
+        onClose={() => setShowVendorsExcel(false)}
+        title="Happy Moments Vendors Master Directory (Interactive Excel Spreadsheet)"
+        filename="HappyMoments_Vendors_Directory.xlsx"
+        sheetName="Vendors Directory"
+        columns={vendorExcelColumns}
+        data={vendorExcelRows}
+      />
+
+      {/* Vendor Login Credentials Manager Modal */}
+      <VendorCredentialsModal
+        isOpen={!!credentialsVendor}
+        onClose={() => setCredentialsVendor(null)}
+        vendor={credentialsVendor}
+        onCredentialsUpdated={(vendorId, cred) => {
+          setVendorCredentialsMap((prev) => ({
+            ...prev,
+            [String(vendorId)]: cred
+          }));
+        }}
+      />
 
     </div>
   );

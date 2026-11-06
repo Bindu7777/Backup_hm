@@ -72,3 +72,56 @@ export const CATEGORY_LIST = [
   { code: CATEGORY_CODES.TENT_EQUIPMENT_RENTALS, name: CATEGORY_NAMES[CATEGORY_CODES.TENT_EQUIPMENT_RENTALS] },
   { code: CATEGORY_CODES.EVENT_SPACES, name: CATEGORY_NAMES[CATEGORY_CODES.EVENT_SPACES] }
 ];
+
+// Mapping between onboarding form category labels and standard Happy Moments category names
+export const ONBOARDING_TO_STANDARD_CATEGORY_MAP: Record<string, string> = {
+  'Event management': 'Event Planners',
+  'Photography and videography': 'Photography/Videography',
+  'Decorations': 'Decorators',
+  'Catering': 'Caterers',
+  'Makeup and styling': 'Makeup Artists',
+  'Music and DJ': 'DJs, Lighting, and Entertainment',
+  'Anchoring and hosting': 'Anchors',
+  'Transportation': 'Transportation Services',
+  'Fashion and costume': 'Fashion/Costume Designers',
+  'Equipment rentals': 'Tent & Equipment Rentals',
+  'Venue': 'Venues',
+};
+
+// Normalize any category (onboarding label, alias, or standard) to standard Happy Moments category name
+export const normalizeCategoryToStandard = (rawCat: string): string => {
+  if (!rawCat || typeof rawCat !== 'string') return '';
+  const trimmed = rawCat.trim();
+  if (ONBOARDING_TO_STANDARD_CATEGORY_MAP[trimmed]) {
+    return ONBOARDING_TO_STANDARD_CATEGORY_MAP[trimmed];
+  }
+  const lower = trimmed.toLowerCase();
+  for (const [onboardCat, standardCat] of Object.entries(ONBOARDING_TO_STANDARD_CATEGORY_MAP)) {
+    if (onboardCat.toLowerCase() === lower) return standardCat;
+  }
+  for (const standardCat of Object.values(CATEGORY_NAMES)) {
+    if (standardCat.toLowerCase() === lower) return standardCat;
+  }
+  // Keyword-based fallback
+  if (lower.includes('photo') || lower.includes('video')) return 'Photography/Videography';
+  if (lower.includes('decor')) return 'Decorators';
+  if (lower.includes('plan') || lower.includes('event manage')) return 'Event Planners';
+  if (lower.includes('cater') || lower.includes('food')) return 'Caterers';
+  if (lower.includes('makeup') || lower.includes('beauty')) return 'Makeup Artists';
+  if (lower.includes('dj') || lower.includes('music')) return 'DJs, Lighting, and Entertainment';
+  if (lower.includes('anchor') || lower.includes('host')) return 'Anchors';
+  if (lower.includes('transport')) return 'Transportation Services';
+  if (lower.includes('fashion') || lower.includes('costume')) return 'Fashion/Costume Designers';
+  if (lower.includes('tent') || lower.includes('rental') || lower.includes('equipment')) return 'Tent & Equipment Rentals';
+  if (lower.includes('venue') || lower.includes('hall')) return 'Venues';
+  return trimmed;
+};
+
+// Check if two categories match (cross-checking aliases & standard names)
+export const isCategoryMatch = (catA: string, catB: string): boolean => {
+  if (!catA || !catB) return false;
+  const normA = normalizeCategoryToStandard(catA).toLowerCase();
+  const normB = normalizeCategoryToStandard(catB).toLowerCase();
+  if (normA && normB && normA === normB) return true;
+  return catA.trim().toLowerCase() === catB.trim().toLowerCase();
+};

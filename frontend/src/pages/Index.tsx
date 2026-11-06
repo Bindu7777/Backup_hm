@@ -4,6 +4,7 @@ import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import Hero from '../components/home/Hero';
 import CategorySection from '../components/home/CategorySection';
+import FeaturedVendorsSection from '../components/home/FeaturedVendorsSection';
 import MealsOfKindness from '../components/home/MealsOfKindness';
 import TestimonialSection from '../components/home/TestimonialSection';
 import { Link } from 'react-router-dom';
@@ -29,6 +30,7 @@ const Index = () => {
       <main className="flex-grow">
         <Hero />
         <CategorySection />
+        <FeaturedVendorsSection />
         <MealsOfKindness />
         <TestimonialSection />
       </main>

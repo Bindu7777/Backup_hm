@@ -1,6 +1,6 @@
 // services/supabaseService.ts
 import { supabase, Vendor, VendorMedia } from "../lib/supabase";
-import { CATEGORY_NAMES, CATEGORY_CODES, CategoryName } from "../constants/categories";
+import { CATEGORY_NAMES, CATEGORY_CODES, CategoryName, normalizeCategoryToStandard, isCategoryMatch } from "../constants/categories";
 import { PostgrestError } from "@supabase/supabase-js";
 import { getVendorCatalogImagesFromStorage } from './supabaseStorageService';
 
@@ -268,8 +268,8 @@ export const getAllVendors = async (): Promise<Vendor[]> => {
       return [];
     }
 
-    console.log('Returning all vendors:', data);
-    return data as Vendor[];
+    console.log('Returning all vendors count:', (data || []).length);
+    return (data || []).map((v) => parseVendorJsonFields(v)) as Vendor[];
   } catch (error) {
     console.error('Error fetching vendors:', error);
     return [];
@@ -289,7 +289,7 @@ export const getAllVendorsForAdmin = async (): Promise<Vendor[]> => {
       return [];
     }
 
-    return data as Vendor[];
+    return (data || []).map((v) => parseVendorJsonFields(v)) as Vendor[];
   } catch (error) {
     console.error('Error fetching vendors for admin:', error);
     return [];
@@ -385,6 +385,11 @@ export const getVendorsByCategory = async (category: CategoryName | string | any
 
         // Exact match (case-insensitive)
         if (vendorCatStr.toLowerCase() === searchCatStr.toLowerCase()) {
+          return true;
+        }
+
+        // Match using helper (maps onboarding categories like 'Event management' <-> 'Event Planners')
+        if (isCategoryMatch(vendorCatStr, searchCatStr) || isCategoryMatch(vendorCatStr, String(category))) {
           return true;
         }
 
@@ -493,31 +498,25 @@ export const getVendorCounts = async (): Promise<Record<string, number>> => {
 
       if (!categoryValue) return matchedCategories;
 
+      const checkAndAdd = (cat: string) => {
+        if (!cat || typeof cat !== 'string') return;
+        const normalized = normalizeCategoryToStandard(cat);
+        if (validCategoryNames.includes(normalized) && !matchedCategories.includes(normalized)) {
+          matchedCategories.push(normalized);
+        } else if (validCategoryNames.includes(cat) && !matchedCategories.includes(cat)) {
+          matchedCategories.push(cat);
+        }
+      };
+
       // Handle array format
       if (Array.isArray(categoryValue)) {
-        categoryValue.forEach(cat => {
-          if (typeof cat === 'string' && validCategoryNames.includes(cat)) {
-            matchedCategories.push(cat);
-          }
-        });
+        categoryValue.forEach(checkAndAdd);
         return matchedCategories;
       }
 
       // Handle string format
       if (typeof categoryValue === 'string') {
-        // Check for exact match first
-        if (validCategoryNames.includes(categoryValue)) {
-          matchedCategories.push(categoryValue);
-          return matchedCategories;
-        }
-
-        // Try case-insensitive match
-        const lowerValue = categoryValue.toLowerCase().trim();
-        validCategoryNames.forEach(validName => {
-          if (validName.toLowerCase() === lowerValue) {
-            matchedCategories.push(validName);
-          }
-        });
+        checkAndAdd(categoryValue);
       }
 
       return matchedCategories;
@@ -1362,6 +1361,109 @@ export const resetVendorPasswordWithCode = async (email: string, code: string, n
   } catch (error) {
     console.error('Unexpected error in resetVendorPasswordWithCode:', error);
     return { success: false, message: 'An unexpected error occurred. Please try again.' };
+  }
+};
+
+// Fetch credentials for a specific vendor
+export const getVendorCredentials = async (
+  vendorId: string | number
+): Promise<{ success: boolean; data?: any; error?: string }> => {
+  try {
+    const { data, error } = await supabase
+      .from('vendor_credentials')
+      .select('*')
+      .eq('vendor_id', vendorId)
+      .maybeSingle();
+
+    if (error) throw error;
+    return { success: true, data };
+  } catch (err: any) {
+    console.error('Error fetching vendor credentials:', err);
+    return { success: false, error: err?.message || 'Failed to fetch credentials' };
+  }
+};
+
+// Fetch all vendor credentials (for admin view and Excel export)
+export const getAllVendorCredentials = async (): Promise<Record<string, any>> => {
+  try {
+    const { data, error } = await supabase
+      .from('vendor_credentials')
+      .select('*');
+
+    if (error) {
+      console.warn('Could not fetch all vendor credentials:', error);
+      return {};
+    }
+
+    const credMap: Record<string, any> = {};
+    (data || []).forEach((c) => {
+      credMap[String(c.vendor_id)] = c;
+    });
+    return credMap;
+  } catch (err) {
+    console.warn('Exception in getAllVendorCredentials:', err);
+    return {};
+  }
+};
+
+// Create or update vendor credentials
+export const upsertVendorCredentials = async (
+  vendorId: string | number,
+  username: string,
+  password: string,
+  isActive: boolean = true,
+  vendorName?: string
+): Promise<{ success: boolean; data?: any; message?: string; error?: string }> => {
+  try {
+    const cleanUsername = username.trim();
+    const cleanPassword = password.trim();
+
+    if (!cleanUsername || !cleanPassword) {
+      return { success: false, error: 'Username and password cannot be empty.' };
+    }
+
+    // Check if credential record already exists for this vendor
+    const { data: existing } = await supabase
+      .from('vendor_credentials')
+      .select('vendor_id')
+      .eq('vendor_id', vendorId)
+      .maybeSingle();
+
+    if (existing) {
+      const { data, error } = await supabase
+        .from('vendor_credentials')
+        .update({
+          username: cleanUsername,
+          password: cleanPassword,
+          is_active: isActive,
+          vendor_name: vendorName
+        })
+        .eq('vendor_id', vendorId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data, message: 'Vendor credentials updated successfully.' };
+    } else {
+      const { data, error } = await supabase
+        .from('vendor_credentials')
+        .insert([{
+          vendor_id: vendorId,
+          username: cleanUsername,
+          password: cleanPassword,
+          is_active: isActive,
+          created_at: new Date().toISOString(),
+          vendor_name: vendorName
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data, message: 'Vendor credentials created successfully.' };
+    }
+  } catch (err: any) {
+    console.error('Error saving vendor credentials:', err);
+    return { success: false, error: err?.message || 'Failed to save credentials' };
   }
 };
 

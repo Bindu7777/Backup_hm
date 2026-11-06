@@ -14,6 +14,7 @@ import AddVendor from "./pages/addVendor";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminVendorEdit from "./pages/AdminVendorEdit";
+import MomoBotPage from "./pages/MomoBotPage";
 import { AdminRoute } from "./pages/adminRoute";
 import { AuthProvider } from "./contexts/AuthContext";
 import { CustomerAuthProvider } from "./contexts/CustomerAuthContext";
@@ -59,7 +60,9 @@ import BusinessLogin from "./pages/BusinessLogin";
 import BusinessSignup from "./pages/BusinessSignup";
 import BusinessDashboard from "./pages/BusinessDashboard";
 import EventSpaceProfile from "./pages/EventSpaceProfile";
+import VendorOnboarding from "./pages/VendorOnboarding";
 import { MobileAppHandler } from "./components/MobileAppHandler";
+import MomoScreenCompanion from "./components/momo/MomoScreenCompanion";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -80,6 +83,7 @@ const App = () => {
                 }}
               >
               <MobileAppHandler />
+              <MomoScreenCompanion />
               <Routes>
                 <Route path="/" element={<Index />} />
                 
@@ -127,6 +131,22 @@ const App = () => {
                   } 
                 />
                 <Route 
+                  path="/vendor-onboarding" 
+                  element={<VendorOnboarding />} 
+                />
+                <Route 
+                  path="/vendor-registration" 
+                  element={<VendorOnboarding />} 
+                />
+                <Route 
+                  path="/vendor-register" 
+                  element={<VendorOnboarding />} 
+                />
+                <Route 
+                  path="/join-vendor" 
+                  element={<VendorOnboarding />} 
+                />
+                <Route 
                   path="/vendor-tutorial" 
                   element={<VendorTutorial />} 
                 />
@@ -156,8 +176,10 @@ const App = () => {
                 />
                 
                 {/* Admin Routes */}
+                <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                <Route path="/admin/momo" element={<MomoBotPage />} />
                 <Route path="/admin/vendor/new" element={<AddVendor />} />
                 <Route path="/admin/vendor/:vendorId/edit" element={<AdminVendorEdit />} />
                 

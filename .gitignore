@@ -8,3 +8,9 @@ build/
 *.log
 *.keystore
 *.jks
+backend/data/
+hyderabad_*.csv
+hyderabad_*.json
+send*.js
+whatsapp*.js
+whatsapp*.html

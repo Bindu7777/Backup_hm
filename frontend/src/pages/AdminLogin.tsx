@@ -29,17 +29,20 @@ const AdminLogin = () => {
 
     // Simulate API call delay
     setTimeout(() => {
-      // Trim whitespace and check credentials
       const username = data.username?.trim();
       const password = data.password?.trim();
 
       console.log("Checking credentials:", { username, password });
 
-      if (username === "Admin" && password === "Admin@#123*") {
+      const isBindu = username?.toLowerCase() === "bindu" && password === "Raviteja";
+      const isLegacyAdmin = username === "Admin" && password === "Admin@#123*";
+
+      if (isBindu || isLegacyAdmin) {
         // Store admin session
+        const loggedInUser = isBindu ? "Bindu" : "Admin";
         localStorage.setItem("adminLoggedIn", "true");
-        localStorage.setItem("adminUser", username);
-        console.log("Login successful, navigating to dashboard");
+        localStorage.setItem("adminUser", loggedInUser);
+        console.log("Login successful, navigating to dashboard as:", loggedInUser);
         navigate("/admin/dashboard");
       } else {
         console.log("Login failed - invalid credentials");

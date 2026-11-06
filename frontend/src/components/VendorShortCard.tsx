@@ -21,7 +21,7 @@ const VendorShortCard: React.FC<VendorShortCardProps> = ({
   const { customer } = useCustomerAuth();
   const [coverImage, setCoverImage] = useState<string | null>(null);
 
-  // Load cover image from catalog images
+  // Load cover image from catalog images, portfolio photos, or avatars
   useEffect(() => {
     const loadCoverImage = async () => {
       try {
@@ -32,6 +32,17 @@ const VendorShortCard: React.FC<VendorShortCardProps> = ({
         }
         if (vendor.avatar_url) {
           setCoverImage(vendor.avatar_url);
+          return;
+        }
+
+        // Check onboarding portfolio photos & logo
+        const portfolio = vendor.additional_info?.portfolio_photos;
+        if (Array.isArray(portfolio) && portfolio.length > 0 && portfolio[0]) {
+          setCoverImage(portfolio[0]);
+          return;
+        }
+        if (vendor.additional_info?.brand_logo_url) {
+          setCoverImage(vendor.additional_info.brand_logo_url);
           return;
         }
 
@@ -49,7 +60,7 @@ const VendorShortCard: React.FC<VendorShortCardProps> = ({
     };
 
     loadCoverImage();
-  }, [vendor.vendor_id, vendor.cover_image_url, vendor.avatar_url]);
+  }, [vendor.vendor_id, vendor.cover_image_url, vendor.avatar_url, vendor.additional_info]);
 
   // Get all categories (handle both string and array)
   const getAllCategories = (): string[] => {
