@@ -10,14 +10,16 @@ export interface MomoMascotProps {
 }
 
 /**
- * Momo Mascot - Original, custom vector character for Happy Moments.
+ * Momo Customer Mascot - An ultra cute, friendly Hamster companion for Happy Moments.
  * Design attributes:
- * - Soft rounded pear silhouette in warm ivory with peach-to-coral blush
- * - Expressive eyes with dual twinkle reflections and warm welcoming smile
- * - Signature golden celebration blossom (marigold/jasmine) with celebration sparkle
- * - Festive coral neckband with polished teal drop gem accent
- * - Pure SVG for infinite crispness at any screen size or pixel density
- * - Respects prefers-reduced-motion for all subtle idle animations
+ * - Round, plump, adorable hamster silhouette with soft chubby cheeks and peach-rose blush
+ * - Cute rounded hamster ears with warm pink inner shading
+ * - Sparkly twinkling eyes with warm happy expression
+ * - Tiny heart nose and gentle curved smile
+ * - Tiny front paws holding a celebratory golden blossom with a teal jewel drop
+ * - Soft warm ivory and golden-apricot coat matching the Happy Moments brand palette
+ * - Pure scalable vector SVG for infinite crispness
+ * - Respects prefers-reduced-motion
  */
 export const MomoMascot: React.FC<MomoMascotProps> = ({
   size = 140,
@@ -25,248 +27,338 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
   isWaving = true,
   isHappy = true,
   showSparkle = true,
-  title = 'Momo, your Happy Moments event planning companion'
+  title = 'Momo the Hamster, your Happy Moments event companion'
 }) => {
   return (
     <div
       className={`relative inline-flex items-center justify-center select-none ${className}`}
       style={{
         width: typeof size === 'number' ? `${size}px` : size,
-        height: typeof size === 'number' ? `${(size * 1.1).toFixed(0)}px` : 'auto'
+        height: typeof size === 'number' ? `${(size * 1.08).toFixed(0)}px` : 'auto'
       }}
       role="img"
       aria-label={title}
     >
       <svg
-        viewBox="0 0 200 220"
+        viewBox="0 0 200 216"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-full overflow-visible transition-transform duration-300"
       >
         <defs>
-          {/* Soft 3D Body Lighting: Warm Ivory -> Peach -> Coral Tone */}
-          <linearGradient id="momoBodyGrad" x1="45" y1="30" x2="160" y2="205" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFDF9" />
-            <stop offset="40%" stopColor="#FFF5EE" />
-            <stop offset="75%" stopColor="#FED7C3" />
-            <stop offset="100%" stopColor="#FDBA9B" />
+          {/* Hamster Coat: Warm Golden Apricot to Soft Peach */}
+          <linearGradient id="hamsterFur" x1="40" y1="20" x2="160" y2="200" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FFF3E0" />
+            <stop offset="25%" stopColor="#FFE0B2" />
+            <stop offset="65%" stopColor="#FFCC80" />
+            <stop offset="100%" stopColor="#FFA726" />
           </linearGradient>
 
-          {/* 3D Sheen Highlight */}
-          <radialGradient id="momoHighlight" cx="75" cy="65" r="65" fx="65" fy="50" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-            <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
-          </radialGradient>
+          {/* Chubby Cheeks & Tummy Cream */}
+          <linearGradient id="hamsterCream" x1="100" y1="70" x2="100" y2="195" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#FFFFFF" />
+            <stop offset="100%" stopColor="#FFF8F0" />
+          </linearGradient>
 
-          {/* Soft Pearly Belly Patch */}
-          <linearGradient id="momoBellyGrad" x1="100" y1="110" x2="100" y2="190" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#FFF2E8" stopOpacity="0.95" />
+          {/* Ear Outer Fur */}
+          <linearGradient id="hamsterEarOuter" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FFA726" />
+            <stop offset="100%" stopColor="#FB8C00" />
+          </linearGradient>
+
+          {/* Ear Inner Pink */}
+          <linearGradient id="hamsterEarInner" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#FFB4C4" />
+            <stop offset="100%" stopColor="#FF8BA7" />
           </linearGradient>
 
           {/* Rosy Cheek Blush */}
-          <radialGradient id="momoBlush" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FF6B6B" stopOpacity="0.55" />
-            <stop offset="60%" stopColor="#FF8E85" stopOpacity="0.25" />
-            <stop offset="100%" stopColor="#FF8E85" stopOpacity="0" />
+          <radialGradient id="hamsterBlush" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FF5252" stopOpacity="0.55" />
+            <stop offset="60%" stopColor="#FF8A80" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="#FF8A80" stopOpacity="0" />
           </radialGradient>
 
-          {/* Celebration Flower Gradient (Warm Gold & Amber) */}
-          <linearGradient id="momoFlowerPetal" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#FDE047" />
-            <stop offset="50%" stopColor="#F59E0B" />
-            <stop offset="100%" stopColor="#EA580C" />
+          {/* Celebration Flower Gold */}
+          <linearGradient id="hamsterFlower" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#FFF176" />
+            <stop offset="50%" stopColor="#FBC02D" />
+            <stop offset="100%" stopColor="#F57C00" />
           </linearGradient>
 
-          {/* Teal Accent Gem/Charm (Happy Moments Elegance) */}
-          <linearGradient id="momoTealGem" x1="0" y1="0" x2="1" y2="1">
+          {/* Teal Accent Gem */}
+          <linearGradient id="hamsterTealGem" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#5EEAD4" />
             <stop offset="50%" stopColor="#14B8A6" />
             <stop offset="100%" stopColor="#0F766E" />
           </linearGradient>
 
-          {/* Coral Neck Ribbon */}
-          <linearGradient id="momoCollarGrad" x1="70" y1="136" x2="130" y2="144" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#FB7185" />
-            <stop offset="50%" stopColor="#F43F5E" />
-            <stop offset="100%" stopColor="#E11D48" />
+          {/* Eye Gradient */}
+          <linearGradient id="hamsterEyeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2E1C14" />
+            <stop offset="100%" stopColor="#1A0D08" />
           </linearGradient>
 
-          {/* Eye Depth Gradient */}
-          <linearGradient id="momoEyeGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#231815" />
-            <stop offset="100%" stopColor="#3A231C" />
-          </linearGradient>
+          {/* Soft Ground Shadow */}
+          <radialGradient id="hamsterShadow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#1E293B" stopOpacity="0.22" />
+            <stop offset="100%" stopColor="#1E293B" stopOpacity="0" />
+          </radialGradient>
 
-          {/* Ambient Ground Shadow Filter */}
-          <filter id="momoSoftShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="5" stdDeviation="5" floodColor="#C2410C" floodOpacity="0.14" />
-          </filter>
-
-          {/* Sparkle Glow Filter */}
-          <filter id="momoSparkleGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
+          <filter id="momoSoftGlow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3.5" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
         </defs>
 
         <style>{`
           @media (prefers-reduced-motion: no-preference) {
-            .momo-idle-float {
-              animation: momoFloat 4s ease-in-out infinite;
+            .momo-bounce {
+              animation: hamsterBreathe 3.4s ease-in-out infinite;
+              transform-origin: 100px 190px;
             }
-            .momo-arm-wave {
-              animation: momoWave 2.8s ease-in-out infinite;
-              transform-origin: 148px 132px;
+            .momo-wave-paw {
+              animation: hamsterWave 2.2s ease-in-out infinite;
+              transform-origin: 140px 135px;
             }
-            .momo-sparkle-twinkle {
-              animation: momoTwinkle 3s ease-in-out infinite;
+            .momo-ear-left {
+              animation: hamsterEarWiggle 4.6s ease-in-out infinite;
+              transform-origin: 52px 42px;
+            }
+            .momo-ear-right {
+              animation: hamsterEarWiggleR 4.6s ease-in-out infinite 0.3s;
+              transform-origin: 148px 42px;
+            }
+            .momo-sparkle {
+              animation: hamsterSparkle 2s ease-in-out infinite alternate;
+              transform-origin: center;
+            }
+            .momo-flower {
+              animation: hamsterFlowerFloat 3s ease-in-out infinite alternate;
+              transform-origin: 152px 34px;
             }
           }
-          @keyframes momoFloat {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-4px); }
+          @keyframes hamsterBreathe {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-3px) scale(1.015, 0.985); }
           }
-          @keyframes momoWave {
+          @keyframes hamsterWave {
             0%, 100% { transform: rotate(0deg); }
-            35% { transform: rotate(-9deg); }
-            70% { transform: rotate(3deg); }
+            20% { transform: rotate(-14deg); }
+            40% { transform: rotate(6deg); }
+            60% { transform: rotate(-10deg); }
+            80% { transform: rotate(2deg); }
           }
-          @keyframes momoTwinkle {
-            0%, 100% { opacity: 0.85; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.15); }
+          @keyframes hamsterEarWiggle {
+            0%, 90%, 100% { transform: rotate(0deg); }
+            93% { transform: rotate(-6deg); }
+            96% { transform: rotate(4deg); }
+          }
+          @keyframes hamsterEarWiggleR {
+            0%, 90%, 100% { transform: rotate(0deg); }
+            93% { transform: rotate(6deg); }
+            96% { transform: rotate(-4deg); }
+          }
+          @keyframes hamsterSparkle {
+            0% { transform: scale(0.8) rotate(0deg); opacity: 0.65; }
+            100% { transform: scale(1.15) rotate(18deg); opacity: 1; }
+          }
+          @keyframes hamsterFlowerFloat {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-2px) rotate(4deg); }
           }
         `}</style>
 
-        {/* Ambient Ground Shadow (Soft warm depth) */}
-        <ellipse cx="100" cy="210" rx="52" ry="6.5" fill="#7C2D12" opacity="0.14" />
+        {/* Ambient Ground Contact Shadow */}
+        <ellipse cx="100" cy="204" rx="66" ry="11" fill="url(#hamsterShadow)" />
 
-        {/* Floating Animated Character Group */}
-        <g className="momo-idle-float">
-          {/* Rounded Ears with Blush Interior */}
+        {/* Main Body Group with Idle Animation */}
+        <g className="momo-bounce">
+          {/* Round Stubby Hamster Feet */}
+          <ellipse cx="72" cy="196" rx="16" ry="10" fill="#FFB74D" />
+          <ellipse cx="72" cy="195" rx="13" ry="8" fill="#FFE0B2" />
+          <ellipse cx="128" cy="196" rx="16" ry="10" fill="#FFB74D" />
+          <ellipse cx="128" cy="195" rx="13" ry="8" fill="#FFE0B2" />
+
+          {/* Tiny Hamster Toes */}
+          <circle cx="64" cy="198" r="2.5" fill="#FFA726" />
+          <circle cx="71" cy="200" r="2.5" fill="#FFA726" />
+          <circle cx="78" cy="198" r="2.5" fill="#FFA726" />
+          <circle cx="121" cy="198" r="2.5" fill="#FFA726" />
+          <circle cx="128" cy="200" r="2.5" fill="#FFA726" />
+          <circle cx="135" cy="198" r="2.5" fill="#FFA726" />
+
+          {/* Cute Round Hamster Ears */}
           {/* Left Ear */}
-          <path d="M 46 62 C 34 50, 42 26, 60 38 C 65 42, 66 52, 58 60 Z" fill="url(#momoBodyGrad)" />
-          <path d="M 48 56 C 42 48, 47 34, 57 42 C 59 45, 59 52, 53 56 Z" fill="#FFAEA0" opacity="0.45" />
-
-          {/* Right Ear */}
-          <path d="M 154 62 C 166 50, 158 26, 140 38 C 135 42, 134 52, 142 60 Z" fill="url(#momoBodyGrad)" />
-          <path d="M 152 56 C 158 48, 153 34, 143 42 C 141 45, 141 52, 147 56 Z" fill="#FFAEA0" opacity="0.45" />
-
-          {/* Main Body Silhouette (Organic Chubby Pear Contour) */}
-          <path
-            d="M 62 68 C 62 26, 138 26, 138 68 C 145 92, 166 122, 162 165 C 158 198, 130 206, 100 206 C 70 206, 42 198, 38 165 C 34 122, 55 92, 62 68 Z"
-            fill="url(#momoBodyGrad)"
-            filter="url(#momoSoftShadow)"
-          />
-
-          {/* 3D Highlight Sheen Overlay */}
-          <path
-            d="M 62 68 C 62 26, 138 26, 138 68 C 145 92, 166 122, 162 165 C 158 198, 130 206, 100 206 C 70 206, 42 198, 38 165 C 34 122, 55 92, 62 68 Z"
-            fill="url(#momoHighlight)"
-          />
-
-          {/* Soft Cream Belly Patch */}
-          <path
-            d="M 74 125 C 74 105, 126 105, 126 125 C 136 150, 134 192, 100 195 C 66 192, 64 150, 74 125 Z"
-            fill="url(#momoBellyGrad)"
-          />
-
-          {/* Chubby Little Paws / Feet */}
-          <ellipse cx="78" cy="204" rx="13" ry="6.5" fill="url(#momoBodyGrad)" />
-          <ellipse cx="78" cy="203" rx="8" ry="3.5" fill="#FFFFFF" opacity="0.6" />
-          <ellipse cx="122" cy="204" rx="13" ry="6.5" fill="url(#momoBodyGrad)" />
-          <ellipse cx="122" cy="203" rx="8" ry="3.5" fill="#FFFFFF" opacity="0.6" />
-
-          {/* Resting Left Hand */}
-          <path d="M 42 145 C 36 142, 40 162, 50 162 C 58 162, 58 148, 50 145 Z" fill="url(#momoBodyGrad)" />
-          <ellipse cx="48" cy="153" rx="5.5" ry="4.5" fill="#FFF5EE" />
-
-          {/* Welcoming Waving Right Arm */}
-          <g className={isWaving ? 'momo-arm-wave' : ''}>
-            <path
-              d="M 152 140 C 168 132, 178 114, 172 104 C 166 94, 154 106, 146 122 C 143 128, 145 136, 152 140 Z"
-              fill="url(#momoBodyGrad)"
-            />
-            {/* Friendly Rounded Paw */}
-            <ellipse cx="170" cy="104" rx="7.5" ry="8" fill="#FFF9F5" />
-            <circle cx="168" cy="102" r="2.2" fill="#FFFFFF" />
+          <g className="momo-ear-left">
+            <circle cx="52" cy="46" r="22" fill="url(#hamsterEarOuter)" stroke="#F57C00" strokeWidth="2.5" />
+            <circle cx="53" cy="47" r="14" fill="url(#hamsterEarInner)" />
+            <path d="M47 43 Q54 48 58 55" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
           </g>
 
-          {/* Rosy Cheeks (Coral Pink Airbrush Blush) */}
-          <ellipse cx="63" cy="118" rx="12" ry="7" fill="url(#momoBlush)" />
-          <ellipse cx="137" cy="118" rx="12" ry="7" fill="url(#momoBlush)" />
+          {/* Right Ear */}
+          <g className="momo-ear-right">
+            <circle cx="148" cy="46" r="22" fill="url(#hamsterEarOuter)" stroke="#F57C00" strokeWidth="2.5" />
+            <circle cx="147" cy="47" r="14" fill="url(#hamsterEarInner)" />
+            <path d="M141 43 Q148 48 152 55" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+          </g>
 
-          {/* Expressive Friendly Eyes */}
+          {/* Main Chubby Hamster Silhouette */}
+          {/* Body base (plump pear shape with chubby cheek expansions) */}
+          <path
+            d="M 100 38
+               C 134 38, 160 58, 164 88
+               C 167 106, 174 126, 170 148
+               C 164 178, 138 200, 100 200
+               C 62 200, 36 178, 30 148
+               C 26 126, 33 106, 36 88
+               C 40 58, 66 38, 100 38 Z"
+            fill="url(#hamsterFur)"
+            stroke="#F57C00"
+            strokeWidth="3"
+          />
+
+          {/* Golden Hamster Head Stripe (Classic Hamster Marking) */}
+          <path
+            d="M 96 40 C 97 58, 97 72, 100 78 C 103 72, 103 58, 104 40 Z"
+            fill="#FB8C00"
+            opacity="0.55"
+          />
+
+          {/* Fluffy White/Cream Chest & Belly Patch */}
+          <path
+            d="M 100 86
+               C 126 86, 150 102, 152 136
+               C 154 165, 134 194, 100 194
+               C 66 194, 46 165, 48 136
+               C 50 102, 74 86, 100 86 Z"
+            fill="url(#hamsterCream)"
+          />
+
+          {/* Soft Chubby Cheek Patches */}
+          {/* Left Cheek */}
+          <ellipse cx="48" cy="122" rx="22" ry="18" fill="#FFF8F0" />
+          <circle cx="48" cy="124" r="14" fill="url(#hamsterBlush)" />
+          {/* Right Cheek */}
+          <ellipse cx="152" cy="122" rx="22" ry="18" fill="#FFF8F0" />
+          <circle cx="152" cy="124" r="14" fill="url(#hamsterBlush)" />
+
+          {/* Cute Whiskers */}
+          {/* Left Whiskers */}
+          <path d="M 38 120 Q 22 118 12 114" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+          <path d="M 38 126 Q 20 128 10 131" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+          {/* Right Whiskers */}
+          <path d="M 162 120 Q 178 118 188 114" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+          <path d="M 162 126 Q 180 128 190 131" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+
+          {/* Expressive Sparkly Chibi Eyes */}
           {/* Left Eye */}
           <g>
-            <ellipse cx="75" cy="102" rx="7.5" ry="10" fill="url(#momoEyeGrad)" />
-            {/* Primary Catchlight */}
-            <ellipse cx="73" cy="98" rx="3.2" ry="4.2" fill="#FFFFFF" />
-            {/* Secondary Twinkle */}
-            <circle cx="77.5" cy="105.5" r="1.8" fill="#FFFFFF" />
+            <ellipse cx="73" cy="98" rx="10" ry="12" fill="url(#hamsterEyeGrad)" />
+            {/* Primary Twinkle Reflection */}
+            <circle cx="70" cy="93" r="4.2" fill="#FFFFFF" />
+            {/* Secondary Micro Sparkle */}
+            <circle cx="76" cy="103" r="2.2" fill="#FFFFFF" opacity="0.9" />
+            <circle cx="68" cy="102" r="1.3" fill="#FFFFFF" opacity="0.6" />
+            {/* Eyebrow */}
+            <path d="M 64 82 Q 74 77 82 81" stroke="#B45309" strokeWidth="2.6" strokeLinecap="round" />
           </g>
 
           {/* Right Eye */}
           <g>
-            <ellipse cx="125" cy="102" rx="7.5" ry="10" fill="url(#momoEyeGrad)" />
-            {/* Primary Catchlight */}
-            <ellipse cx="123" cy="98" rx="3.2" ry="4.2" fill="#FFFFFF" />
-            {/* Secondary Twinkle */}
-            <circle cx="127.5" cy="105.5" r="1.8" fill="#FFFFFF" />
+            <ellipse cx="127" cy="98" rx="10" ry="12" fill="url(#hamsterEyeGrad)" />
+            {/* Primary Twinkle Reflection */}
+            <circle cx="124" cy="93" r="4.2" fill="#FFFFFF" />
+            {/* Secondary Micro Sparkle */}
+            <circle cx="130" cy="103" r="2.2" fill="#FFFFFF" opacity="0.9" />
+            <circle cx="122" cy="102" r="1.3" fill="#FFFFFF" opacity="0.6" />
+            {/* Eyebrow */}
+            <path d="M 118 81 Q 126 77 136 82" stroke="#B45309" strokeWidth="2.6" strokeLinecap="round" />
           </g>
 
-          {/* Gentle Curved Eyebrows */}
-          <path d="M 68 87 Q 75 83 82 87" stroke="#8B4513" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.65" />
-          <path d="M 118 87 Q 125 83 132 87" stroke="#8B4513" strokeWidth="1.8" strokeLinecap="round" fill="none" opacity="0.65" />
+          {/* Cute Tiny Hamster Heart Nose */}
+          <path
+            d="M 100 110 C 97 106, 92 108, 94 112 C 96 116, 100 119, 100 119 C 100 119, 104 116, 106 112 C 108 108, 103 106, 100 110 Z"
+            fill="#FF6B8B"
+          />
 
-          {/* Warm Welcoming Smile */}
-          <path d="M 91 116 Q 100 126 109 116" stroke="#702214" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-          <path d="M 89.5 115 Q 90.5 117 92 116" stroke="#702214" strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.45" />
-          <path d="M 108 116 Q 109.5 117 110.5 115" stroke="#702214" strokeWidth="1.4" strokeLinecap="round" fill="none" opacity="0.45" />
+          {/* Cheerful Curved Hamster Smile (Cute 'w' Mouth) */}
+          <path
+            d="M 90 120 Q 95 125 100 120 Q 105 125 110 120"
+            stroke="#5D2E17"
+            strokeWidth="2.6"
+            strokeLinecap="round"
+            fill="none"
+          />
 
-          {/* Tiny Cute Peach Nose */}
-          <ellipse cx="100" cy="107" rx="2.4" ry="1.8" fill="#F97316" opacity="0.4" />
+          {/* Tiny Open Joy Tongue */}
+          {isHappy && (
+            <path
+              d="M 96 123 Q 100 130 104 123 Z"
+              fill="#FF8A80"
+              stroke="#5D2E17"
+              strokeWidth="1.2"
+            />
+          )}
 
-          {/* Festival Collar with Teal Gem Pendant (Happy Moments Motif) */}
+          {/* Festive Coral Ribbon & Teal Gem Drop */}
+          <path
+            d="M 72 144 C 88 152, 112 152, 128 144 C 122 148, 78 148, 72 144 Z"
+            fill="#F43F5E"
+          />
+          {/* Teal Jewel Pendant */}
+          <g filter="url(#momoSoftGlow)">
+            <circle cx="100" cy="151" r="5.5" fill="url(#hamsterTealGem)" stroke="#FFFFFF" strokeWidth="1.5" />
+            <circle cx="98.5" cy="149" r="1.5" fill="#FFFFFF" />
+          </g>
+
+          {/* Tiny Chubby Front Paws */}
+          {/* Left Paw holding celebration heart or seed */}
           <g>
-            <path d="M 74 136 C 88 143, 112 143, 126 136 C 122 143, 78 143, 74 136 Z" fill="url(#momoCollarGrad)" />
-            <path d="M 76 136 C 90 142, 110 142, 124 136" stroke="#FDE047" strokeWidth="0.8" fill="none" opacity="0.75" />
-            {/* Gold Pendant Loop */}
-            <circle cx="100" cy="142" r="2.5" fill="#F59E0B" />
-            {/* Polished Teal Drop Gem */}
-            <path d="M 100 142 L 104 148 C 104 151, 96 151, 96 148 Z" fill="url(#momoTealGem)" filter="url(#momoSoftShadow)" />
-            <circle cx="99.5" cy="146.5" r="1" fill="#FFFFFF" opacity="0.85" />
+            <ellipse cx="78" cy="148" rx="8" ry="9" fill="#FFF3E0" stroke="#F57C00" strokeWidth="2" />
+            <circle cx="75" cy="146" r="1.4" fill="#FFA726" />
+            <circle cx="78" cy="145" r="1.4" fill="#FFA726" />
+            <circle cx="81" cy="146" r="1.4" fill="#FFA726" />
           </g>
 
-          {/* Signature Golden Celebration Blossom Headpiece */}
-          <g transform="translate(52, 44)" filter="url(#momoSparkleGlow)">
-            {/* 5 Delicate Petals */}
-            <circle cx="0" cy="-7" r="5.5" fill="url(#momoFlowerPetal)" />
-            <circle cx="6.6" cy="-2.2" r="5.5" fill="url(#momoFlowerPetal)" />
-            <circle cx="4.1" cy="5.6" r="5.5" fill="url(#momoFlowerPetal)" />
-            <circle cx="-4.1" cy="5.6" r="5.5" fill="url(#momoFlowerPetal)" />
-            <circle cx="-6.6" cy="-2.2" r="5.5" fill="url(#momoFlowerPetal)" />
-            {/* Flower Core */}
-            <circle cx="0" cy="0" r="4" fill="#FFFBEB" />
-            <circle cx="0" cy="0" r="2.5" fill="#EA580C" />
-            <circle cx="-0.8" cy="-0.8" r="1" fill="#FFFFFF" />
+          {/* Right Waving Paw */}
+          <g className={isWaving ? 'momo-wave-paw' : ''}>
+            <ellipse cx="128" cy="145" rx="8" ry="9" fill="#FFF3E0" stroke="#F57C00" strokeWidth="2" />
+            <circle cx="125" cy="143" r="1.4" fill="#FFA726" />
+            <circle cx="128" cy="142" r="1.4" fill="#FFA726" />
+            <circle cx="131" cy="143" r="1.4" fill="#FFA726" />
           </g>
 
-          {/* Celebration Magic Sparkles */}
+          {/* Signature Golden Blossom on Ear */}
+          <g className="momo-flower" transform="translate(152, 34)">
+            {/* 5 Warm Marigold/Jasmine Petals */}
+            <circle cx="0" cy="-7" r="5" fill="url(#hamsterFlower)" />
+            <circle cx="7" cy="-2" r="5" fill="url(#hamsterFlower)" />
+            <circle cx="4" cy="6" r="5" fill="url(#hamsterFlower)" />
+            <circle cx="-4" cy="6" r="5" fill="url(#hamsterFlower)" />
+            <circle cx="-7" cy="-2" r="5" fill="url(#hamsterFlower)" />
+            {/* Flower Center with Ruby Gem */}
+            <circle cx="0" cy="0" r="4.2" fill="#E11D48" />
+            <circle cx="-1" cy="-1" r="1.5" fill="#FFFFFF" />
+          </g>
+
+          {/* Magic Celebration Twinkles */}
           {showSparkle && (
-            <g className="momo-sparkle-twinkle">
-              {/* Main Golden Star Sparkle near blossom */}
+            <g className="momo-sparkle" transform="translate(178, 55)">
               <path
-                d="M 38 34 Q 38 27 41 24 Q 44 27 44 34 Q 44 41 41 44 Q 38 41 38 34 Z"
-                fill="#FDE047"
-                filter="url(#momoSparkleGlow)"
+                d="M 0 -8 Q 0 0 8 0 Q 0 0 0 8 Q 0 0 -8 0 Q 0 0 0 -8 Z"
+                fill="#FBBF24"
               />
-              <circle cx="41" cy="34" r="1.4" fill="#FFFFFF" />
-
-              {/* Gentle Secondary Sparkle */}
-              <circle cx="148" cy="74" r="2" fill="#FDE047" opacity="0.85" filter="url(#momoSparkleGlow)" />
-              <circle cx="148" cy="74" r="1" fill="#FFFFFF" />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
+            </g>
+          )}
+          {showSparkle && (
+            <g className="momo-sparkle" transform="translate(24, 75) scale(0.75)">
+              <path
+                d="M 0 -8 Q 0 0 8 0 Q 0 0 0 8 Q 0 0 -8 0 Q 0 0 0 -8 Z"
+                fill="#FBBF24"
+              />
+              <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
             </g>
           )}
         </g>
@@ -276,4 +368,3 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
 };
 
 export default MomoMascot;
-

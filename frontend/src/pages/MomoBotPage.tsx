@@ -21,6 +21,8 @@ import {
   Check
 } from 'lucide-react';
 import { momoApiService } from '../services/momoApiService';
+import AdminMomoChat from '@/components/admin/AdminMomoChat';
+import MomoAdminCatMascot from '@/components/momo/MomoAdminCatMascot';
 
 // WhatsApp sample conversations for the live feed
 const WHATSAPP_SAMPLE_CHATS = [
@@ -107,8 +109,8 @@ const INSTAGRAM_MEDIA = [
 export const MomoBotPage: React.FC = () => {
   const navigate = useNavigate();
 
-  // Active view: Default to 'instagram'
-  const [activeTab, setActiveTab] = useState<'instagram' | 'whatsapp'>('instagram');
+  // Active view: Default to 'chat' (Momo Admin Cat Executive AI)
+  const [activeTab, setActiveTab] = useState<'chat' | 'instagram' | 'whatsapp'>('chat');
   const [periodFilter, setPeriodFilter] = useState<'7d' | '30d'>('30d');
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
@@ -156,11 +158,18 @@ export const MomoBotPage: React.FC = () => {
               ← Admin Portal
             </button>
             <div className="h-5 w-[1px] bg-slate-200" />
-            <div className="flex items-center gap-2">
-              <span className="w-7 h-7 rounded-full overflow-hidden bg-sky-100 border border-sky-300 flex items-center justify-center">
-                <img src="/momo_3d_bot.png" alt="Momo" className="w-full h-full object-contain" />
+            <div className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-full overflow-hidden bg-indigo-100 border border-indigo-300 flex items-center justify-center p-0.5 shadow-sm">
+                <img src="/momo-admin-cat-avatar.svg" alt="Momo Admin Cat" className="w-full h-full object-cover" />
               </span>
-              <span className="text-sm font-black text-slate-900 tracking-tight">Momo Stats Portal</span>
+              <div>
+                <span className="text-sm font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                  Momo Admin Cat Portal
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-bold uppercase">
+                    🐱 AI
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
 
@@ -200,13 +209,33 @@ export const MomoBotPage: React.FC = () => {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full flex-1 space-y-6">
         
         {/* ========================================================================= */}
-        {/* THE TWO MAIN TABS: INSTAGRAM STATS & WHATSAPP BUSINESS STATS               */}
+        {/* THE THREE MAIN TABS: MOMO ADMIN CAT AI, INSTAGRAM STATS & WHATSAPP         */}
         {/* ========================================================================= */}
-        <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex gap-2">
-          {/* Tab 1: Instagram Stats */}
+        <div className="bg-white p-2 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-2">
+          {/* Tab 1: Momo Admin Cat Executive AI */}
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`flex-1 py-3 px-5 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeTab === 'chat'
+                ? 'bg-gradient-to-r from-indigo-700 via-indigo-800 to-slate-900 text-white shadow-md shadow-indigo-500/20'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+            }`}
+          >
+            <span className="w-5 h-5 rounded-full overflow-hidden inline-flex border border-indigo-300/60 shrink-0">
+              <img src="/momo-admin-cat-avatar.svg" alt="Cat" className="w-full h-full object-cover" />
+            </span>
+            <span>Momo Admin Cat</span>
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+              activeTab === 'chat' ? 'bg-amber-400 text-slate-950' : 'bg-indigo-100 text-indigo-700'
+            }`}>
+              Executive AI
+            </span>
+          </button>
+
+          {/* Tab 2: Instagram Stats */}
           <button
             onClick={() => setActiveTab('instagram')}
-            className={`flex-1 py-3 px-6 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            className={`flex-1 py-3 px-5 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'instagram'
                 ? 'bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 text-white shadow-md shadow-pink-500/20'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -221,10 +250,10 @@ export const MomoBotPage: React.FC = () => {
             </span>
           </button>
 
-          {/* Tab 2: WhatsApp Business Stats */}
+          {/* Tab 3: WhatsApp Business Stats */}
           <button
             onClick={() => setActiveTab('whatsapp')}
-            className={`flex-1 py-3 px-6 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
+            className={`flex-1 py-3 px-5 rounded-xl font-black text-sm transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'whatsapp'
                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-500/20'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
@@ -239,6 +268,19 @@ export const MomoBotPage: React.FC = () => {
             </span>
           </button>
         </div>
+
+        {/* ========================================================================= */}
+        {/* VIEW 0: MOMO ADMIN CAT (EXECUTIVE AI CO-PILOT)                           */}
+        {/* ========================================================================= */}
+        {activeTab === 'chat' && (
+          <div className="h-[740px] animate-in fade-in duration-150">
+            <AdminMomoChat
+              onNavigateTab={(tab) => {
+                navigate('/admin/dashboard');
+              }}
+            />
+          </div>
+        )}
 
         {/* ========================================================================= */}
         {/* VIEW 1: INSTAGRAM STATS (@happymoments_india)                             */}

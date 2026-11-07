@@ -63,7 +63,7 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 import SuccessModal from "@/components/SuccessModal";
 import InputModal from "@/components/InputModal";
 import AdminSendCustomerModal from "@/components/AdminSendCustomerModal";
-import MomoChat from "@/components/MomoChat";
+import AdminMomoChat from "@/components/admin/AdminMomoChat";
 import ExcelSheetModal, { ExcelColumn } from "@/components/admin/ExcelSheetModal";
 import VendorCredentialsModal from "@/components/admin/VendorCredentialsModal";
 import { normalizeCategoryToStandard } from "@/constants/categories";
@@ -1418,16 +1418,16 @@ const AdminDashboard = () => {
               </div>
               
               <button
-                onClick={() => navigate("/admin/momo")}
-                className="bg-gradient-to-r from-blue-600 via-indigo-600 to-sky-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2.5 rounded-2xl flex items-center shadow-lg hover:shadow-blue-500/25 hover:scale-105 transition-all duration-300 font-semibold cursor-pointer border border-blue-300/40"
-                title="Open Momo Bot AI Business Intelligence & Messaging Assistant"
+                onClick={() => setActiveTab("momo")}
+                className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-slate-900 hover:from-indigo-700 hover:to-slate-950 text-white px-5 py-2.5 rounded-2xl flex items-center shadow-lg hover:shadow-indigo-500/25 hover:scale-105 transition-all duration-300 font-semibold cursor-pointer border border-indigo-400/40"
+                title="Consult Momo Admin Cat - Executive AI Co-Pilot"
               >
-                <div className="w-7 h-7 rounded-full overflow-hidden mr-2.5 border-2 border-white/80 shadow-sm shrink-0 bg-white">
-                  <img src="/momo-avatar.png" alt="Momo Bot Mascot" className="w-full h-full object-cover" />
+                <div className="w-7 h-7 rounded-full overflow-hidden mr-2.5 border-2 border-indigo-200/80 shadow-sm shrink-0 bg-white">
+                  <img src="/momo-admin-cat-avatar.svg" alt="Momo Admin Cat Mascot" className="w-full h-full object-cover" />
                 </div>
-                <span>Momo Bot</span>
-                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-white/25 text-white font-bold">
-                  ✨ AI
+                <span>Momo Admin Cat</span>
+                <span className="ml-2 text-[10px] px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 font-bold">
+                  🐱 AI
                 </span>
               </button>
               <button
@@ -1570,15 +1570,19 @@ const AdminDashboard = () => {
                 )}
               </button>
               <button
-                onClick={() => navigate("/admin/momo")}
-                className="py-6 px-4 border-b-3 font-semibold text-sm transition-all duration-300 rounded-t-2xl border-transparent text-blue-700 hover:text-blue-900 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer"
+                onClick={() => setActiveTab("momo")}
+                className={`py-6 px-4 border-b-3 font-semibold text-sm transition-all duration-300 rounded-t-2xl cursor-pointer ${
+                  activeTab === "momo"
+                    ? "border-indigo-600 text-indigo-900 bg-gradient-to-b from-indigo-50 to-transparent"
+                    : "border-transparent text-indigo-700 hover:text-indigo-900 hover:border-indigo-300 hover:bg-indigo-50/50"
+                }`}
               >
-                <span className="w-7 h-7 rounded-full overflow-hidden inline-flex mr-2.5 shadow-sm border border-blue-300/60 align-middle bg-white">
-                  <img src="/momo-avatar.png" alt="Momo" className="w-full h-full object-cover" />
+                <span className="w-7 h-7 rounded-full overflow-hidden inline-flex mr-2.5 shadow-sm border border-indigo-300/60 align-middle bg-white">
+                  <img src="/momo-admin-cat-avatar.svg" alt="Momo Admin Cat" className="w-full h-full object-cover" />
                 </span>
-                Momo Bot
-                <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 uppercase">
-                  AI Agent
+                Momo Admin Cat
+                <span className="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-700 uppercase">
+                  🐱 Executive AI
                 </span>
               </button>
               <button
@@ -3099,10 +3103,25 @@ const AdminDashboard = () => {
           </div>
         )}
 
-        {/* Momo AI Advisor Tab */}
+        {/* Momo Admin Cat (Executive AI Co-Pilot) Tab */}
         {activeTab === "momo" && (
-          <div className="h-[calc(100vh-250px)]">
-            <MomoChat vendors={vendors} />
+          <div className="h-[calc(100vh-230px)] min-h-[620px] mb-8">
+            <AdminMomoChat
+              vendors={vendors}
+              onNavigateTab={(tab) => {
+                if (tab === 'momo_portal') {
+                  navigate('/admin/momo');
+                } else {
+                  setActiveTab(tab);
+                }
+              }}
+              onFilterChange={(filterType) => {
+                setActiveTab('vendors');
+                if (filterType === 'real') {
+                  setSelectedStatusFilter('real_only');
+                }
+              }}
+            />
           </div>
         )}
 

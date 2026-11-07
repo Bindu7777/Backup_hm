@@ -1,162 +1,181 @@
 <svg viewBox="0 0 200 220" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="momoBodyGrad" x1="45" y1="30" x2="160" y2="205" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFDF9" />
-      <stop offset="40%" stop-color="#FFF5EE" />
-      <stop offset="75%" stop-color="#FED7C3" />
-      <stop offset="100%" stop-color="#FDBA9B" />
+    <!-- Hamster Fur Gradient -->
+    <linearGradient id="furGradMascot" x1="40" y1="20" x2="160" y2="200" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF3E0" />
+      <stop offset="25%" stop-color="#FFE0B2" />
+      <stop offset="65%" stop-color="#FFCC80" />
+      <stop offset="100%" stop-color="#FFA726" />
     </linearGradient>
-    <radialGradient id="momoHighlight" cx="75" cy="65" r="65" fx="65" fy="50" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.85" />
-      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+
+    <!-- Hamster Cream Tummy & Cheeks -->
+    <linearGradient id="creamGradMascot" x1="100" y1="70" x2="100" y2="195" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#FFF8F0" />
+    </linearGradient>
+
+    <!-- Ear Outer -->
+    <linearGradient id="earOuterMascot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFA726" />
+      <stop offset="100%" stop-color="#FB8C00" />
+    </linearGradient>
+
+    <!-- Ear Inner Pink -->
+    <linearGradient id="earInnerMascot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB4C4" />
+      <stop offset="100%" stop-color="#FF8BA7" />
+    </linearGradient>
+
+    <!-- Cheek Blush -->
+    <radialGradient id="cheekBlushMascot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF5252" stop-opacity="0.55" />
+      <stop offset="60%" stop-color="#FF7A8A" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FF7A8A" stop-opacity="0" />
     </radialGradient>
-    <linearGradient id="momoBellyGrad" x1="100" y1="110" x2="100" y2="190" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.95" />
-      <stop offset="100%" stop-color="#FFF2E8" stop-opacity="0.95" />
+
+    <!-- Flower Petals -->
+    <linearGradient id="flowerGradMascot" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#F59E0B" />
     </linearGradient>
-    <radialGradient id="momoBlush" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FF6B6B" stop-opacity="0.55" />
-      <stop offset="60%" stop-color="#FF8E85" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#FF8E85" stop-opacity="0" />
-    </radialGradient>
-    <linearGradient id="momoFlowerPetal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FDE047" />
-      <stop offset="50%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#EA580C" />
-    </linearGradient>
-    <linearGradient id="momoTealGem" x1="0" y1="0" x2="1" y2="1">
+
+    <!-- Teal Gem -->
+    <linearGradient id="tealGemMascot" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#5EEAD4" />
-      <stop offset="50%" stop-color="#14B8A6" />
+      <stop offset="60%" stop-color="#14B8A6" />
       <stop offset="100%" stop-color="#0F766E" />
     </linearGradient>
-    <linearGradient id="momoCollarGrad" x1="70" y1="136" x2="130" y2="144" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FB7185" />
-      <stop offset="50%" stop-color="#F43F5E" />
-      <stop offset="100%" stop-color="#E11D48" />
+
+    <!-- Anime Eye Gradient -->
+    <linearGradient id="eyeGradMascot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1F1614" />
+      <stop offset="70%" stop-color="#3D2014" />
+      <stop offset="100%" stop-color="#7C2D12" />
     </linearGradient>
-    <linearGradient id="momoEyeGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#231815" />
-      <stop offset="100%" stop-color="#3A231C" />
-    </linearGradient>
-    <filter id="momoSoftShadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#C2410C" flood-opacity="0.14" />
-    </filter>
-    <filter id="momoSparkleGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="1.5" result="blur" />
-      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-    </filter>
+
+    <radialGradient id="shadowGradMascot" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F97316" stop-opacity="0.3" />
+      <stop offset="70%" stop-color="#FB923C" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#FB923C" stop-opacity="0" />
+    </radialGradient>
   </defs>
 
-  <ellipse cx="100" cy="210" rx="52" ry="6.5" fill="#7C2D12" opacity="0.14" />
+  <!-- Ground Soft Shadow -->
+  <ellipse cx="100" cy="208" rx="58" ry="8" fill="url(#shadowGradMascot)" />
 
+  <!-- Tiny Back Feet -->
+  <ellipse cx="72" cy="198" rx="14" ry="7" fill="#FFE0B2" stroke="#F57C00" stroke-width="1.8" />
+  <ellipse cx="128" cy="198" rx="14" ry="7" fill="#FFE0B2" stroke="#F57C00" stroke-width="1.8" />
+
+  <!-- Rounded Hamster Ears -->
+  <!-- Left Ear -->
   <g>
-    <!-- Left Ear -->
-    <path d="M 46 62 C 34 50, 42 26, 60 38 C 65 42, 66 52, 58 60 Z" fill="url(#momoBodyGrad)" />
-    <path d="M 48 56 C 42 48, 47 34, 57 42 C 59 45, 59 52, 53 56 Z" fill="#FFAEA0" opacity="0.45" />
+    <circle cx="56" cy="46" r="22" fill="url(#earOuterMascot)" stroke="#F57C00" stroke-width="2.5" />
+    <circle cx="56" cy="46" r="13" fill="url(#earInnerMascot)" />
+    <path d="M 50 39 Q 56 36 62 40" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.75" />
+  </g>
 
-    <!-- Right Ear -->
-    <path d="M 154 62 C 166 50, 158 26, 140 38 C 135 42, 134 52, 142 60 Z" fill="url(#momoBodyGrad)" />
-    <path d="M 152 56 C 158 48, 153 34, 143 42 C 141 45, 141 52, 147 56 Z" fill="#FFAEA0" opacity="0.45" />
+  <!-- Right Ear -->
+  <g>
+    <circle cx="144" cy="46" r="22" fill="url(#earOuterMascot)" stroke="#F57C00" stroke-width="2.5" />
+    <circle cx="144" cy="46" r="13" fill="url(#earInnerMascot)" />
+    <path d="M 138 39 Q 144 36 150 40" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.75" />
+  </g>
 
-    <!-- Main Body Silhouette -->
-    <path
-      d="M 62 68 C 62 26, 138 26, 138 68 C 145 92, 166 122, 162 165 C 158 198, 130 206, 100 206 C 70 206, 42 198, 38 165 C 34 122, 55 92, 62 68 Z"
-      fill="url(#momoBodyGrad)"
-      filter="url(#momoSoftShadow)"
-    />
+  <!-- Chubby Hamster Body Silhouette -->
+  <path
+    d="M 64 64 C 64 36, 136 36, 136 64 C 150 72, 174 96, 170 142 C 166 182, 138 202, 100 202 C 62 202, 34 182, 30 142 C 26 96, 50 72, 64 64 Z"
+    fill="url(#furGradMascot)"
+    stroke="#F57C00"
+    stroke-width="2.5"
+  />
 
-    <!-- Highlight Overlay -->
-    <path
-      d="M 62 68 C 62 26, 138 26, 138 68 C 145 92, 166 122, 162 165 C 158 198, 130 206, 100 206 C 70 206, 42 198, 38 165 C 34 122, 55 92, 62 68 Z"
-      fill="url(#momoHighlight)"
-    />
+  <!-- Chubby Cream Cheeks & Tummy Patch -->
+  <path
+    d="M 64 100 C 56 128, 44 140, 52 168 C 62 192, 88 198, 100 198 C 112 198, 138 192, 148 168 C 156 140, 144 128, 136 100 C 132 80, 118 74, 100 74 C 82 74, 68 80, 64 100 Z"
+    fill="url(#creamGradMascot)"
+  />
 
-    <!-- Belly Patch -->
-    <path
-      d="M 74 125 C 74 105, 126 105, 126 125 C 136 150, 134 192, 100 195 C 66 192, 64 150, 74 125 Z"
-      fill="url(#momoBellyGrad)"
-    />
+  <!-- Big Kawaii Eyes with Sparkle -->
+  <!-- Left Eye -->
+  <g>
+    <ellipse cx="76" cy="104" rx="8.5" ry="11.5" fill="url(#eyeGradMascot)" />
+    <circle cx="74" cy="100" r="3.6" fill="#FFFFFF" />
+    <circle cx="79" cy="108" r="1.6" fill="#FFFFFF" />
+    <path d="M 67 92 Q 76 88 85 92" stroke="#5D4037" stroke-width="2.2" stroke-linecap="round" fill="none" />
+  </g>
 
-    <!-- Paws / Feet -->
-    <ellipse cx="78" cy="204" rx="13" ry="6.5" fill="url(#momoBodyGrad)" />
-    <ellipse cx="78" cy="203" rx="8" ry="3.5" fill="#FFFFFF" opacity="0.6" />
-    <ellipse cx="122" cy="204" rx="13" ry="6.5" fill="url(#momoBodyGrad)" />
-    <ellipse cx="122" cy="203" rx="8" ry="3.5" fill="#FFFFFF" opacity="0.6" />
+  <!-- Right Eye -->
+  <g>
+    <ellipse cx="124" cy="104" rx="8.5" ry="11.5" fill="url(#eyeGradMascot)" />
+    <circle cx="122" cy="100" r="3.6" fill="#FFFFFF" />
+    <circle cx="127" cy="108" r="1.6" fill="#FFFFFF" />
+    <path d="M 115 92 Q 124 88 133 92" stroke="#5D4037" stroke-width="2.2" stroke-linecap="round" fill="none" />
+  </g>
 
-    <!-- Resting Left Hand -->
-    <path d="M 42 145 C 36 142, 40 162, 50 162 C 58 162, 58 148, 50 145 Z" fill="url(#momoBodyGrad)" />
-    <ellipse cx="48" cy="153" rx="5.5" ry="4.5" fill="#FFF5EE" />
+  <!-- Rosy Blushing Cheeks -->
+  <ellipse cx="56" cy="118" rx="14" ry="9" fill="url(#cheekBlushMascot)" />
+  <ellipse cx="144" cy="118" rx="14" ry="9" fill="url(#cheekBlushMascot)" />
 
-    <!-- Welcoming Waving Right Arm -->
-    <g>
-      <path
-        d="M 152 140 C 168 132, 178 114, 172 104 C 166 94, 154 106, 146 122 C 143 128, 145 136, 152 140 Z"
-        fill="url(#momoBodyGrad)"
-      />
-      <ellipse cx="170" cy="104" rx="7.5" ry="8" fill="#FFF9F5" />
-      <circle cx="168" cy="102" r="2.2" fill="#FFFFFF" />
-    </g>
+  <!-- Tiny Heart/Triangle Nose -->
+  <path
+    d="M 100 110 C 97.5 110, 96 112.5, 98 115 L 100 117.5 L 102 115 C 104 112.5, 102.5 110, 100 110 Z"
+    fill="#F43F5E"
+  />
 
-    <!-- Rosy Cheeks -->
-    <ellipse cx="63" cy="118" rx="12" ry="7" fill="url(#momoBlush)" />
-    <ellipse cx="137" cy="118" rx="12" ry="7" fill="url(#momoBlush)" />
+  <!-- Sweet ω Smile -->
+  <path
+    d="M 91 119 Q 95.5 123.5 100 119.5 Q 104.5 123.5 109 119"
+    stroke="#5D4037"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    fill="none"
+  />
 
-    <!-- Expressive Eyes -->
-    <g>
-      <ellipse cx="75" cy="102" rx="7.5" ry="10" fill="url(#momoEyeGrad)" />
-      <ellipse cx="73" cy="98" rx="3.2" ry="4.2" fill="#FFFFFF" />
-      <circle cx="77.5" cy="105.5" r="1.8" fill="#FFFFFF" />
-    </g>
-    <g>
-      <ellipse cx="125" cy="102" rx="7.5" ry="10" fill="url(#momoEyeGrad)" />
-      <ellipse cx="123" cy="98" rx="3.2" ry="4.2" fill="#FFFFFF" />
-      <circle cx="127.5" cy="105.5" r="1.8" fill="#FFFFFF" />
-    </g>
+  <!-- Delicate Whiskers -->
+  <path d="M 42 115 L 24 112" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+  <path d="M 42 121 L 22 124" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+  <path d="M 158 115 L 176 112" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+  <path d="M 158 121 L 178 124" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
 
-    <!-- Eyebrows -->
-    <path d="M 68 87 Q 75 83 82 87" stroke="#8B4513" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.65" />
-    <path d="M 118 87 Q 125 83 132 87" stroke="#8B4513" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.65" />
+  <!-- Left Front Paw -->
+  <g>
+    <ellipse cx="78" cy="148" rx="8" ry="9.5" fill="#FFF3E0" stroke="#F57C00" stroke-width="2" />
+    <circle cx="75" cy="146" r="1.4" fill="#FFA726" />
+    <circle cx="78" cy="145" r="1.4" fill="#FFA726" />
+    <circle cx="81" cy="146" r="1.4" fill="#FFA726" />
+  </g>
 
-    <!-- Warm Smile -->
-    <path d="M 91 116 Q 100 126 109 116" stroke="#702214" stroke-width="2.4" stroke-linecap="round" fill="none" />
-    <path d="M 89.5 115 Q 90.5 117 92 116" stroke="#702214" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.45" />
-    <path d="M 108 116 Q 109.5 117 110.5 115" stroke="#702214" stroke-width="1.4" stroke-linecap="round" fill="none" opacity="0.45" />
+  <!-- Right Waving Front Paw -->
+  <g>
+    <ellipse cx="128" cy="145" rx="8" ry="9.5" fill="#FFF3E0" stroke="#F57C00" stroke-width="2" />
+    <circle cx="125" cy="143" r="1.4" fill="#FFA726" />
+    <circle cx="128" cy="142" r="1.4" fill="#FFA726" />
+    <circle cx="131" cy="143" r="1.4" fill="#FFA726" />
+  </g>
 
-    <!-- Tiny Peach Nose -->
-    <ellipse cx="100" cy="107" rx="2.4" ry="1.8" fill="#F97316" opacity="0.4" />
+  <!-- Celebration Jewel Pendant on Chest -->
+  <g>
+    <circle cx="100" cy="151" r="5.5" fill="url(#tealGemMascot)" stroke="#FFFFFF" stroke-width="1.5" />
+    <circle cx="98.5" cy="149" r="1.5" fill="#FFFFFF" />
+  </g>
 
-    <!-- Collar & Teal Gem -->
-    <g>
-      <path d="M 74 136 C 88 143, 112 143, 126 136 C 122 143, 78 143, 74 136 Z" fill="url(#momoCollarGrad)" />
-      <path d="M 76 136 C 90 142, 110 142, 124 136" stroke="#FDE047" stroke-width="0.8" fill="none" opacity="0.75" />
-      <circle cx="100" cy="142" r="2.5" fill="#F59E0B" />
-      <path d="M 100 142 L 104 148 C 104 151, 96 151, 96 148 Z" fill="url(#momoTealGem)" filter="url(#momoSoftShadow)" />
-      <circle cx="99.5" cy="146.5" r="1" fill="#FFFFFF" opacity="0.85" />
-    </g>
+  <!-- Signature Golden Blossom on Ear -->
+  <g transform="translate(152, 34)">
+    <circle cx="0" cy="-7" r="5" fill="url(#flowerGradMascot)" />
+    <circle cx="7" cy="-2" r="5" fill="url(#flowerGradMascot)" />
+    <circle cx="4" cy="6" r="5" fill="url(#flowerGradMascot)" />
+    <circle cx="-4" cy="6" r="5" fill="url(#flowerGradMascot)" />
+    <circle cx="-7" cy="-2" r="5" fill="url(#flowerGradMascot)" />
+    <circle cx="0" cy="0" r="4.2" fill="#E11D48" />
+    <circle cx="-1" cy="-1" r="1.5" fill="#FFFFFF" />
+  </g>
 
-    <!-- Celebration Flower Headpiece -->
-    <g transform="translate(52, 44)" filter="url(#momoSparkleGlow)">
-      <circle cx="0" cy="-7" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="6.6" cy="-2.2" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="4.1" cy="5.6" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="-4.1" cy="5.6" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="-6.6" cy="-2.2" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="0" cy="0" r="4" fill="#FFFBEB" />
-      <circle cx="0" cy="0" r="2.5" fill="#EA580C" />
-      <circle cx="-0.8" cy="-0.8" r="1" fill="#FFFFFF" />
-    </g>
-
-    <!-- Magic Sparkles -->
-    <g>
-      <path
-        d="M 38 34 Q 38 27 41 24 Q 44 27 44 34 Q 44 41 41 44 Q 38 41 38 34 Z"
-        fill="#FDE047"
-        filter="url(#momoSparkleGlow)"
-      />
-      <circle cx="41" cy="34" r="1.4" fill="#FFFFFF" />
-      <circle cx="148" cy="74" r="2" fill="#FDE047" opacity="0.85" filter="url(#momoSparkleGlow)" />
-      <circle cx="148" cy="74" r="1" fill="#FFFFFF" />
-    </g>
+  <!-- Magic Sparkle -->
+  <g transform="translate(178, 55)">
+    <path d="M 0 -8 Q 0 0 8 0 Q 0 0 0 8 Q 0 0 -8 0 Q 0 0 0 -8 Z" fill="#FBBF24" />
+    <circle cx="0" cy="0" r="2" fill="#FFFFFF" />
   </g>
 </svg>

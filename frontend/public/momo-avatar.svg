@@ -1,86 +1,183 @@
 <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
+    <!-- Background Circle Gradient -->
     <linearGradient id="avatarBg" x1="0" y1="0" x2="200" y2="200" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFDF9" />
-      <stop offset="100%" stop-color="#FED7C3" />
+      <stop offset="0%" stop-color="#FFFDF7" />
+      <stop offset="50%" stop-color="#FFEED9" />
+      <stop offset="100%" stop-color="#FFD6A5" />
     </linearGradient>
-    <linearGradient id="momoBodyGrad" x1="45" y1="30" x2="160" y2="205" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#FFFDF9" />
-      <stop offset="40%" stop-color="#FFF5EE" />
-      <stop offset="75%" stop-color="#FED7C3" />
-      <stop offset="100%" stop-color="#FDBA9B" />
+
+    <!-- Hamster Fur Gradient -->
+    <linearGradient id="furGrad" x1="40" y1="20" x2="160" y2="180" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFF3E0" />
+      <stop offset="30%" stop-color="#FFE0B2" />
+      <stop offset="70%" stop-color="#FFCC80" />
+      <stop offset="100%" stop-color="#FFA726" />
     </linearGradient>
-    <radialGradient id="momoBlush" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#FF6B6B" stop-opacity="0.55" />
-      <stop offset="60%" stop-color="#FF8E85" stop-opacity="0.25" />
-      <stop offset="100%" stop-color="#FF8E85" stop-opacity="0" />
+
+    <!-- Hamster Cream Tummy & Cheeks -->
+    <linearGradient id="creamGrad" x1="100" y1="70" x2="100" y2="190" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#FFF8F0" />
+    </linearGradient>
+
+    <!-- Ear Outer -->
+    <linearGradient id="earOuter" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFA726" />
+      <stop offset="100%" stop-color="#FB8C00" />
+    </linearGradient>
+
+    <!-- Ear Inner Pink -->
+    <linearGradient id="earInner" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#FFB4C4" />
+      <stop offset="100%" stop-color="#FF8BA7" />
+    </linearGradient>
+
+    <!-- Cheek Blush -->
+    <radialGradient id="cheekBlush" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF5252" stop-opacity="0.5" />
+      <stop offset="60%" stop-color="#FF7A8A" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#FF7A8A" stop-opacity="0" />
     </radialGradient>
-    <linearGradient id="momoFlowerPetal" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#FDE047" />
-      <stop offset="50%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#EA580C" />
+
+    <!-- Flower Petals -->
+    <linearGradient id="flowerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FEF08A" />
+      <stop offset="50%" stop-color="#FBBF24" />
+      <stop offset="100%" stop-color="#F59E0B" />
     </linearGradient>
-    <linearGradient id="momoTealGem" x1="0" y1="0" x2="1" y2="1">
+
+    <!-- Teal Pendant Gem -->
+    <linearGradient id="tealGem" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#5EEAD4" />
-      <stop offset="50%" stop-color="#14B8A6" />
+      <stop offset="60%" stop-color="#14B8A6" />
       <stop offset="100%" stop-color="#0F766E" />
     </linearGradient>
-    <linearGradient id="momoEyeGrad" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#231815" />
-      <stop offset="100%" stop-color="#3A231C" />
+
+    <!-- Anime Eye Gradient -->
+    <linearGradient id="eyeGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1F1614" />
+      <stop offset="70%" stop-color="#3D2014" />
+      <stop offset="100%" stop-color="#7C2D12" />
     </linearGradient>
+
     <clipPath id="avatarCircle">
-      <circle cx="100" cy="100" r="96" />
+      <circle cx="100" cy="100" r="94" />
     </clipPath>
   </defs>
 
-  <circle cx="100" cy="100" r="96" fill="url(#avatarBg)" stroke="#FED7AA" stroke-width="4" />
+  <!-- Avatar Base Circle -->
+  <circle cx="100" cy="100" r="96" fill="url(#avatarBg)" stroke="#FDBA74" stroke-width="4" />
 
-  <g clip-path="url(#avatarCircle)" transform="translate(0, 10)">
-    <!-- Ears -->
-    <path d="M 46 62 C 34 50, 42 26, 60 38 C 65 42, 66 52, 58 60 Z" fill="url(#momoBodyGrad)" />
-    <path d="M 48 56 C 42 48, 47 34, 57 42 C 59 45, 59 52, 53 56 Z" fill="#FFAEA0" opacity="0.45" />
-    <path d="M 154 62 C 166 50, 158 26, 140 38 C 135 42, 134 52, 142 60 Z" fill="url(#momoBodyGrad)" />
-    <path d="M 152 56 C 158 48, 153 34, 143 42 C 141 45, 141 52, 147 56 Z" fill="#FFAEA0" opacity="0.45" />
+  <g clip-path="url(#avatarCircle)">
+    <!-- Rounded Hamster Ears -->
+    <!-- Left Ear -->
+    <g>
+      <circle cx="58" cy="54" r="23" fill="url(#earOuter)" stroke="#F57C00" stroke-width="2.5" />
+      <circle cx="58" cy="54" r="14" fill="url(#earInner)" />
+      <path d="M 52 46 Q 58 43 64 47" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.75" />
+    </g>
 
-    <!-- Main Body & Head -->
+    <!-- Right Ear -->
+    <g>
+      <circle cx="142" cy="54" r="23" fill="url(#earOuter)" stroke="#F57C00" stroke-width="2.5" />
+      <circle cx="142" cy="54" r="14" fill="url(#earInner)" />
+      <path d="M 136 46 Q 142 43 148 47" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.75" />
+    </g>
+
+    <!-- Chubby Hamster Head & Body -->
     <path
-      d="M 62 68 C 62 26, 138 26, 138 68 C 145 92, 166 122, 162 165 C 158 198, 130 206, 100 206 C 70 206, 42 198, 38 165 C 34 122, 55 92, 62 68 Z"
-      fill="url(#momoBodyGrad)"
+      d="M 64 68 C 64 42, 136 42, 136 68 C 148 76, 172 96, 168 136 C 164 168, 140 186, 100 186 C 60 186, 36 168, 32 136 C 28 96, 52 76, 64 68 Z"
+      fill="url(#furGrad)"
+      stroke="#F57C00"
+      stroke-width="2.5"
     />
 
-    <!-- Cheeks -->
-    <ellipse cx="63" cy="118" rx="12" ry="7" fill="url(#momoBlush)" />
-    <ellipse cx="137" cy="118" rx="12" ry="7" fill="url(#momoBlush)" />
+    <!-- Cream Face & Belly Patch -->
+    <path
+      d="M 66 102 C 60 128, 48 138, 56 162 C 65 182, 90 186, 100 186 C 110 186, 135 182, 144 162 C 152 138, 140 128, 134 102 C 130 84, 118 78, 100 78 C 82 78, 70 84, 66 102 Z"
+      fill="url(#creamGrad)"
+    />
 
-    <!-- Eyes -->
+    <!-- Forehead Golden Star/Blaze Accent -->
+    <path
+      d="M 100 52 C 96 66, 92 78, 100 86 C 108 78, 104 66, 100 52 Z"
+      fill="#FFE0B2"
+      opacity="0.85"
+    />
+
+    <!-- Big Kawaii Eyes -->
+    <!-- Left Eye -->
     <g>
-      <ellipse cx="75" cy="102" rx="7.5" ry="10" fill="url(#momoEyeGrad)" />
-      <ellipse cx="73" cy="98" rx="3.2" ry="4.2" fill="#FFFFFF" />
-      <circle cx="77.5" cy="105.5" r="1.8" fill="#FFFFFF" />
+      <ellipse cx="76" cy="108" rx="8" ry="11" fill="url(#eyeGrad)" />
+      <circle cx="74" cy="104" r="3.5" fill="#FFFFFF" />
+      <circle cx="78.5" cy="111.5" r="1.6" fill="#FFFFFF" />
+      <path d="M 68 96 Q 76 92 84 96" stroke="#5D4037" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Right Eye -->
+    <g>
+      <ellipse cx="124" cy="108" rx="8" ry="11" fill="url(#eyeGrad)" />
+      <circle cx="122" cy="104" r="3.5" fill="#FFFFFF" />
+      <circle cx="126.5" cy="111.5" r="1.6" fill="#FFFFFF" />
+      <path d="M 116 96 Q 124 92 132 96" stroke="#5D4037" stroke-width="2.2" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- Chubby Rosy Blushing Cheeks -->
+    <ellipse cx="58" cy="122" rx="13" ry="8" fill="url(#cheekBlush)" />
+    <ellipse cx="142" cy="122" rx="13" ry="8" fill="url(#cheekBlush)" />
+
+    <!-- Cute Heart/Triangle Nose -->
+    <path
+      d="M 100 115 C 97.5 115, 96 117.5, 98 120 L 100 122.5 L 102 120 C 104 117.5, 102.5 115, 100 115 Z"
+      fill="#F43F5E"
+    />
+
+    <!-- Sweet Hamster Smile (ω) -->
+    <path
+      d="M 92 124 Q 96 128 100 124 Q 104 128 108 124"
+      stroke="#5D4037"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      fill="none"
+    />
+
+    <!-- Delicate Whiskers -->
+    <path d="M 44 119 L 28 116" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+    <path d="M 44 125 L 26 128" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+    <path d="M 156 119 L 172 116" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+    <path d="M 156 125 L 174 128" stroke="#795548" stroke-width="1.4" stroke-linecap="round" opacity="0.6" />
+
+    <!-- Tiny Front Paws Resting Together -->
+    <g>
+      <ellipse cx="86" cy="154" rx="7.5" ry="9" fill="#FFF3E0" stroke="#F57C00" stroke-width="2" />
+      <circle cx="83.5" cy="152" r="1.3" fill="#FFA726" />
+      <circle cx="86" cy="151" r="1.3" fill="#FFA726" />
+      <circle cx="88.5" cy="152" r="1.3" fill="#FFA726" />
     </g>
     <g>
-      <ellipse cx="125" cy="102" rx="7.5" ry="10" fill="url(#momoEyeGrad)" />
-      <ellipse cx="123" cy="98" rx="3.2" ry="4.2" fill="#FFFFFF" />
-      <circle cx="127.5" cy="105.5" r="1.8" fill="#FFFFFF" />
+      <ellipse cx="114" cy="154" rx="7.5" ry="9" fill="#FFF3E0" stroke="#F57C00" stroke-width="2" />
+      <circle cx="111.5" cy="152" r="1.3" fill="#FFA726" />
+      <circle cx="114" cy="151" r="1.3" fill="#FFA726" />
+      <circle cx="116.5" cy="152" r="1.3" fill="#FFA726" />
     </g>
 
-    <!-- Smile -->
-    <path d="M 91 116 Q 100 126 109 116" stroke="#702214" stroke-width="2.4" stroke-linecap="round" fill="none" />
-    <ellipse cx="100" cy="107" rx="2.4" ry="1.8" fill="#F97316" opacity="0.4" />
-
-    <!-- Flower -->
-    <g transform="translate(52, 44)">
-      <circle cx="0" cy="-7" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="6.6" cy="-2.2" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="4.1" cy="5.6" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="-4.1" cy="5.6" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="-6.6" cy="-2.2" r="5.5" fill="url(#momoFlowerPetal)" />
-      <circle cx="0" cy="0" r="4" fill="#FFFBEB" />
-      <circle cx="0" cy="0" r="2.5" fill="#EA580C" />
+    <!-- Celebration Gem Pendant between Paws -->
+    <g>
+      <circle cx="100" cy="154" r="5" fill="url(#tealGem)" stroke="#FFFFFF" stroke-width="1.4" />
+      <circle cx="98.5" cy="152.5" r="1.3" fill="#FFFFFF" />
     </g>
 
-    <!-- Sparkle -->
-    <path d="M 38 34 Q 38 27 41 24 Q 44 27 44 34 Q 44 41 41 44 Q 38 41 38 34 Z" fill="#FDE047" />
+    <!-- Golden Blossom Headpiece on Ear -->
+    <g transform="translate(142, 42)">
+      <circle cx="0" cy="-6" r="4.5" fill="url(#flowerGrad)" />
+      <circle cx="6" cy="-2" r="4.5" fill="url(#flowerGrad)" />
+      <circle cx="3.5" cy="5" r="4.5" fill="url(#flowerGrad)" />
+      <circle cx="-3.5" cy="5" r="4.5" fill="url(#flowerGrad)" />
+      <circle cx="-6" cy="-2" r="4.5" fill="url(#flowerGrad)" />
+      <circle cx="0" cy="0" r="3.6" fill="#E11D48" />
+      <circle cx="-0.8" cy="-0.8" r="1.2" fill="#FFFFFF" />
+    </g>
   </g>
 </svg>
