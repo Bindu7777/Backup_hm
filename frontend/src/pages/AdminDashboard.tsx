@@ -687,6 +687,10 @@ const AdminDashboard = () => {
             return !isSampleVendor(vendor);
           case "verified":
             return vendor.verified;
+          case "verified_sample":
+            return vendor.verified && isSampleVendor(vendor);
+          case "verified_real":
+            return vendor.verified && !isSampleVendor(vendor);
           case "unverified":
             return !vendor.verified;
           case "active":
@@ -1086,6 +1090,8 @@ const AdminDashboard = () => {
 
   const sampleVendorsCount = vendors.filter(isSampleVendor).length;
   const newVendorsCount = vendors.filter(v => !isSampleVendor(v)).length;
+  const sampleVerifiedCount = vendors.filter(v => v.verified && isSampleVendor(v)).length;
+  const realVerifiedCount = vendors.filter(v => v.verified && !isSampleVendor(v)).length;
 
   // Filter vendor onboarding applicants
   const applicantVendors = vendors.filter((v) => {
@@ -1624,7 +1630,9 @@ const AdminDashboard = () => {
               <option value="all">All Vendor Status</option>
               <option value="sample">Sample Vendors ({sampleVendorsCount})</option>
               <option value="new_vendors">New Real Vendors ({newVendorsCount})</option>
-              <option value="verified">Verified Vendors</option>
+              <option value="verified">All Verified Vendors ({stats.verifiedVendors})</option>
+              <option value="verified_sample">Verified Sample Vendors ({sampleVerifiedCount})</option>
+              <option value="verified_real">Verified Real Vendors ({realVerifiedCount})</option>
               <option value="unverified">Unverified Vendors</option>
               <option value="active">Active Vendors</option>
               <option value="inactive">Inactive Vendors</option>
@@ -1690,10 +1698,23 @@ const AdminDashboard = () => {
                     ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
                     : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
                 }`}
-                title="Filter by Sample Vendors"
+                title="Filter by All Sample Vendors"
               >
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                 Sample: {sampleVendorsCount}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterStatus(filterStatus === 'verified_sample' ? 'all' : 'verified_sample')}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                  filterStatus === 'verified_sample'
+                    ? 'bg-amber-700 text-white border-amber-700 shadow-xs'
+                    : 'bg-amber-100/60 hover:bg-amber-100 text-amber-950 border-amber-300'
+                }`}
+                title="Filter by Verified Sample Vendors"
+              >
+                <CheckCircle className="w-3 h-3 text-green-600" />
+                Verified Sample: {sampleVerifiedCount}
               </button>
               <button
                 type="button"
@@ -1868,10 +1889,17 @@ const AdminDashboard = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-2">
                         {vendor.verified ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-600 text-white shadow-lg">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Verified
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-600 text-white shadow-lg">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Verified
+                            </span>
+                            {isSampleVendor(vendor) && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                                Sample
+                              </span>
+                            )}
+                          </div>
                         ) : (
                           <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-600 text-white shadow-lg">
                             <XCircle className="h-3 w-3 mr-1" />
