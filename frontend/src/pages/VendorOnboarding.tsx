@@ -502,6 +502,19 @@ const VendorOnboarding: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Strictly verify mandatory confirmation checkboxes first
+    if (!formData.confirm_accurate || !formData.permission_contact) {
+      setErrors((prev) => ({
+        ...prev,
+        confirm_accurate: !formData.confirm_accurate ? 'You must confirm that details are accurate.' : '',
+        permission_contact: !formData.permission_contact ? 'You must grant permission for contact.' : ''
+      }));
+      setStepError('Please check both required confirmation boxes below before submitting.');
+      const el = document.getElementById('confirm_accurate') || document.getElementById('permission_contact');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
     // Validate current step
     if (!validateStep(4)) return;
 
@@ -1890,13 +1903,25 @@ const VendorOnboarding: React.FC = () => {
 
                 {/* Mandatory Confirmations */}
                 <div className="space-y-4 pt-2">
-                  <div className="flex items-start space-x-3 p-3.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 transition-colors">
+                  <div className={`flex items-start space-x-3 p-4 rounded-xl border transition-all ${
+                    errors.confirm_accurate
+                      ? 'bg-rose-50/60 border-rose-400 ring-2 ring-rose-200'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
+                  }`}>
                     <Checkbox
                       id="confirm_accurate"
                       checked={formData.confirm_accurate}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, confirm_accurate: !!checked })
-                      }
+                      onCheckedChange={(checked) => {
+                        const val = !!checked;
+                        setFormData((prev) => ({ ...prev, confirm_accurate: val }));
+                        if (val) {
+                          setErrors((prev) => {
+                            const rest = { ...prev };
+                            delete rest.confirm_accurate;
+                            return rest;
+                          });
+                        }
+                      }}
                       className="mt-0.5"
                     />
                     <div className="flex-1">
@@ -1910,18 +1935,32 @@ const VendorOnboarding: React.FC = () => {
                         I certify that the business information, portfolio, and contact numbers provided are true and belong to our event business.
                       </p>
                       {errors.confirm_accurate && (
-                        <p className="text-xs text-rose-600 font-medium mt-1">{errors.confirm_accurate}</p>
+                        <p className="text-xs text-rose-600 font-bold mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5" /> {errors.confirm_accurate}
+                        </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-3 p-3.5 rounded-xl bg-white border border-slate-200 hover:border-slate-300 transition-colors">
+                  <div className={`flex items-start space-x-3 p-4 rounded-xl border transition-all ${
+                    errors.permission_contact
+                      ? 'bg-rose-50/60 border-rose-400 ring-2 ring-rose-200'
+                      : 'bg-white border-slate-200 hover:border-slate-300'
+                  }`}>
                     <Checkbox
                       id="permission_contact"
                       checked={formData.permission_contact}
-                      onCheckedChange={(checked) =>
-                        setFormData({ ...formData, permission_contact: !!checked })
-                      }
+                      onCheckedChange={(checked) => {
+                        const val = !!checked;
+                        setFormData((prev) => ({ ...prev, permission_contact: val }));
+                        if (val) {
+                          setErrors((prev) => {
+                            const rest = { ...prev };
+                            delete rest.permission_contact;
+                            return rest;
+                          });
+                        }
+                      }}
                       className="mt-0.5"
                     />
                     <div className="flex-1">
@@ -1935,11 +1974,21 @@ const VendorOnboarding: React.FC = () => {
                         I allow Happy Moments partner relations team to contact me via phone, WhatsApp, or email to assist with vendor onboarding, verification, and lead dispatch.
                       </p>
                       {errors.permission_contact && (
-                        <p className="text-xs text-rose-600 font-medium mt-1">{errors.permission_contact}</p>
+                        <p className="text-xs text-rose-600 font-bold mt-1.5 flex items-center gap-1">
+                          <AlertCircle className="w-3.5 h-3.5" /> {errors.permission_contact}
+                        </p>
                       )}
                     </div>
                   </div>
                 </div>
+
+                {/* If checkboxes are unselected, show warning */}
+                {(!formData.confirm_accurate || !formData.permission_contact) && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>Please check both required confirmation boxes above to enable submitting your application.</span>
+                  </div>
+                )}
 
                 {/* Step Navigation buttons */}
                 <div className="pt-4 flex items-center justify-between gap-3">
@@ -1956,8 +2005,8 @@ const VendorOnboarding: React.FC = () => {
 
                   <Button
                     type="submit"
-                    disabled={isSubmitting}
-                    className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-700 hover:to-amber-600 text-white font-extrabold text-base h-12 px-8 rounded-xl shadow-xl shadow-orange-500/25 flex items-center gap-2"
+                    disabled={isSubmitting || !formData.confirm_accurate || !formData.permission_contact}
+                    className="bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 hover:from-orange-700 hover:to-amber-600 text-white font-extrabold text-base h-12 px-8 rounded-xl shadow-xl shadow-orange-500/25 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <>

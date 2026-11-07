@@ -174,6 +174,15 @@ export const submitVendorOnboarding = async (
   try {
     console.log('Submitting vendor onboarding application:', formData.brand_name);
 
+    // Strictly enforce confirmation checkboxes on submit
+    if (!formData.confirm_accurate || !formData.permission_contact) {
+      return {
+        success: false,
+        applicationId: generatedAppId,
+        error: 'Please check both mandatory confirmation boxes before submitting your application.'
+      };
+    }
+
     // Format phone and WhatsApp numbers
     const cleanPhone = formData.phone_number.trim().replace(/[^0-9]/g, '');
     const cleanWhatsApp = formData.is_whatsapp_same_as_phone
@@ -355,8 +364,6 @@ export const submitVendorOnboarding = async (
       subcategory: primaryCategory,
       quick_intro: formData.description_of_services.slice(0, 180),
       detailed_intro: formData.description_of_services.trim(),
-      avatar_url: brandLogoUrl || null,
-      brand_logo_url: brandLogoUrl || null,
       verified: false, // Pending review
       currently_available: false, // Activates when reviewed & approved
       rating: 0,
