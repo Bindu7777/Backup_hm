@@ -378,6 +378,8 @@ export default function AddVendor() {
       const { service_areas, ...dataWithoutServiceAreas } = processedData;
       const additional_info = {
         ...processedData.additional_info,
+        is_sample: false, // Brand new real vendor added by admin, never tagged as sample
+        source: 'admin_dashboard',
         service_areas: Array.isArray(service_areas) ? service_areas : []
       };
 

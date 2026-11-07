@@ -310,6 +310,7 @@ export const submitVendorOnboarding = async (
 
     // Detailed metadata for additional_info
     const additionalInfo = {
+      is_sample: false, // Brand new real vendor, never tagged as sample
       application_id: generatedAppId,
       application_status: 'Pending review', // Set automatically to Pending review
       source: 'vendor_onboarding_form',
