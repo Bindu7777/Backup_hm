@@ -16,6 +16,7 @@ import { ExtractedEntities } from '../services/enhancedAudioEngine';
 import { createVendorFilterCriteria, searchVendorsWithFilters, VendorSearchResult } from '../services/enhancedVendorFiltering';
 import { saveContactVendor } from '../services/contactedVendorsApiService';
 import Header from '../components/layout/Header';
+import MomoMascot from '../components/momo/MomoMascot';
 
 const SmartRequest: React.FC = () => {
   const navigate = useNavigate();
@@ -208,8 +209,17 @@ const SmartRequest: React.FC = () => {
       <Header />
       
       <div className="container mx-auto px-4 pt-20 pb-8">
-        {/* Hero Section */}
-        <div className="text-center mb-12">
+        {/* Hero Section with Momo Mascot */}
+        <div className="text-center mb-10">
+          <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-3xl border-2 border-orange-200/90 shadow-md max-w-xl mx-auto mb-6">
+            <div className="flex-shrink-0">
+              <MomoMascot size={52} isWaving={true} title="Momo, your Happy Moments AI Assistant" />
+            </div>
+            <p className="text-sm sm:text-base font-bold text-slate-800 text-center sm:text-left leading-snug">
+              “Hi! I’m Momo 😊 I’ll help you find the right vendors for your event.”
+            </p>
+          </div>
+
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
             🎯 Smart Vendor Discovery
           </h1>

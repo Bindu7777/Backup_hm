@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Vendor } from '@/lib/supabase';
 import { getVendorCredentials, upsertVendorCredentials } from '@/services/supabaseService';
+import { isSampleVendor } from '@/utils/vendorHelpers';
 
 export interface VendorCredentialsModalProps {
   isOpen: boolean;
@@ -155,9 +156,16 @@ Please log in to manage your bookings, leads, packages, and calendar!`;
               <span className="text-xs font-bold uppercase tracking-wider text-amber-200">
                 Vendor Authentication
               </span>
-              <h3 className="text-xl font-extrabold text-white leading-tight">
-                {vendor.brand_name}
-              </h3>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-xl font-extrabold text-white leading-tight">
+                  {vendor.brand_name}
+                </h3>
+                {isSampleVendor(vendor) && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-400/30 text-amber-100 border border-amber-300/50 shadow-xs">
+                    Sample
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-white/80 mt-0.5 font-mono">
                 Vendor ID: #{vendor.vendor_id}
               </p>

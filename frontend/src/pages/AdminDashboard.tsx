@@ -67,6 +67,7 @@ import MomoChat from "@/components/MomoChat";
 import ExcelSheetModal, { ExcelColumn } from "@/components/admin/ExcelSheetModal";
 import VendorCredentialsModal from "@/components/admin/VendorCredentialsModal";
 import { normalizeCategoryToStandard } from "@/constants/categories";
+import { isSampleVendor } from "@/utils/vendorHelpers";
 
 export interface EventSpace {
   id: string;
@@ -680,6 +681,10 @@ const AdminDashboard = () => {
     if (filterStatus !== "all") {
       filtered = filtered.filter(vendor => {
         switch (filterStatus) {
+          case "sample":
+            return isSampleVendor(vendor);
+          case "new_vendors":
+            return !isSampleVendor(vendor);
           case "verified":
             return vendor.verified;
           case "unverified":
@@ -1079,6 +1084,9 @@ const AdminDashboard = () => {
 
   const categories = [...new Set(vendors.map(v => v.category))];
 
+  const sampleVendorsCount = vendors.filter(isSampleVendor).length;
+  const newVendorsCount = vendors.filter(v => !isSampleVendor(v)).length;
+
   // Filter vendor onboarding applicants
   const applicantVendors = vendors.filter((v) => {
     const info = getVendorInfo(v);
@@ -1181,6 +1189,7 @@ const AdminDashboard = () => {
   // Excel Columns & Rows Mapping for All Vendors
   const vendorExcelColumns: ExcelColumn[] = [
     { key: 'vendor_id', header: 'Vendor ID', width: 12 },
+    { key: 'data_type', header: 'Record Tag', width: 14 },
     { key: 'brand_name', header: 'Brand Name', width: 25 },
     { key: 'login_username', header: 'Login Username / ID', width: 20 },
     { key: 'login_password', header: 'Login Password', width: 18 },
@@ -1203,6 +1212,7 @@ const AdminDashboard = () => {
     const cred = vendorCredentialsMap[String(v.vendor_id)];
     return {
       vendor_id: v.vendor_id,
+      data_type: isSampleVendor(v) ? 'Sample' : 'New Vendor',
       brand_name: v.brand_name || '',
       login_username: cred?.username || String(v.vendor_id),
       login_password: cred?.password || 'Not Set',
@@ -1612,6 +1622,8 @@ const AdminDashboard = () => {
               className="px-3 py-3 bg-white border border-wedding-orange/50 rounded-lg focus:ring-wedding-orange focus:border-wedding-orange text-wedding-navy transition-all duration-200"
             >
               <option value="all">All Vendor Status</option>
+              <option value="sample">Sample Vendors ({sampleVendorsCount})</option>
+              <option value="new_vendors">New Real Vendors ({newVendorsCount})</option>
               <option value="verified">Verified Vendors</option>
               <option value="unverified">Unverified Vendors</option>
               <option value="active">Active Vendors</option>
@@ -1666,8 +1678,36 @@ const AdminDashboard = () => {
               </button>
             </div>
 
-            <div className="text-xs text-slate-500">
-              Showing <span className="font-bold text-slate-800">{filteredVendors.length}</span> of {vendors.length} vendors
+            <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+              <span>
+                Showing <span className="font-bold text-slate-800">{filteredVendors.length}</span> of {vendors.length} vendors
+              </span>
+              <button
+                type="button"
+                onClick={() => setFilterStatus(filterStatus === 'sample' ? 'all' : 'sample')}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                  filterStatus === 'sample'
+                    ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                    : 'bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300'
+                }`}
+                title="Filter by Sample Vendors"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                Sample: {sampleVendorsCount}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFilterStatus(filterStatus === 'new_vendors' ? 'all' : 'new_vendors')}
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all ${
+                  filterStatus === 'new_vendors'
+                    ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
+                    : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-emerald-300'
+                }`}
+                title="Filter by New Real Vendors"
+              >
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                New: {newVendorsCount}
+              </button>
             </div>
           </div>
 
@@ -1782,8 +1822,16 @@ const AdminDashboard = () => {
                           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-wedding-orange rounded-full border-2 border-white"></div>
                         </div>
                         <div className="ml-4">
-                          <div className="text-sm font-bold text-wedding-navy flex items-center gap-2">
-                            {vendor.brand_name}
+                          <div className="text-sm font-bold text-wedding-navy flex items-center gap-2 flex-wrap">
+                            <span>{vendor.brand_name}</span>
+                            {isSampleVendor(vendor) && (
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-amber-100 text-amber-900 border border-amber-300 shadow-2xs"
+                                title="Sample vendor data (Internal to Admin only)"
+                              >
+                                Sample
+                              </span>
+                            )}
                             {!vendor.currently_available && (
                               <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded-full font-medium">
                                 Archived
@@ -3172,7 +3220,16 @@ const AdminDashboard = () => {
                           )
                           .map((v) => (
                             <tr key={v.vendor_id} className="hover:bg-slate-50/50 transition-colors duration-150 text-sm text-slate-700">
-                              <td className="py-4 px-6 font-bold text-wedding-navy">{v.brand_name}</td>
+                              <td className="py-4 px-6 font-bold text-wedding-navy">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span>{v.brand_name}</span>
+                                  {isSampleVendor(v) && (
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-100 text-amber-900 border border-amber-300">
+                                      Sample
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
                               <td className="py-4 px-6">{v.spoc_name}</td>
                               <td className="py-4 px-6">
                                 <span className="bg-slate-100 text-slate-800 px-2 py-0.5 rounded-full text-xs font-semibold">

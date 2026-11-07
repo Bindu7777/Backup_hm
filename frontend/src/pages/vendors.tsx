@@ -18,6 +18,7 @@ import { getAllVendors } from '@/services/supabaseService';
 import { parseRequest, validateParsedRequest, ParsedRequest } from '../services/requestParser';
 import { useVoiceProcessing } from '@/hooks/useVoiceProcessing';
 import { getStateForLocation, findStateForLocation } from '../services/locationService';
+import MomoMascot from '@/components/momo/MomoMascot';
 
 // Local interface for parsed filter data
 interface ParsedFilterData {
@@ -1674,8 +1675,14 @@ const VendorsPage = () => {
             <div className="w-full">
               <Card className="border border-orange-200 shadow-lg mx-0 w-full relative z-20 mb-3">
                 <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 py-3 px-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-2xl font-bold text-orange-800">Your Prompt</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-2.5">
+                      <MomoMascot size={38} isWaving={true} />
+                      <div>
+                        <span className="text-xl sm:text-2xl font-bold text-orange-800">Your Prompt</span>
+                        <p className="text-xs text-orange-700/80 font-medium">“Hi! I’m Momo 😊 I’ll help you find the right vendors for your event.”</p>
+                      </div>
+                    </div>
                   </div>
 
                   {isListening && (

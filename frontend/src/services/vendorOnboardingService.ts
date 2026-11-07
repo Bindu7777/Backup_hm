@@ -1,5 +1,21 @@
 import { supabase } from '../lib/supabase';
 import { supabaseImageService } from './supabaseImageService';
+import { imageProcessingService } from './imageProcessingService';
+
+// Timeout wrapper to prevent long-hanging network calls from stalling submission
+const withTimeout = <T>(promise: Promise<T>, timeoutMs: number = 15000, fallbackValue?: T): Promise<T> => {
+  let timer: any;
+  const timeoutPromise = new Promise<T>((resolve, reject) => {
+    timer = setTimeout(() => {
+      if (fallbackValue !== undefined) {
+        resolve(fallbackValue);
+      } else {
+        reject(new Error(`Operation timed out after ${timeoutMs / 1000}s`));
+      }
+    }, timeoutMs);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+};
 
 export interface VendorOnboardingFormData {
   // 1. Vendor and contact details
@@ -165,12 +181,17 @@ export const submitVendorOnboarding = async (
       : (formData.whatsapp_number || '').trim().replace(/[^0-9]/g, '') || cleanPhone;
 
     // Determine starting price
-    let parsedPrice = 0;
+    // NOTE: PostgreSQL vendors table has check constraint check_starting_price_positive (starting_price > 0).
+    // Therefore starting_price MUST be >= 1 in the database column to avoid check constraint violations.
+    let parsedPrice = 1;
     if (!formData.share_price_after_discussion && formData.starting_price) {
       const num = typeof formData.starting_price === 'number'
         ? formData.starting_price
         : parseFloat(formData.starting_price.toString().replace(/[^0-9.]/g, ''));
-      parsedPrice = isNaN(num) ? 0 : num;
+      parsedPrice = (!isNaN(num) && num > 0) ? Math.round(num) : 1;
+    } else {
+      // Default to 1 when sharing after discussion or when empty
+      parsedPrice = 1;
     }
 
     // Categories array
@@ -182,41 +203,99 @@ export const submitVendorOnboarding = async (
     // Primary category (first selected)
     const primaryCategory = selectedCategories[0] || 'Event management';
 
-    // Handle Brand Logo Upload
-    let brandLogoUrl = formData.brand_logo_preview || '';
+    // Handle Brand Logo Upload (with client-side optimization & timeout protection)
+    let brandLogoUrl = '';
     if (formData.brand_logo_file) {
       try {
-        const uploadResult = await supabaseImageService.uploadImage(
-          formData.brand_logo_file,
-          `onboarding_${cleanPhone}`,
-          'brand_logo',
-          `${formData.brand_name} Logo`
+        let fileToUpload = formData.brand_logo_file;
+        try {
+          const comp = await imageProcessingService.processImage(fileToUpload, {
+            maxWidth: 800,
+            maxHeight: 800,
+            quality: 0.85,
+            format: 'jpeg'
+          });
+          if (comp.success && comp.processedFile) {
+            fileToUpload = comp.processedFile;
+          }
+        } catch (compErr) {
+          console.warn('Brand logo pre-compression skipped:', compErr);
+        }
+
+        const uploadResult = await withTimeout(
+          supabaseImageService.uploadImage(
+            fileToUpload,
+            `onboarding_${cleanPhone}`,
+            'brand_logo',
+            `${formData.brand_name} Logo`
+          ),
+          15000 // 15s max
         );
-        if (uploadResult.success && uploadResult.publicUrl) {
+        if (uploadResult?.success && uploadResult?.publicUrl) {
           brandLogoUrl = uploadResult.publicUrl;
         }
       } catch (uploadErr) {
-        console.warn('Brand logo storage upload failed, saving fallback preview URL:', uploadErr);
+        console.warn('Brand logo storage upload failed or timed out:', uploadErr);
+      }
+    } else if (formData.brand_logo_preview && formData.brand_logo_preview.startsWith('http')) {
+      // Only keep existing valid remote HTTP URLs, never massive base64 strings
+      brandLogoUrl = formData.brand_logo_preview;
+    }
+
+    // Handle Portfolio Uploads (Concurrent uploads with client-side compression & timeout)
+    const portfolioUrls: string[] = [];
+
+    // Keep existing remote URLs if any
+    if (formData.portfolio_previews && Array.isArray(formData.portfolio_previews)) {
+      for (const p of formData.portfolio_previews) {
+        if (typeof p === 'string' && p.startsWith('http')) {
+          portfolioUrls.push(p);
+        }
       }
     }
 
-    // Handle Portfolio Uploads
-    const portfolioUrls: string[] = formData.portfolio_previews ? [...formData.portfolio_previews] : [];
+    // Upload portfolio files concurrently
     if (formData.portfolio_files && formData.portfolio_files.length > 0) {
-      for (let i = 0; i < formData.portfolio_files.length; i++) {
-        const file = formData.portfolio_files[i];
+      const uploadTasks = formData.portfolio_files.map(async (file, idx) => {
         try {
-          const res = await supabaseImageService.uploadImage(
-            file,
-            `onboarding_${cleanPhone}`,
-            'portfolio',
-            `${formData.brand_name} Portfolio ${i + 1}`
+          let fileToUpload = file;
+          try {
+            const comp = await imageProcessingService.processImage(file, {
+              maxWidth: 1280,
+              maxHeight: 1280,
+              quality: 0.8,
+              format: 'jpeg'
+            });
+            if (comp.success && comp.processedFile) {
+              fileToUpload = comp.processedFile;
+            }
+          } catch (compErr) {
+            console.warn(`Portfolio image ${idx + 1} pre-compression skipped:`, compErr);
+          }
+
+          const res = await withTimeout(
+            supabaseImageService.uploadImage(
+              fileToUpload,
+              `onboarding_${cleanPhone}`,
+              'portfolio',
+              `${formData.brand_name} Portfolio ${idx + 1}`
+            ),
+            15000 // 15s timeout per image
           );
-          if (res.success && res.publicUrl) {
-            portfolioUrls.push(res.publicUrl);
+
+          if (res?.success && res?.publicUrl) {
+            return res.publicUrl;
           }
         } catch (pErr) {
-          console.warn(`Portfolio image ${i + 1} upload failed:`, pErr);
+          console.warn(`Portfolio image ${idx + 1} upload failed or timed out:`, pErr);
+        }
+        return null;
+      });
+
+      const settled = await Promise.allSettled(uploadTasks);
+      for (const item of settled) {
+        if (item.status === 'fulfilled' && item.value) {
+          portfolioUrls.push(item.value);
         }
       }
     }
@@ -241,9 +320,10 @@ export const submitVendorOnboarding = async (
       service_areas: [formData.city.trim(), formData.state.trim(), formData.areas_served.trim()],
       selected_categories: selectedCategories,
       other_category: formData.other_category || '',
-      share_price_after_discussion: formData.share_price_after_discussion,
+      share_price_after_discussion: Boolean(formData.share_price_after_discussion),
       pricing_type: formData.share_price_after_discussion ? 'Share after discussion' : 'Starting price specified',
-      pricing_unit: formData.pricing_unit || '',
+      pricing_unit: formData.pricing_unit || 'Per event',
+      display_starting_price: formData.share_price_after_discussion ? null : (parsedPrice > 1 ? parsedPrice : null),
       portfolio_links: formData.portfolio_or_social_links || '',
       portfolio_photos: portfolioUrls,
       brand_logo_url: brandLogoUrl,
@@ -268,12 +348,14 @@ export const submitVendorOnboarding = async (
       instagram: formData.website_or_instagram?.trim() || null,
       address: combinedAddress,
       experience: formData.years_of_experience,
-      starting_price: parsedPrice,
+      starting_price: parsedPrice, // Guaranteed >= 1 to satisfy check_starting_price_positive
       category: selectedCategories, // text[] array in DB
       categories: selectedCategories,
       subcategory: primaryCategory,
       quick_intro: formData.description_of_services.slice(0, 180),
       detailed_intro: formData.description_of_services.trim(),
+      avatar_url: brandLogoUrl || null,
+      brand_logo_url: brandLogoUrl || null,
       verified: false, // Pending review
       currently_available: false, // Activates when reviewed & approved
       rating: 0,
@@ -281,15 +363,43 @@ export const submitVendorOnboarding = async (
       additional_info: additionalInfo
     };
 
-    // Attempt insert into vendors table
-    const { data: insertedVendor, error: insertError } = await supabase
-      .from('vendors')
-      .insert([vendorRecord])
-      .select()
-      .single();
+    // Attempt insert into vendors table with timeout protection
+    const { data: insertedVendor, error: insertError } = await withTimeout(
+      supabase
+        .from('vendors')
+        .insert([vendorRecord])
+        .select()
+        .single(),
+      20000
+    );
 
     if (insertError) {
       console.error('Error inserting vendor into database:', insertError);
+
+      // Check for check_starting_price_positive error
+      if (insertError.message?.includes('check_starting_price_positive') || insertError.message?.includes('starting_price')) {
+        console.warn('Retrying insert with starting_price = 1 fallback...');
+        const retryRecord = {
+          ...vendorRecord,
+          starting_price: 1
+        };
+        const { data: retryData, error: retryError } = await supabase
+          .from('vendors')
+          .insert([retryRecord])
+          .select()
+          .single();
+
+        if (!retryError && retryData) {
+          const vendorId = retryData?.vendor_id || retryData?.id;
+          await postSubmissionActions(vendorId, formData, generatedAppId, brandLogoUrl);
+          return {
+            success: true,
+            applicationId: generatedAppId,
+            vendorId: vendorId,
+            message: 'Application submitted successfully! Our team will review your details.'
+          };
+        }
+      }
 
       // If error might be due to column constraints (e.g. categories vs category), try minimal fallback
       if (insertError.message?.includes('category') || insertError.message?.includes('column')) {
@@ -297,7 +407,8 @@ export const submitVendorOnboarding = async (
         const fallbackRecord = {
           ...vendorRecord,
           category: primaryCategory,
-          categories: undefined
+          categories: undefined,
+          starting_price: Math.max(1, parsedPrice)
         };
         const { data: retryData, error: retryError } = await supabase
           .from('vendors')
@@ -319,7 +430,15 @@ export const submitVendorOnboarding = async (
         };
       }
 
-      throw new Error(insertError.message || 'Failed to submit application');
+      // Provide friendly error message
+      let friendlyError = insertError.message || 'Failed to submit application';
+      if (insertError.message?.includes('check_starting_price_positive')) {
+        friendlyError = 'Please provide a valid starting price or select "Share after discussion".';
+      } else if (insertError.message?.includes('timeout') || insertError.message?.includes('Failed to fetch')) {
+        friendlyError = 'Network connection timed out. Please check your internet connection and try again.';
+      }
+
+      throw new Error(friendlyError);
     }
 
     const vendorId = insertedVendor?.vendor_id || insertedVendor?.id;

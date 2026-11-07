@@ -49,6 +49,7 @@ import {
   submitVendorOnboarding,
   VendorOnboardingFormData
 } from '@/services/vendorOnboardingService';
+import { imageProcessingService } from '@/services/imageProcessingService';
 
 // Category icons mapping
 const getCategoryIcon = (category: string) => {
@@ -157,7 +158,7 @@ const VendorOnboarding: React.FC = () => {
     }
   };
 
-  // Handle Logo Upload
+  // Handle Logo Upload with client-side compression
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -167,29 +168,47 @@ const VendorOnboarding: React.FC = () => {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      setErrors((prev) => ({ ...prev, brand_logo: 'Logo file size must be less than 5MB.' }));
+    if (file.size > 10 * 1024 * 1024) {
+      setErrors((prev) => ({ ...prev, brand_logo: 'Logo file size must be less than 10MB.' }));
       return;
     }
 
     try {
-      const previewUrl = await fileToDataUrl(file);
-      setFormData((prev) => ({
-        ...prev,
-        brand_logo_file: file,
-        brand_logo_preview: previewUrl
-      }));
+      // Compress logo client-side to max 800x800 for fast upload
+      const comp = await imageProcessingService.processImage(file, {
+        maxWidth: 800,
+        maxHeight: 800,
+        quality: 0.85,
+        format: 'jpeg'
+      });
+      const optimizedFile = (comp.success && comp.processedFile) ? comp.processedFile : file;
+      const previewUrl = URL.createObjectURL(optimizedFile);
+
+      setFormData((prev) => {
+        if (prev.brand_logo_preview && prev.brand_logo_preview.startsWith('blob:')) {
+          URL.revokeObjectURL(prev.brand_logo_preview);
+        }
+        return {
+          ...prev,
+          brand_logo_file: optimizedFile,
+          brand_logo_preview: previewUrl
+        };
+      });
+
       setErrors((prev) => {
         const rest = { ...prev };
         delete rest.brand_logo;
         return rest;
       });
     } catch (err) {
-      console.error('Error generating preview:', err);
+      console.error('Error generating logo preview:', err);
     }
   };
 
   const handleRemoveLogo = () => {
+    if (formData.brand_logo_preview && formData.brand_logo_preview.startsWith('blob:')) {
+      URL.revokeObjectURL(formData.brand_logo_preview);
+    }
     setFormData((prev) => ({
       ...prev,
       brand_logo_file: null,
@@ -198,7 +217,7 @@ const VendorOnboarding: React.FC = () => {
     if (logoInputRef.current) logoInputRef.current.value = '';
   };
 
-  // Handle Portfolio Uploads
+  // Handle Portfolio Uploads with client-side compression
   const handlePortfolioChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -215,13 +234,22 @@ const VendorOnboarding: React.FC = () => {
     const newPreviews: string[] = [];
 
     for (const f of files) {
-      if (f.type.startsWith('image/') && f.size <= 6 * 1024 * 1024) {
-        newFiles.push(f);
+      if (f.type.startsWith('image/')) {
         try {
-          const preview = await fileToDataUrl(f);
-          newPreviews.push(preview);
+          // Compress portfolio images client-side to max 1280x1280 at 80% quality
+          const comp = await imageProcessingService.processImage(f, {
+            maxWidth: 1280,
+            maxHeight: 1280,
+            quality: 0.8,
+            format: 'jpeg'
+          });
+          const processed = (comp.success && comp.processedFile) ? comp.processedFile : f;
+          newFiles.push(processed);
+          newPreviews.push(URL.createObjectURL(processed));
         } catch (err) {
-          console.warn('Could not read image preview', err);
+          console.warn('Could not compress image preview:', err);
+          newFiles.push(f);
+          newPreviews.push(URL.createObjectURL(f));
         }
       }
     }
@@ -245,6 +273,12 @@ const VendorOnboarding: React.FC = () => {
     setFormData((prev) => {
       const updatedFiles = [...(prev.portfolio_files || [])];
       const updatedPreviews = [...(prev.portfolio_previews || [])];
+      
+      const removedPreview = updatedPreviews[index];
+      if (removedPreview && removedPreview.startsWith('blob:')) {
+        URL.revokeObjectURL(removedPreview);
+      }
+
       updatedFiles.splice(index, 1);
       updatedPreviews.splice(index, 1);
       return {

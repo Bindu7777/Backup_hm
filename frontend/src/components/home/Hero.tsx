@@ -7,6 +7,7 @@ import { ParsedRequest } from '../services/requestParser';
 import { ExtractedEntities } from '../services/enhancedAudioEngine';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { CheckCircle, X } from 'lucide-react';
+import MomoMascot from '../momo/MomoMascot';
 import {
   Carousel,
   CarouselContent,
@@ -357,12 +358,22 @@ const Hero = () => {
                 <div className="absolute top-1/2 left-1/2 w-16 h-16 bg-gradient-to-br from-orange-300/10 to-amber-300/10 rounded-full -translate-x-1/2 -translate-y-1/2 animate-pulse" style={{ animationDelay: '2s' }}></div>
                 <div className="absolute top-1/4 left-1/4 w-12 h-12 bg-gradient-to-br from-amber-200/15 to-orange-200/15 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
                 
-                <div className="relative z-10">
-                  {/* Smart Search Header */}
-                  <div className="text-center mb-4 md:mb-6">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 md:mb-3">
+                <div className="relative z-10" id="smart-matching-section">
+                  {/* Smart Search Header & Momo Welcome Mascot */}
+                  <div className="text-center mb-6">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-4">
                       Tell us what you need - we'll find it!
                     </h2>
+
+                    {/* Welcoming Momo Speech Bubble Banner */}
+                    <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl md:rounded-full border-2 border-orange-200/90 shadow-md max-w-xl mx-auto">
+                      <div className="flex-shrink-0">
+                        <MomoMascot size={46} isWaving={true} title="Momo, your Happy Moments AI Assistant" />
+                      </div>
+                      <p className="text-xs sm:text-sm font-bold text-slate-800 text-center sm:text-left leading-snug">
+                        “Hi! I’m Momo 😊 I’ll help you find the right vendors for your event.”
+                      </p>
+                    </div>
                   </div>
 
                   {/* Smart Search Options */}
@@ -399,16 +410,16 @@ const Hero = () => {
                       </button>
                     </div>
 
-                    {/* Smart Matching */}
+                    {/* Smart Matching with Momo Mascot */}
                     <div className="hidden md:block text-center p-4 sm:p-6 md:p-8 bg-gradient-to-br from-white/95 to-orange-50/95 rounded-xl md:rounded-2xl border border-orange-300/60 shadow-lg hover:shadow-2xl hover:shadow-orange-300/40 transition-all duration-300 hover:scale-105 hover:-translate-y-2 group sm:col-span-2 lg:col-span-1">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-orange-600 to-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-xl hover:shadow-2xl hover:shadow-orange-400/60 transition-all duration-300 hover:scale-110 group">
-                        <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 text-white transition-transform duration-300 group-hover:rotate-180 group-hover:scale-110 animate-spin" style={{ animationDuration: '4s', animationIterationCount: 'infinite' }} />
+                      <div className="h-16 sm:h-20 flex items-center justify-center mx-auto mb-4 sm:mb-6 transition-transform duration-300 group-hover:scale-110">
+                        <MomoMascot size={70} isWaving={true} />
                       </div>
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Smart Matching</h3>
                       <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 leading-relaxed font-medium">Get perfect vendor matches based on your specific requirements</p>
                       <button
                         onClick={handleSmartRequestClick}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 hover:-translate-y-1"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 hover:-translate-y-1 cursor-pointer"
                       >
                         <Sparkles className="h-4 w-4" />
                         Get Matches
