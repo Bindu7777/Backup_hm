@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { momoSound } from '@/utils/momoSoundEffects';
 
 export interface MomoMascotProps {
   size?: number | string;
@@ -7,6 +8,10 @@ export interface MomoMascotProps {
   isHappy?: boolean;
   showSparkle?: boolean;
   title?: string;
+  interactive?: boolean;
+  playSoundOnClick?: boolean;
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void;
+  onMouseEnter?: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 /**
@@ -20,6 +25,7 @@ export interface MomoMascotProps {
  * - Soft warm ivory and golden-apricot coat matching the Happy Moments brand palette
  * - Pure scalable vector SVG for infinite crispness
  * - Respects prefers-reduced-motion
+ * - Cute sound effects on tap / click (Web Audio API synthesizers)
  */
 export const MomoMascot: React.FC<MomoMascotProps> = ({
   size = 140,
@@ -27,11 +33,46 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
   isWaving = true,
   isHappy = true,
   showSparkle = true,
-  title = 'Momo the Hamster, your Happy Moments event companion'
+  title = 'Momo the Hamster, your Happy Moments event companion',
+  interactive = true,
+  playSoundOnClick = true,
+  onClick,
+  onMouseEnter
 }) => {
+  const [popParticles, setPopParticles] = useState<{ id: number; emoji: string }[]>([]);
+
+  const handleMascotClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (playSoundOnClick) {
+      momoSound.playRandomCuteSound();
+      const cuteEmojis = ['🎵', '✨', '💖', '🐹', '⭐'];
+      const picked = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+      const newId = Date.now();
+      setPopParticles((prev) => [...prev.slice(-2), { id: newId, emoji: picked }]);
+      setTimeout(() => {
+        setPopParticles((prev) => prev.filter((p) => p.id !== newId));
+      }, 850);
+    }
+    if (onClick) {
+      onClick(e);
+    }
+  };
+
+  const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (interactive) {
+      momoSound.playCutePurr();
+    }
+    if (onMouseEnter) {
+      onMouseEnter(e);
+    }
+  };
+
   return (
     <div
-      className={`relative inline-flex items-center justify-center select-none ${className}`}
+      onClick={handleMascotClick}
+      onMouseEnter={handleMouseEnter}
+      className={`relative inline-flex items-center justify-center select-none ${
+        interactive ? 'cursor-pointer transform hover:scale-105 active:scale-95 transition-transform duration-200' : ''
+      } ${className}`}
       style={{
         width: typeof size === 'number' ? `${size}px` : size,
         height: typeof size === 'number' ? `${(size * 1.08).toFixed(0)}px` : 'auto'
@@ -39,6 +80,16 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
       role="img"
       aria-label={title}
     >
+      {/* Floating cute reactions when tapped */}
+      {popParticles.map((p) => (
+        <span
+          key={p.id}
+          className="absolute -top-3 pointer-events-none text-base sm:text-xl z-30 animate-bounce select-none"
+          style={{ animationDuration: '0.85s' }}
+        >
+          {p.emoji}
+        </span>
+      ))}
       <svg
         viewBox="0 0 200 216"
         fill="none"

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sparkles, MessageCircle, X, ChevronRight, Mic, Search } from 'lucide-react';
 import MomoMascot from './MomoMascot';
+import { momoSound } from '@/utils/momoSoundEffects';
 
 interface MomoMatchingAssistantProps {
   /** Optional custom position class or override */
@@ -44,6 +45,7 @@ export const MomoMatchingAssistant: React.FC<MomoMatchingAssistantProps> = ({
 
   const handleAction = () => {
     setHasInteracted(true);
+    momoSound.playCelebrationChime();
     if (onFindVendorsClick) {
       onFindVendorsClick();
       return;
@@ -150,6 +152,7 @@ export const MomoMatchingAssistant: React.FC<MomoMatchingAssistantProps> = ({
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  momoSound.playBubblePop();
                   setIsMinimized(true);
                 }}
                 className="w-5 h-5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center text-xs transition-colors"
@@ -184,7 +187,11 @@ export const MomoMatchingAssistant: React.FC<MomoMatchingAssistantProps> = ({
       ) : (
         /* Minimized State: Sleek compact floating avatar button on bottom-left */
         <button
-          onClick={() => setIsMinimized(false)}
+          onClick={() => {
+            momoSound.playBubblePop();
+            momoSound.playHamsterSqueak();
+            setIsMinimized(false);
+          }}
           className="group relative flex items-center gap-2 bg-white/95 backdrop-blur-md border-2 border-orange-300 shadow-xl rounded-full p-1.5 pr-3.5 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer animate-in fade-in zoom-in-95"
           aria-label="Open Momo event assistant"
           title="Chat with Momo event companion"

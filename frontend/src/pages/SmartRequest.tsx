@@ -17,6 +17,7 @@ import { createVendorFilterCriteria, searchVendorsWithFilters, VendorSearchResul
 import { saveContactVendor } from '../services/contactedVendorsApiService';
 import Header from '../components/layout/Header';
 import MomoMascot from '../components/momo/MomoMascot';
+import { momoSound } from '@/utils/momoSoundEffects';
 
 const SmartRequest: React.FC = () => {
   const navigate = useNavigate();
@@ -211,7 +212,11 @@ const SmartRequest: React.FC = () => {
       <div className="container mx-auto px-4 pt-20 pb-8">
         {/* Hero Section with Momo Mascot */}
         <div className="text-center mb-10">
-          <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-3xl border-2 border-orange-200/90 shadow-md max-w-xl mx-auto mb-6">
+          <div
+            onClick={() => momoSound.playRandomCuteSound()}
+            className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-3xl border-2 border-orange-200/90 shadow-md max-w-xl mx-auto mb-6 cursor-pointer hover:shadow-lg hover:border-orange-300 transition-all hover:scale-102 active:scale-95 group"
+            title="Click Momo to hear cute sounds!"
+          >
             <div className="flex-shrink-0">
               <MomoMascot size={52} isWaving={true} title="Momo, your Happy Moments AI Assistant" />
             </div>

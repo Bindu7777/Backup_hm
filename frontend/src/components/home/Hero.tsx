@@ -8,6 +8,7 @@ import { ExtractedEntities } from '../services/enhancedAudioEngine';
 import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { CheckCircle, X } from 'lucide-react';
 import MomoMascot from '../momo/MomoMascot';
+import { momoSound } from '@/utils/momoSoundEffects';
 import {
   Carousel,
   CarouselContent,
@@ -366,7 +367,13 @@ const Hero = () => {
                     </h2>
 
                     {/* Welcoming Momo Speech Bubble Banner */}
-                    <div className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl md:rounded-full border-2 border-orange-200/90 shadow-md max-w-xl mx-auto">
+                    <div
+                      onClick={() => {
+                        momoSound.playRandomCuteSound();
+                      }}
+                      className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl md:rounded-full border-2 border-orange-200/90 shadow-md max-w-xl mx-auto cursor-pointer hover:shadow-lg hover:border-orange-300 transition-all hover:scale-102 active:scale-95 group"
+                      title="Click Momo to hear cute sounds!"
+                    >
                       <div className="flex-shrink-0">
                         <MomoMascot size={46} isWaving={true} title="Momo, your Happy Moments AI Assistant" />
                       </div>
@@ -418,7 +425,10 @@ const Hero = () => {
                       <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-3 sm:mb-4">Smart Matching</h3>
                       <p className="text-xs sm:text-sm text-gray-600 mb-4 sm:mb-6 leading-relaxed font-medium">Get perfect vendor matches based on your specific requirements</p>
                       <button
-                        onClick={handleSmartRequestClick}
+                        onClick={() => {
+                          momoSound.playCelebrationChime();
+                          handleSmartRequestClick();
+                        }}
                         className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 hover:-translate-y-1 cursor-pointer"
                       >
                         <Sparkles className="h-4 w-4" />

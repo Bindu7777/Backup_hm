@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, MessageCircle, X, ChevronRight, Mic, Search, Heart } from 'lucide-react';
+import { Sparkles, X, ChevronRight, Volume2, VolumeX } from 'lucide-react';
 import MomoMascot from './MomoMascot';
+import { momoSound } from '@/utils/momoSoundEffects';
 
 /**
  * MomoScreenCompanion
  * Redesigned original assistant for Happy Moments.
  *
  * Design Direction:
- * - Friendly, welcoming event-planning companion (Momo)
+ * - Friendly, welcoming event-planning companion (Momo the cute Hamster)
+ * - Makes adorable cute sounds (peeps, giggles, nom-noms, chimes)
  * - Soft rounded pear silhouette, expressive eyes, warm smile, golden celebration flower
- * - Cohesive warm ivory, peach, coral, and subtle gold palette with teal accent
  * - Welcoming & helpful (NOT mischievous or distracting; no chasing/dodging)
  * - Speech bubble: "Hi! I’m Momo 😊 I’ll help you find the right vendors for your event."
  * - Positioned safely on the BOTTOM-LEFT (bottom-6 left-6 on desktop, bottom-4 left-4 on mobile)
- *   so it NEVER covers the "Get Matches" button or action buttons.
+ * - User-controllable sound toggle (with localStorage persistence)
  * - Respects prefers-reduced-motion.
  */
 export const MomoScreenCompanion: React.FC = () => {
@@ -29,7 +30,14 @@ export const MomoScreenCompanion: React.FC = () => {
     return false;
   });
 
-  const [hasDismissed, setHasDismissed] = useState<boolean>(false);
+  const [hasDismissed] = useState<boolean>(false);
+  const [isSoundOn, setIsSoundOn] = useState<boolean>(() => momoSound.isEnabled());
+
+  useEffect(() => {
+    return momoSound.subscribe((enabled) => {
+      setIsSoundOn(enabled);
+    });
+  }, []);
 
   // Auto-hide on non-customer routes (like login/signup or auth pages)
   const isExcluded =
@@ -45,6 +53,7 @@ export const MomoScreenCompanion: React.FC = () => {
   }
 
   const handleMatchingAction = () => {
+    momoSound.playCelebrationChime();
     // If on homepage, smooth scroll to the Smart Matching section
     if (location.pathname === '/') {
       const matchingSection = document.getElementById('smart-matching-section');
@@ -56,6 +65,23 @@ export const MomoScreenCompanion: React.FC = () => {
     navigate('/smart-request');
   };
 
+  const handleMinimize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    momoSound.playBubblePop();
+    setIsMinimized(true);
+  };
+
+  const handleExpand = () => {
+    momoSound.playBubblePop();
+    momoSound.playHamsterSqueak();
+    setIsMinimized(false);
+  };
+
+  const handleToggleSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    momoSound.toggleSound();
+  };
+
   return (
     <aside
       className="fixed bottom-4 sm:bottom-6 left-4 sm:left-6 z-40 select-none print:hidden"
@@ -64,27 +90,19 @@ export const MomoScreenCompanion: React.FC = () => {
     >
       {!isMinimized ? (
         <div className="flex items-end gap-3 max-w-[340px] sm:max-w-[420px] animate-in fade-in slide-in-from-bottom-3 duration-300">
-          {/* Momo Mascot (Click to minimize or chat) */}
+          {/* Momo Mascot (Click to hear cute hamster sound & see sparkles) */}
           <div
-            onClick={() => setIsMinimized(true)}
-            className="flex-shrink-0 cursor-pointer transform hover:scale-105 active:scale-95 transition-transform duration-200 group relative"
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') setIsMinimized(true);
-            }}
-            title="Click to minimize Momo"
-            aria-label="Minimize Momo assistant"
+            className="flex-shrink-0 relative group"
+            title="Click Momo to hear cute sounds!"
           >
-            <MomoMascot size={80} isWaving={true} />
-            {/* Subtle dismiss tooltip icon on hover */}
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-slate-900/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] shadow-sm">
-              ✕
-            </span>
+            <MomoMascot size={80} isWaving={true} playSoundOnClick={true} interactive={true} />
           </div>
 
           {/* Speech Bubble Card */}
-          <div className="relative bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-orange-200 shadow-xl p-3.5 sm:p-4 text-left">
+          <div
+            onClick={() => momoSound.playCutePurr()}
+            className="relative bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl border-2 border-orange-200 shadow-xl p-3.5 sm:p-4 text-left cursor-default transition-all duration-200"
+          >
             {/* Left-pointing speech tail */}
             <div
               className="absolute -left-2 bottom-5 w-3 h-3 bg-white border-l-2 border-b-2 border-orange-200 transform rotate-45"
@@ -99,12 +117,24 @@ export const MomoScreenCompanion: React.FC = () => {
               </span>
 
               <div className="flex items-center gap-1">
+                {/* Cute Sound Toggle */}
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsMinimized(true);
-                  }}
-                  className="w-5 h-5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center text-xs transition-colors"
+                  onClick={handleToggleSound}
+                  className="w-5 h-5 rounded-full text-slate-400 hover:text-orange-600 hover:bg-orange-50 flex items-center justify-center text-xs transition-colors cursor-pointer"
+                  aria-label={isSoundOn ? 'Mute Momo cute sounds' : 'Enable Momo cute sounds'}
+                  title={isSoundOn ? 'Sound is ON (Click to mute)' : 'Sound is MUTED (Click to hear cute sounds)'}
+                >
+                  {isSoundOn ? (
+                    <Volume2 className="w-3.5 h-3.5 text-orange-500" />
+                  ) : (
+                    <VolumeX className="w-3.5 h-3.5 text-slate-400" />
+                  )}
+                </button>
+
+                {/* Minimize Button */}
+                <button
+                  onClick={handleMinimize}
+                  className="w-5 h-5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 flex items-center justify-center text-xs transition-colors cursor-pointer"
                   aria-label="Minimize assistant"
                   title="Minimize"
                 >
@@ -138,13 +168,13 @@ export const MomoScreenCompanion: React.FC = () => {
       ) : (
         /* Minimized State: Sleek compact avatar pill on the bottom-left */
         <button
-          onClick={() => setIsMinimized(false)}
+          onClick={handleExpand}
           className="group relative flex items-center gap-2 bg-white/95 backdrop-blur-md border-2 border-orange-300 shadow-xl rounded-full p-1.5 pr-3 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer animate-in fade-in zoom-in-95"
           aria-label="Open Momo assistant"
-          title="Chat with Momo"
+          title="Click to talk with Momo"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-gradient-to-b from-orange-50 to-amber-100 flex items-center justify-center shadow-inner">
-            <MomoMascot size={36} isWaving={false} />
+            <MomoMascot size={36} isWaving={false} playSoundOnClick={false} />
           </div>
 
           <div className="text-left pr-1">
