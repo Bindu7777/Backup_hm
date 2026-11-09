@@ -34,19 +34,23 @@ const AdminLogin = () => {
 
       console.log("Checking credentials:", { username, password });
 
-      const isBindu = username?.toLowerCase() === "bindu" && password === "Raviteja";
+      const cleanUser = username?.toLowerCase().replace(/\s+/g, '');
+      const cleanPass = password?.toLowerCase();
+
+      // Official Admin Credentials: username = "himabindu", password = "raviteja"
+      const isHimaBindu = (cleanUser === "himabindu" || cleanUser === "bindu") && cleanPass === "raviteja";
       const isLegacyAdmin = username === "Admin" && password === "Admin@#123*";
 
-      if (isBindu || isLegacyAdmin) {
+      if (isHimaBindu || isLegacyAdmin) {
         // Store admin session
-        const loggedInUser = isBindu ? "Bindu" : "Admin";
+        const loggedInUser = isHimaBindu ? "Hima Bindu" : "Admin";
         localStorage.setItem("adminLoggedIn", "true");
         localStorage.setItem("adminUser", loggedInUser);
         console.log("Login successful, navigating to dashboard as:", loggedInUser);
         navigate("/admin/dashboard");
       } else {
         console.log("Login failed - invalid credentials");
-        setError("Invalid admin credentials.");
+        setError("Invalid admin credentials. Please enter username: himabindu and password: raviteja");
       }
       setIsLoading(false);
     }, 1000);
@@ -83,7 +87,7 @@ const AdminLogin = () => {
                   })}
                   type="text"
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter admin username"
+                  placeholder="Enter admin username (e.g. himabindu)"
                 />
                 {errors.username && (
                   <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
@@ -103,7 +107,7 @@ const AdminLogin = () => {
                   })}
                   type={showPassword ? "text" : "password"}
                   className="appearance-none block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="Enter admin password"
+                  placeholder="Enter admin password (e.g. raviteja)"
                 />
                 <button
                   type="button"

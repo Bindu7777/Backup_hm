@@ -533,7 +533,8 @@ const AdminDashboard = () => {
   };
 
   const setRandomAdminName = () => {
-    setAdminName("Muichiro Tokito");
+    const savedUser = localStorage.getItem("adminUser");
+    setAdminName(savedUser || "Hima Bindu");
   };
 
   useEffect(() => {

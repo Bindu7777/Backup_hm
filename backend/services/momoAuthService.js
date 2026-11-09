@@ -104,8 +104,10 @@ const MomoAuthService = {
     }
 
     const providedHash = hashSecret(secret.trim());
+    const providedLowerHash = hashSecret(secret.trim().toLowerCase());
     const targetHash = getTargetSecretHash();
     const ravitejaHash = hashSecret('Raviteja');
+    const ravitejaLowerHash = hashSecret('raviteja');
     const legacyHash = hashSecret('MomoAdmin2026!');
 
     // Constant-time comparison helper
@@ -124,6 +126,8 @@ const MomoAuthService = {
 
     const isMatch = checkHashMatch(providedHash, targetHash) ||
                     checkHashMatch(providedHash, ravitejaHash) ||
+                    checkHashMatch(providedHash, ravitejaLowerHash) ||
+                    checkHashMatch(providedLowerHash, ravitejaLowerHash) ||
                     checkHashMatch(providedHash, legacyHash);
 
     if (!isMatch) {
