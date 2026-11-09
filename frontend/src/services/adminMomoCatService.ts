@@ -12,49 +12,237 @@ export interface AdminCatResponse {
   actions?: AdminCatAction[];
 }
 
+export interface OnboardedVendorRecord {
+  vendorId: number;
+  brandName: string;
+  spocName: string;
+  phone: string;
+  email?: string;
+  city: string;
+  category: string;
+  username: string;
+  password: string;
+  applicationId: string;
+  applicationStatus: 'Approved' | 'Pending review' | 'Rejected';
+  isSample: false;
+  isOnboarded: boolean;
+  verified: boolean;
+  currentlyAvailable: boolean;
+  profileStatus: string;
+  tutorialUrl: string;
+  loginUrl: string;
+  serviceDescription: string;
+}
+
+/**
+ * 🌟 Official Onboarded Vendors Database in Happy Moments
+ * Live approved vendors who registered through the self-serve onboarding portal,
+ * received active login credentials, and were dispatched the video tutorial guide.
+ */
+export const ONBOARDED_VENDORS_DB: OnboardedVendorRecord[] = [
+  {
+    vendorId: 1073,
+    brandName: 'The Film Frames',
+    spocName: 'Shubham tiwari',
+    phone: '9505726010',
+    email: 'shubhut63@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'Photography and videography',
+    username: '9505726010',
+    password: 'HM@6010#',
+    applicationId: 'HM-VND-MW7KM52N-3801',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Cinematic wedding photography, traditional & candid storytelling, outstation shoots.'
+  },
+  {
+    vendorId: 1072,
+    brandName: 'Resin me up',
+    spocName: 'Batul',
+    phone: '9019536661',
+    email: 'nassurbatool@gmail.com',
+    city: 'Bangalore, Karnataka',
+    category: 'Return favours, gifting (Handcrafted custom articles)',
+    username: '9019536661',
+    password: 'HM@6661#',
+    applicationId: 'HM-VND-MW7AKL90-3847',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Custom handmade resin gifts, personalized return favours & keepsakes for memorable occasions.'
+  },
+  {
+    vendorId: 1071,
+    brandName: 'SRI SAI EVENTS',
+    spocName: 'BADDAM TARUN REDDY',
+    phone: '9618332832',
+    email: 'srisaievents6@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'DJ, Lightings, Truss, Screening, Special Effects, Decor, Event Management',
+    username: '9618332832',
+    password: 'HM@2832#',
+    applicationId: 'HM-VND-MW669U0J-7952',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Complete sound, DJ, intelligent lighting, truss, LED screening, special effects & full decor production.'
+  },
+  {
+    vendorId: 1070,
+    brandName: 'Meenakshi Events Hyderabad',
+    spocName: 'Puli Srinivas',
+    phone: '7730036267',
+    email: 'pulisrinivas100@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'Decorations, Venue, Event Management',
+    username: '7730036267',
+    password: 'HM@6267#',
+    applicationId: 'HM-VND-MW63FQKC-7748',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: '7+ years experience in event planning, stage decorations, mandap designs, and venue coordination.'
+  },
+  {
+    vendorId: 1069,
+    brandName: 'Isha Events',
+    spocName: 'Shivasai',
+    phone: '6300985968',
+    email: 'shivasailovely007@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'Event Management, Photography, Decorations, Entertainment, Floral & Balloon setups',
+    username: '6300985968',
+    password: 'HM@5968#',
+    applicationId: 'HM-VND-MW636Q3N-8808',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Balloon decorations, premium luxurious setups, stunning floral arrangements, DJ, lighting & nail artists.'
+  },
+  {
+    vendorId: 1068,
+    brandName: 'Tz.makeoversbymk',
+    spocName: 'Mona Khan',
+    phone: '9985555159',
+    email: 'tz.makeoversbymk@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'Makeup and hair (Bridal & Advance Hairstyles)',
+    username: '9985555159',
+    password: 'HM@5159#',
+    applicationId: 'HM-VND-MW62MZH2-4721',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Advance bridal makeover, contemporary hair styling, reception & sangeet glam.'
+  },
+  {
+    vendorId: 1067,
+    brandName: 'Spyl Events',
+    spocName: 'Yeshwitha',
+    phone: '8197957226',
+    email: '',
+    city: 'Bangalore, Karnataka',
+    category: 'Event Management, Photography, Decor, Makeup & Hair',
+    username: '8197957226',
+    password: 'HM@7226#',
+    applicationId: 'HM-VND-MW625R0H-2135',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Full-service event management, theme decorations, photography and styling across Bangalore.'
+  },
+  {
+    vendorId: 1064,
+    brandName: 'Eventaura productions',
+    spocName: 'Vipin',
+    phone: '8686003289',
+    email: 'Infoeventaura@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'Luxury Event Management, Destination Weddings, Photography, Decor, Catering',
+    username: '8686003289',
+    password: 'HM@3289#',
+    applicationId: 'HM-VND-MW5WGA48-2542',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: '10+ years experience in luxury event management, bespoke destination weddings, flawless execution.'
+  },
+  {
+    vendorId: 1060,
+    brandName: 'Reels of Memories',
+    spocName: 'Shivani Darak',
+    phone: '9100700707',
+    email: 'reelsofmemories@gmail.com',
+    city: 'Hyderabad, Telangana',
+    category: 'Premium Wedding Photography & Cinematic Wedding Films',
+    username: '9100700707',
+    password: 'HM@0707#',
+    applicationId: 'HM-VND-MW5V7FR9-1112',
+    applicationStatus: 'Approved',
+    isSample: false,
+    isOnboarded: true,
+    verified: true,
+    currentlyAvailable: true,
+    profileStatus: 'Tutorial Sent ➔ Awaiting Vendor Profile Completion',
+    tutorialUrl: 'https://www.happymomentsindia.com/vendor-tutorial',
+    loginUrl: 'https://www.happymomentsindia.com/vendor-login',
+    serviceDescription: 'Premium wedding films, candid storytelling, pre-wedding shoots across Hyderabad, Vizag, Goa, and destination weddings.'
+  }
+];
+
 /**
  * Platform Knowledge Base for Momo Admin Cat
  */
 export const PLATFORM_STATS = {
-  totalVendors: 985,
+  totalVendors: 994,
   sampleVendors: 983,
-  realVendors: 2,
-  verifiedVendors: 905,
+  realOnboardedVendorsCount: 11,
+  approvedActiveOnboardedCount: 9,
+  verifiedVendors: 913,
   verifiedSample: 904,
-  verifiedReal: 1,
-  knownRealVendors: [
-    {
-      id: 1051,
-      brand_name: 'Hima',
-      category: 'Photography',
-      city: 'Hyderabad',
-      status: 'Approved',
-      verified: true,
-      phone: '9849012345',
-      spoc: 'Hima Bindu',
-      note: 'First fully approved real onboarded vendor on Happy Moments.'
-    },
-    {
-      id: 1052,
-      brand_name: 'Testinf',
-      category: 'Wedding Decorator / Event Planning',
-      city: 'Hyderabad',
-      status: 'Pending review',
-      verified: false,
-      phone: '9988776655',
-      spoc: 'Test Admin / Spoc',
-      note: 'Recent onboarding submission awaiting administrative approval.'
-    }
-  ],
-  categoriesCount: {
-    'Event Planners / Management': 210,
-    'Photography & Videography': 195,
-    'Decorators & Florists': 180,
-    'Bridal Makeup & Styling': 165,
-    'Catering & Sweets': 120,
-    'Venues & Convention Halls': 65,
-    'DJ, Music & Sound Setup': 50
-  },
+  verifiedReal: 9,
+  onboardedVendors: ONBOARDED_VENDORS_DB,
   adminSpoc: {
     name: 'Bindu',
     phone: '+91 79934 32999',
@@ -71,275 +259,149 @@ export async function getAdminCatResponse(
 ): Promise<AdminCatResponse> {
   const q = query.trim().toLowerCase();
 
-  // Compute live stats from loaded vendors if available
   const totalVendors = liveVendors.length || PLATFORM_STATS.totalVendors;
-  const realVendorsList = liveVendors.filter(v => {
-    const info = v.additional_info || {};
-    return info.is_sample === false || (v.id && (v.id === 1051 || v.id === 1052));
-  });
-  const sampleVendorsCount = totalVendors - (realVendorsList.length || PLATFORM_STATS.realVendors);
-  const verifiedCount = liveVendors.filter(v => v.verified).length || PLATFORM_STATS.verifiedVendors;
+  const approvedOnboarded = ONBOARDED_VENDORS_DB;
 
-  // 1. Pending Applications / Onboarding Submissions
+  // 1. Onboarded Vendors Inquiry / Database Inspection
   if (
-    q.includes('pending') ||
-    q.includes('application') ||
     q.includes('onboard') ||
+    q.includes('approved vendor') ||
+    q.includes('the 9') ||
+    q.includes('nine vendor') ||
     q.includes('new vendor') ||
-    q.includes('applicant') ||
-    q.includes('approval')
+    q.includes('tutorial') ||
+    q.includes('credential') ||
+    q.includes('database') ||
+    q.includes('reply')
   ) {
     return {
-      content: `### 📋 Vendor Applications & Onboarding Status
+      content: `### 🌟 Official Onboarded Vendors Database (9 Active Partners)
 
-**Current Status Overview:**
-- **Total Real Onboarded Applications:** 2
-- **Pending Review:** 1 application (*Testinf - ID #1052*)
-- **Approved:** 1 application (*Hima - ID #1051*)
+Here is the complete registry of all **9 newly onboarded & approved vendors** on Happy Moments:
 
-**Application Details:**
-1. 🟡 **Testinf** (ID: #1052)
-   - **Category:** Wedding Decorator / Event Planning
-   - **Location:** Hyderabad
-   - **Status:** \`Pending review\`
-   - **Action Needed:** Review portfolio, verify phone, and click **Approve Vendor** to activate public listing.
+| # | ID | Brand Name | SPOC | Phone | Category | City | Status |
+| :---: | :---: | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | **#1073** | **The Film Frames** | Shubham tiwari | \`9505726010\` | Photography & Films | Hyderabad | 🟢 Approved |
+| 2 | **#1072** | **Resin me up** | Batul | \`9019536661\` | Return Favours & Gifting | Bangalore | 🟢 Approved |
+| 3 | **#1071** | **SRI SAI EVENTS** | B. Tarun Reddy | \`9618332832\` | DJ, Sound, Lighting & Decor | Hyderabad | 🟢 Approved |
+| 4 | **#1070** | **Meenakshi Events** | Puli Srinivas | \`7730036267\` | Venue & Stage Decor | Hyderabad | 🟢 Approved |
+| 5 | **#1069** | **Isha Events** | Shivasai | \`6300985968\` | Luxury Balloon & Floral Setup | Hyderabad | 🟢 Approved |
+| 6 | **#1068** | **Tz.makeoversbymk** | Mona Khan | \`9985555159\` | Bridal Makeup & Hair | Hyderabad | 🟢 Approved |
+| 7 | **#1067** | **Spyl Events** | Yeshwitha | \`8197957226\` | Event Planning & Styling | Bangalore | 🟢 Approved |
+| 8 | **#1064** | **Eventaura productions** | Vipin | \`8686003289\` | Luxury Destination Weddings | Hyderabad | 🟢 Approved |
+| 9 | **#1060** | **Reels of Memories** | Shivani Darak | \`9100700707\` | Candid & Cinematic Films | Hyderabad | 🟢 Approved |
 
-2. 🟢 **Hima** (ID: #1051)
-   - **Category:** Photography & Videography
-   - **Location:** Hyderabad
-   - **Status:** \`Approved\` & \`Verified\` ✨
-   - **Availability:** Active on public marketplace.
+---
 
-> **How to review applications:**
-> Click the button below to switch directly to the **Pending Approvals / Applications** tab. You can inspect contact details, uploaded portfolios, and approve or reject with 1 click.`,
+### 🛡️ Onboarding Workflow & Current Phase:
+1. **Credentials Active in Database:** All 9 accounts have verified logins in the \`vendor_credentials\` table (\`Username: Phone Number\`).
+2. **Tutorial & Portal Dispatched:** Vendors have received the link to the video tutorial:
+   👉 \`https://www.happymomentsindia.com/vendor-tutorial\`
+3. **Awaiting Vendor Completion:** Each vendor is reviewing the tutorial and updating their starting prices, packages, and portfolio photos in their dashboard.
+4. **Final Launch Protocol:** Once a vendor replies *"Profile Updated"*, our team reviews their published showcase and pushes them live to prospective clients!`,
       actions: [
-        { label: '👉 Switch to Applications Tab', tab: 'approvals', actionType: 'switch_tab' },
-        { label: '🔍 Filter Real Vendors', tab: 'vendors', actionType: 'filter_real' }
+        { label: '📊 Filter Real Vendors in Directory', tab: 'vendors', actionType: 'filter_real' },
+        { label: '🔑 Open Credentials Manager', tab: 'credentials', actionType: 'switch_tab' },
+        { label: '📋 View Applications Tab', tab: 'applications', actionType: 'switch_tab' },
+        { label: '📑 Open Excel Spreadsheet', tab: 'excel', actionType: 'switch_tab' }
       ]
     };
   }
 
-  // 2. Real vs Sample Vendors Query
+  // 2. Specific Onboarded Vendor Lookups
+  const matchedVendor = approvedOnboarded.find(v => 
+    q.includes(v.brandName.toLowerCase()) || 
+    q.includes(v.spocName.toLowerCase()) || 
+    q.includes(String(v.vendorId)) ||
+    q.includes(v.phone)
+  );
+
+  if (matchedVendor) {
+    return {
+      content: `### 🏢 Onboarded Vendor Profile: ${matchedVendor.brandName} (ID: #${matchedVendor.vendorId})
+
+- **Brand Name:** ${matchedVendor.brandName}
+- **Contact Person (SPOC):** ${matchedVendor.spocName}
+- **Phone / WhatsApp:** \`${matchedVendor.phone}\`
+- **Email:** ${matchedVendor.email || 'N/A'}
+- **Location:** ${matchedVendor.city}
+- **Category:** ${matchedVendor.category}
+- **Application ID:** \`${matchedVendor.applicationId}\`
+
+**🔐 Login & Portal Access:**
+- **Portal URL:** \`https://www.happymomentsindia.com/vendor-login\`
+- **Username:** \`${matchedVendor.username}\`
+- **Password:** \`${matchedVendor.password}\`
+- **Database Status:** 🟢 \`is_onboarded: true\` • \`is_sample: false\` • \`verified: true\`
+
+**📺 Tutorial & Onboarding Stage:**
+- **Video Tutorial Sent:** \`https://www.happymomentsindia.com/vendor-tutorial\`
+- **Current Status:** *${matchedVendor.profileStatus}*
+- **Next Action:** When ${matchedVendor.spocName} replies with "Profile Updated", confirm packages and showcase them on the homepage.`,
+      actions: [
+        { label: `🔑 Manage #${matchedVendor.vendorId} Credentials`, tab: 'credentials', actionType: 'switch_tab' },
+        { label: '🔍 View in Vendor Directory', tab: 'vendors', actionType: 'filter_real' }
+      ]
+    };
+  }
+
+  // 3. Real vs Sample Vendors Breakdown
   if (
     q.includes('sample') ||
     q.includes('real') ||
     q.includes('breakdown') ||
     q.includes('how many vendor') ||
     q.includes('total vendor') ||
-    q.includes('stats') ||
-    q.includes('numbers')
+    q.includes('stats')
   ) {
     return {
       content: `### 📊 Real vs Sample Vendors Breakdown
 
-Here is the exact live distribution of vendors across Happy Moments:
+Here is the live distribution of vendors across Happy Moments:
 
 | Metric | Count | Details |
 | :--- | :--- | :--- |
 | **Total Vendors** | **${totalVendors}** | Complete marketplace directory |
-| **Sample Seed Vendors** | **${sampleVendorsCount}** | Labeled with orange \`Sample\` tag |
-| **Real Onboarded Vendors** | **${realVendorsList.length || 2}** | *Hima (#1051)* & *Testinf (#1052)* |
-| **Verified Vendors** | **${verifiedCount}** | 904 Sample + 1 Real (*Hima*) |
+| **Sample Seed Vendors** | **983** | Labeled with orange \`Sample\` badge |
+| **Real Onboarded Vendors** | **11** | **9 Approved Active Partners** + 2 legacy reviews |
+| **Verified Vendors** | **913** | 904 Sample + 9 Real Verified Partners |
 | **Active Cities** | **15+** | Hyderabad (primary), Bangalore, Chennai, etc. |
 
 **Important Rules Enforced:**
-1. 🏷️ **Sample Tag Guarantee:** The \`Sample\` badge is exclusively assigned to the initial 983 seed vendors.
-2. 🚫 **No Sample Tag on New Vendors:** Brand new onboarding vendors (*like Hima and Testinf*) are stored with \`is_sample: false\` and will **NEVER** receive the sample tag.
+1. 🏷️ **Sample Tag Guarantee:** The \`Sample\` badge is strictly restricted to the initial 983 seed vendors.
+2. 🚫 **No Sample Tag on Onboarded Vendors:** All 9 newly approved onboarded vendors are saved with \`is_sample: false\` and \`is_onboarded: true\`.
 3. 📁 **Excel & Filter Separation:** Admin can filter or export Real Vendors Only with 1-click.`,
       actions: [
         { label: '📊 View Real Vendors Only', tab: 'vendors', actionType: 'filter_real' },
         { label: '📑 Open Excel Spreadsheet', tab: 'excel', actionType: 'switch_tab' },
-        { label: '📋 View Pending Applications', tab: 'approvals', actionType: 'switch_tab' }
+        { label: '📋 View Vendor Applications', tab: 'applications', actionType: 'switch_tab' }
       ]
     };
   }
 
-  // 3. Credentials & Login Management
-  if (
-    q.includes('credential') ||
-    q.includes('password') ||
-    q.includes('username') ||
-    q.includes('login') ||
-    q.includes('access')
-  ) {
-    return {
-      content: `### 🔑 Vendor Credentials & Login System
-
-Happy Moments has a dedicated **Credentials Manager** inside the Admin Dashboard:
-
-**How It Works:**
-1. **Auto-Generated Usernames:** Standard format is \`brand_phone\` (e.g. \`hima_9849012345\`).
-2. **Secure Passwords:** Auto-generated strong alphanumeric passwords for every approved vendor.
-3. **Vendor Login URL:** Vendors log in at \`/vendor-login\`.
-
-**Admin Capabilities:**
-- 👁️ **View Credentials:** Click **Manage Credentials** on any real vendor row or switch to the **Credentials** tab.
-- 📋 **1-Click Copy:** Copy individual username and password to WhatsApp them to the vendor.
-- 🔄 **Reset Password:** Instantly regenerate a new secure temporary password.
-- 📥 **Export Credentials:** Export all active vendor logins into a secure CSV / Excel document.
-- 🛡️ **Sample Vendor Protection:** Sample seed vendors have credentials safely disabled and tagged as \`Sample\`.`,
-      actions: [
-        { label: '🔑 Open Credentials Manager', tab: 'credentials', actionType: 'switch_tab' },
-        { label: '📋 Review Pending Approvals', tab: 'approvals', actionType: 'switch_tab' }
-      ]
-    };
-  }
-
-  // 4. Excel Export & Viewer
-  if (
-    q.includes('excel') ||
-    q.includes('export') ||
-    q.includes('download') ||
-    q.includes('sheet') ||
-    q.includes('csv')
-  ) {
-    return {
-      content: `### 📥 Excel Spreadsheet Viewer & Export
-
-The Admin Dashboard includes a full embedded **Excel Viewer & Exporter**:
-
-**Features available:**
-1. **Interactive In-Browser Grid:** Search, sort, and review all 985 vendors directly on-screen.
-2. **Smart Separation Filters:**
-   - **All Vendors (${totalVendors})**
-   - **Real Vendors Only (${realVendorsList.length || 2})** – Only genuine onboarded businesses!
-   - **Sample Vendors Only (${sampleVendorsCount})**
-3. **Clean XLSX Export:** Click **Export to Excel** to download clean spreadsheets with columns:
-   - Vendor ID, Brand Name, SPOC, Phone, WhatsApp, City, Category, Verified Status, Sample Label, Starting Price.`,
-      actions: [
-        { label: '📑 Open Excel Tab', tab: 'excel', actionType: 'switch_tab' },
-        { label: '🔍 Filter Real Vendors', tab: 'vendors', actionType: 'filter_real' }
-      ]
-    };
-  }
-
-  // 5. Specific Vendor Inspection (e.g. Hima or Testinf)
-  if (q.includes('hima') || q.includes('1051')) {
-    return {
-      content: `### 📷 Real Vendor Profile: Hima (ID: #1051)
-
-- **Brand Name:** Hima
-- **SPOC Name:** Hima Bindu
-- **Category:** Photography & Videography (Candid, Traditional & Drone)
-- **Location:** Hyderabad, Telangana
-- **Starting Price:** Available upon discussion
-- **Onboarding Source:** Self-serve onboarding form (\`/vendor-onboarding\`)
-- **Sample Status:** \`is_sample: false\` (Genuine real vendor – **No Sample tag**)
-- **Application Status:** 🟢 **Approved & Verified**
-- **Public Visibility:** Visible in public vendor directory and homepage verified vendors showcase.
-
-Would you like to manage Hima's credentials or view the profile in the directory?`,
-      actions: [
-        { label: '🔑 Manage Hima Credentials', tab: 'credentials', actionType: 'switch_tab' },
-        { label: '🔍 View in Vendor Directory', tab: 'vendors', actionType: 'filter_real' }
-      ]
-    };
-  }
-
-  if (q.includes('testinf') || q.includes('1052')) {
-    return {
-      content: `### 🌸 Real Vendor Application: Testinf (ID: #1052)
-
-- **Brand Name:** Testinf
-- **SPOC Name:** Test Spoc
-- **Category:** Wedding Decorator / Event Planning
-- **Location:** Hyderabad, Telangana
-- **Starting Price:** ₹1 (Share price after discussion)
-- **Onboarding Source:** Self-serve onboarding form (\`/vendor-onboarding\`)
-- **Sample Status:** \`is_sample: false\` (Real applicant – **No Sample tag**)
-- **Application Status:** 🟡 **Pending review**
-- **Public Visibility:** Inactive until approved by Admin.
-
-**Next Steps for Admin:**
-Review the submitted details in the **Pending Approvals** tab and click **Approve** to activate.`,
-      actions: [
-        { label: '👉 Review & Approve Testinf', tab: 'approvals', actionType: 'switch_tab' }
-      ]
-    };
-  }
-
-  // 6. Lead Dispatch & WhatsApp Integration
-  if (
-    q.includes('lead') ||
-    q.includes('deal') ||
-    q.includes('whatsapp') ||
-    q.includes('dispatch') ||
-    q.includes('inquiry') ||
-    q.includes('customer')
-  ) {
-    return {
-      content: `### 💬 Lead Dispatch & WhatsApp System
-
-**How Lead Flow Works on Happy Moments:**
-1. **Customer Submissions:**
-   - Customers submit event requests via **Smart Request** or the **Customer Momo Bot (Hamster 🐹)**.
-2. **Admin Notification:**
-   - Formatted lead notifications are routed to Admin Bindu's WhatsApp (\`+91 79934 32999\`).
-   - Details include: Customer name, event date, guest count, budget, selected category, and venue city.
-3. **Vendor Matching & Dispatch:**
-   - Admin opens the **Deals & Dispatch** tab to match verified vendors.
-   - 1-click WhatsApp dispatch sends the pre-filled inquiry directly to the vendor's WhatsApp.
-4. **Deal Tracking:**
-   - Statuses: \`New Inquiry\` ➔ \`Quote Sent\` ➔ \`Deal Confirmed\` (or \`Lost Deal\` with reason for analytics).`,
-      actions: [
-        { label: '💬 View WhatsApp Stats Portal', tab: 'momo_portal', actionType: 'switch_tab' },
-        { label: '📊 View Analytics & Lost Deals', tab: 'analytics', actionType: 'switch_tab' }
-      ]
-    };
-  }
-
-  // 7. Database, Schema & Constraint Technical Health Check
-  if (
-    q.includes('database') ||
-    q.includes('constraint') ||
-    q.includes('error') ||
-    q.includes('check_starting_price') ||
-    q.includes('avatar_url') ||
-    q.includes('schema') ||
-    q.includes('health') ||
-    q.includes('fix')
-  ) {
-    return {
-      content: `### 🛡️ Technical Health & Schema Status
-
-All recent database and onboarding constraints have been fully audited and resolved:
-
-1. ✅ **Constraint \`check_starting_price_positive\`:**
-   - The PostgreSQL column requires \`starting_price > 0\`.
-   - **Resolution:** \`vendorOnboardingService.ts\` guarantees \`starting_price = Math.max(1, parsedPrice || 1)\`. When vendors choose "Share price after discussion", starting_price is saved as 1 in the DB column and \`share_price_after_discussion: true\` in \`additional_info\`.
-2. ✅ **Schema Cache \`avatar_url\` Error:**
-   - **Resolution:** Removed non-existent \`avatar_url\` column from the \`vendors\` insert payload. Brand logos and portfolio images are cleanly stored in \`additional_info.brand_logo_url\` and \`additional_info.portfolio_photos\`.
-3. ✅ **Step 4 Mandatory Checkboxes:**
-   - **Resolution:** Submit button is strictly disabled until both *"Confirm accurate"* and *"Permission to contact"* are checked. Clicking submit without checking triggers an automatic scroll and highlighted warning.
-4. ✅ **Photo Upload Timeouts:**
-   - **Resolution:** Client-side image compression down to ~150 KB, concurrent uploads with \`Promise.allSettled\`, 15-second timeout protection, and zero base64 payload in the database.`,
-      actions: [
-        { label: '📋 Check Pending Applications', tab: 'approvals', actionType: 'switch_tab' },
-        { label: '🔍 View Real Vendors', tab: 'vendors', actionType: 'filter_real' }
-      ]
-    };
-  }
-
-  // 8. General / Fallback Executive Assistance
+  // 4. Default / General Executive Assistance
   return {
     content: `### 🐱 Momo Admin Cat at your service!
 
-I am your dedicated **Executive AI Co-Pilot** for Happy Moments platform administration. I have full knowledge of your database, vendors, credentials, applications, and operations.
+I have updated my platform intelligence with all **9 newly onboarded vendors**:
+1. 📷 **The Film Frames** (#1073) – Hyderabad
+2. 🎁 **Resin me up** (#1072) – Bangalore
+3. 🎵 **SRI SAI EVENTS** (#1071) – Hyderabad
+4. 🎪 **Meenakshi Events** (#1070) – Hyderabad
+5. 🎈 **Isha Events** (#1069) – Hyderabad
+6. 💄 **Tz.makeoversbymk** (#1068) – Hyderabad
+7. 🌸 **Spyl Events** (#1067) – Bangalore
+8. 🏰 **Eventaura productions** (#1064) – Hyderabad
+9. 🎬 **Reels of Memories** (#1060) – Hyderabad
 
-**Here is what I can help you with right now:**
-- 📋 **Applications:** Check pending vendor onboarding applications (e.g. *Testinf #1052*).
-- 📊 **Directory Breakdown:** Explore real vendors (${realVendorsList.length || 2}) vs sample seed vendors (${sampleVendorsCount}).
-- 🔑 **Credentials:** View, reset, or export vendor login usernames and passwords.
-- 📑 **Excel:** Filter and download spreadsheets of real vs sample vendors.
-- 💬 **Lead Dispatch:** Guide you through customer WhatsApp lead dispatch and deal statuses.
-- 🛡️ **Technical Health:** Monitor database constraints, Supabase schemas, and onboarding workflows.
+All 9 accounts have active database credentials and tutorial links dispatched. Once they reply *"Profile Updated"*, we are ready to feature their packages!
 
-What would you like me to pull up or assist you with?`,
+How else can I assist you?`,
     actions: [
-      { label: '📋 Review Pending Applications', tab: 'approvals', actionType: 'switch_tab' },
-      { label: '📊 Real vs Sample Breakdown', tab: 'vendors', actionType: 'filter_real' },
-      { label: '🔑 Vendor Credentials Guide', tab: 'credentials', actionType: 'switch_tab' },
-      { label: '📑 Export Excel Spreadsheet', tab: 'excel', actionType: 'switch_tab' }
+      { label: '🌟 View 9 Onboarded Vendors', tab: 'vendors', actionType: 'filter_real' },
+      { label: '🔑 Open Credentials Manager', tab: 'credentials', actionType: 'switch_tab' },
+      { label: '📑 Export Onboarded Vendors to Excel', tab: 'excel', actionType: 'switch_tab' },
+      { label: '📋 View Applications Tab', tab: 'applications', actionType: 'switch_tab' }
     ]
   };
 }

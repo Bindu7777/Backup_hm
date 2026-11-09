@@ -277,10 +277,14 @@ function generateIntelligentLocalResponse(
     });
   }
   
-  // Sort by rating and experience
+  // Sort: Prioritize real verified onboarded vendors first, then by rating and experience
   filteredVendors.sort((a, b) => {
-    const scoreA = (a.rating || 0) * 10 + (a.events_completed || 0) / 100;
-    const scoreB = (b.rating || 0) * 10 + (b.events_completed || 0) / 100;
+    const isAOnboarded = a.additional_info?.is_onboarded === true || a.additional_info?.is_sample === false;
+    const isBOnboarded = b.additional_info?.is_onboarded === true || b.additional_info?.is_sample === false;
+    const priorityA = isAOnboarded ? 100 : 0;
+    const priorityB = isBOnboarded ? 100 : 0;
+    const scoreA = priorityA + (a.rating || 0) * 10 + (a.events_completed || 0) / 100;
+    const scoreB = priorityB + (b.rating || 0) * 10 + (b.events_completed || 0) / 100;
     return scoreB - scoreA;
   });
   
