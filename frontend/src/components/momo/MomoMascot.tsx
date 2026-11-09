@@ -40,9 +40,13 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
   onMouseEnter
 }) => {
   const [popParticles, setPopParticles] = useState<{ id: number; emoji: string }[]>([]);
+  const [isHopping, setIsHopping] = useState(false);
 
   const handleMascotClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    setIsHopping(true);
+    setTimeout(() => setIsHopping(false), 700);
+
     if (playSoundOnClick) {
       momoSound.playRandomCuteSound(true);
       const cuteEmojis = ['🎵', '✨', '💖', '🐹', '⭐'];
@@ -61,6 +65,8 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (interactive && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
+      setIsHopping(true);
+      setTimeout(() => setIsHopping(false), 700);
       momoSound.playRandomCuteSound(true);
     }
   };
@@ -175,66 +181,148 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
         <style>{`
           @media (prefers-reduced-motion: no-preference) {
             .momo-bounce {
-              animation: hamsterBreathe 3.4s ease-in-out infinite;
-              transform-origin: 100px 190px;
+              animation: hamsterLivelyIdle 3.8s ease-in-out infinite;
+              transform-origin: 100px 200px;
             }
             .momo-wave-paw {
-              animation: hamsterWave 2.2s ease-in-out infinite;
-              transform-origin: 140px 135px;
+              animation: hamsterPawWave 1.9s ease-in-out infinite;
+              transform-origin: 128px 145px;
+            }
+            .momo-left-paw {
+              animation: hamsterLeftPaw 3.2s ease-in-out infinite;
+              transform-origin: 78px 148px;
             }
             .momo-ear-left {
-              animation: hamsterEarWiggle 4.6s ease-in-out infinite;
-              transform-origin: 52px 42px;
+              animation: hamsterEarTwitchL 4.2s ease-in-out infinite;
+              transform-origin: 52px 56px;
             }
             .momo-ear-right {
-              animation: hamsterEarWiggleR 4.6s ease-in-out infinite 0.3s;
-              transform-origin: 148px 42px;
+              animation: hamsterEarTwitchR 4.2s ease-in-out infinite 0.2s;
+              transform-origin: 148px 56px;
+            }
+            .momo-whiskers {
+              animation: hamsterSniff 2.8s ease-in-out infinite;
+              transform-origin: 100px 122px;
+            }
+            .momo-eyes-blink {
+              animation: hamsterBlink 4.2s ease-in-out infinite;
+              transform-origin: 100px 98px;
             }
             .momo-sparkle {
               animation: hamsterSparkle 2s ease-in-out infinite alternate;
               transform-origin: center;
             }
             .momo-flower {
-              animation: hamsterFlowerFloat 3s ease-in-out infinite alternate;
+              animation: hamsterFlowerFloat 2.6s ease-in-out infinite alternate;
               transform-origin: 152px 34px;
             }
+            .momo-shadow-pulse {
+              animation: hamsterShadowPulse 3.8s ease-in-out infinite;
+              transform-origin: 100px 204px;
+            }
+            .momo-hop-active {
+              animation: hamsterClickHop 0.65s cubic-bezier(0.17, 0.89, 0.32, 1.25) forwards !important;
+            }
           }
-          @keyframes hamsterBreathe {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-3px) scale(1.015, 0.985); }
+
+          @keyframes hamsterLivelyIdle {
+            0%, 100% {
+              transform: translateY(0) scale(1, 1) rotate(0deg);
+            }
+            15% {
+              transform: translateY(-4px) scale(0.99, 1.025) rotate(-1.2deg);
+            }
+            30% {
+              transform: translateY(0) scale(1.015, 0.99) rotate(0deg);
+            }
+            45% {
+              transform: translateY(-5px) scale(0.985, 1.03) rotate(1.4deg);
+            }
+            60% {
+              transform: translateY(0) scale(1.02, 0.98) rotate(0deg);
+            }
+            75% {
+              transform: translateY(-2.5px) scale(0.995, 1.01) rotate(-0.6deg);
+            }
+            85% {
+              transform: translateY(0) scale(1.025, 0.975) rotate(0deg);
+            }
+            92% {
+              transform: translateY(-1.5px) scale(1, 1.01) rotate(0deg);
+            }
           }
-          @keyframes hamsterWave {
+
+          @keyframes hamsterPawWave {
             0%, 100% { transform: rotate(0deg); }
-            20% { transform: rotate(-14deg); }
-            40% { transform: rotate(6deg); }
-            60% { transform: rotate(-10deg); }
-            80% { transform: rotate(2deg); }
+            15% { transform: rotate(-18deg) translateY(-2px); }
+            30% { transform: rotate(6deg); }
+            45% { transform: rotate(-16deg) translateY(-2px); }
+            60% { transform: rotate(4deg); }
+            75% { transform: rotate(-10deg); }
           }
-          @keyframes hamsterEarWiggle {
-            0%, 90%, 100% { transform: rotate(0deg); }
-            93% { transform: rotate(-6deg); }
-            96% { transform: rotate(4deg); }
+
+          @keyframes hamsterLeftPaw {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-2px) rotate(-3deg); }
           }
-          @keyframes hamsterEarWiggleR {
-            0%, 90%, 100% { transform: rotate(0deg); }
-            93% { transform: rotate(6deg); }
-            96% { transform: rotate(-4deg); }
+
+          @keyframes hamsterEarTwitchL {
+            0%, 80%, 100% { transform: rotate(0deg); }
+            83% { transform: rotate(-10deg); }
+            86% { transform: rotate(6deg); }
+            89% { transform: rotate(-8deg); }
+            92% { transform: rotate(3deg); }
           }
-          @keyframes hamsterSparkle {
-            0% { transform: scale(0.8) rotate(0deg); opacity: 0.65; }
-            100% { transform: scale(1.15) rotate(18deg); opacity: 1; }
+
+          @keyframes hamsterEarTwitchR {
+            0%, 80%, 100% { transform: rotate(0deg); }
+            83% { transform: rotate(10deg); }
+            86% { transform: rotate(-6deg); }
+            89% { transform: rotate(8deg); }
+            92% { transform: rotate(-3deg); }
           }
+
+          @keyframes hamsterSniff {
+            0%, 100% { transform: scale(1); }
+            28%, 34% { transform: scale(1.04, 0.98); }
+            31%, 37% { transform: scale(0.97, 1.03); }
+          }
+
+          @keyframes hamsterBlink {
+            0%, 93%, 97%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.08); }
+          }
+
           @keyframes hamsterFlowerFloat {
             0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-2px) rotate(4deg); }
+            100% { transform: translateY(-3px) rotate(6deg); }
+          }
+
+          @keyframes hamsterSparkle {
+            0% { transform: scale(0.7) rotate(-10deg); opacity: 0.55; }
+            100% { transform: scale(1.2) rotate(20deg); opacity: 1; }
+          }
+
+          @keyframes hamsterShadowPulse {
+            0%, 100% { transform: scale(1); opacity: 0.22; }
+            45% { transform: scale(0.94); opacity: 0.18; }
+            60% { transform: scale(1.04); opacity: 0.26; }
+          }
+
+          @keyframes hamsterClickHop {
+            0% { transform: translateY(0) scale(1.1, 0.88); }
+            35% { transform: translateY(-16px) scale(0.92, 1.12) rotate(-2deg); }
+            65% { transform: translateY(-5px) scale(1.03, 0.97) rotate(1deg); }
+            85% { transform: translateY(0) scale(1.05, 0.95); }
+            100% { transform: translateY(0) scale(1, 1) rotate(0deg); }
           }
         `}</style>
 
         {/* Ambient Ground Contact Shadow */}
-        <ellipse cx="100" cy="204" rx="66" ry="11" fill="url(#hamsterShadow)" />
+        <ellipse cx="100" cy="204" rx="66" ry="11" fill="url(#hamsterShadow)" className="momo-shadow-pulse" />
 
-        {/* Main Body Group with Idle Animation */}
-        <g className="momo-bounce">
+        {/* Main Body Group with Lively Idle & Hop Animation */}
+        <g className={`momo-bounce ${isHopping ? 'momo-hop-active' : ''}`}>
           {/* Round Stubby Hamster Feet */}
           <ellipse cx="72" cy="196" rx="16" ry="10" fill="#FFB74D" />
           <ellipse cx="72" cy="195" rx="13" ry="8" fill="#FFE0B2" />
@@ -304,37 +392,41 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
           <ellipse cx="152" cy="122" rx="22" ry="18" fill="#FFF8F0" />
           <circle cx="152" cy="124" r="14" fill="url(#hamsterBlush)" />
 
-          {/* Cute Whiskers */}
-          {/* Left Whiskers */}
-          <path d="M 38 120 Q 22 118 12 114" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
-          <path d="M 38 126 Q 20 128 10 131" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
-          {/* Right Whiskers */}
-          <path d="M 162 120 Q 178 118 188 114" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
-          <path d="M 162 126 Q 180 128 190 131" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
-
-          {/* Expressive Sparkly Chibi Eyes */}
-          {/* Left Eye */}
-          <g>
-            <ellipse cx="73" cy="98" rx="10" ry="12" fill="url(#hamsterEyeGrad)" />
-            {/* Primary Twinkle Reflection */}
-            <circle cx="70" cy="93" r="4.2" fill="#FFFFFF" />
-            {/* Secondary Micro Sparkle */}
-            <circle cx="76" cy="103" r="2.2" fill="#FFFFFF" opacity="0.9" />
-            <circle cx="68" cy="102" r="1.3" fill="#FFFFFF" opacity="0.6" />
-            {/* Eyebrow */}
-            <path d="M 64 82 Q 74 77 82 81" stroke="#B45309" strokeWidth="2.6" strokeLinecap="round" />
+          {/* Cute Whiskers with Sniffing Animation */}
+          <g className="momo-whiskers">
+            {/* Left Whiskers */}
+            <path d="M 38 120 Q 22 118 12 114" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+            <path d="M 38 126 Q 20 128 10 131" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+            {/* Right Whiskers */}
+            <path d="M 162 120 Q 178 118 188 114" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
+            <path d="M 162 126 Q 180 128 190 131" stroke="#D97706" strokeWidth="1.8" strokeLinecap="round" opacity="0.75" />
           </g>
 
-          {/* Right Eye */}
-          <g>
-            <ellipse cx="127" cy="98" rx="10" ry="12" fill="url(#hamsterEyeGrad)" />
-            {/* Primary Twinkle Reflection */}
-            <circle cx="124" cy="93" r="4.2" fill="#FFFFFF" />
-            {/* Secondary Micro Sparkle */}
-            <circle cx="130" cy="103" r="2.2" fill="#FFFFFF" opacity="0.9" />
-            <circle cx="122" cy="102" r="1.3" fill="#FFFFFF" opacity="0.6" />
-            {/* Eyebrow */}
-            <path d="M 118 81 Q 126 77 136 82" stroke="#B45309" strokeWidth="2.6" strokeLinecap="round" />
+          {/* Expressive Sparkly Chibi Eyes with Natural Blinking */}
+          <g className="momo-eyes-blink">
+            {/* Left Eye */}
+            <g>
+              <ellipse cx="73" cy="98" rx="10" ry="12" fill="url(#hamsterEyeGrad)" />
+              {/* Primary Twinkle Reflection */}
+              <circle cx="70" cy="93" r="4.2" fill="#FFFFFF" />
+              {/* Secondary Micro Sparkle */}
+              <circle cx="76" cy="103" r="2.2" fill="#FFFFFF" opacity="0.9" />
+              <circle cx="68" cy="102" r="1.3" fill="#FFFFFF" opacity="0.6" />
+              {/* Eyebrow */}
+              <path d="M 64 82 Q 74 77 82 81" stroke="#B45309" strokeWidth="2.6" strokeLinecap="round" />
+            </g>
+
+            {/* Right Eye */}
+            <g>
+              <ellipse cx="127" cy="98" rx="10" ry="12" fill="url(#hamsterEyeGrad)" />
+              {/* Primary Twinkle Reflection */}
+              <circle cx="124" cy="93" r="4.2" fill="#FFFFFF" />
+              {/* Secondary Micro Sparkle */}
+              <circle cx="130" cy="103" r="2.2" fill="#FFFFFF" opacity="0.9" />
+              <circle cx="122" cy="102" r="1.3" fill="#FFFFFF" opacity="0.6" />
+              {/* Eyebrow */}
+              <path d="M 118 81 Q 126 77 136 82" stroke="#B45309" strokeWidth="2.6" strokeLinecap="round" />
+            </g>
           </g>
 
           {/* Cute Tiny Hamster Heart Nose */}
@@ -375,7 +467,7 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
 
           {/* Tiny Chubby Front Paws */}
           {/* Left Paw holding celebration heart or seed */}
-          <g>
+          <g className="momo-left-paw">
             <ellipse cx="78" cy="148" rx="8" ry="9" fill="#FFF3E0" stroke="#F57C00" strokeWidth="2" />
             <circle cx="75" cy="146" r="1.4" fill="#FFA726" />
             <circle cx="78" cy="145" r="1.4" fill="#FFA726" />
