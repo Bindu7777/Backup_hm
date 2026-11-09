@@ -45,21 +45,11 @@ export const MomoMatchingAssistant: React.FC<MomoMatchingAssistantProps> = ({
 
   const handleAction = () => {
     setHasInteracted(true);
-    momoSound.playCelebrationChime();
+    momoSound.playCelebrationChime(true);
     if (onFindVendorsClick) {
       onFindVendorsClick();
       return;
     }
-
-    // If on homepage, smoothly scroll to the smart request/matching hero section
-    if (location.pathname === '/') {
-      const el = document.getElementById('smart-matching-section') || document.getElementById('categories');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-    }
-
     navigate('/smart-request');
   };
 

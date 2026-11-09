@@ -53,15 +53,7 @@ export const MomoScreenCompanion: React.FC = () => {
   }
 
   const handleMatchingAction = () => {
-    momoSound.playCelebrationChime();
-    // If on homepage, smooth scroll to the Smart Matching section
-    if (location.pathname === '/') {
-      const matchingSection = document.getElementById('smart-matching-section');
-      if (matchingSection) {
-        matchingSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-    }
+    momoSound.playCelebrationChime(true);
     navigate('/smart-request');
   };
 
@@ -172,12 +164,19 @@ export const MomoScreenCompanion: React.FC = () => {
       ) : (
         /* Minimized State: Sleek compact avatar pill on the bottom-left */
         <button
-          onClick={handleExpand}
+          onClick={handleMatchingAction}
           className="group relative flex items-center gap-2 bg-white/95 backdrop-blur-md border-2 border-orange-300 shadow-xl rounded-full p-1.5 pr-3 hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer animate-in fade-in zoom-in-95"
-          aria-label="Open Momo assistant"
-          title="Click to talk with Momo"
+          aria-label="Find vendors with Momo"
+          title="Find Vendors - Get Matches directly"
         >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-gradient-to-b from-orange-50 to-amber-100 flex items-center justify-center shadow-inner">
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              handleExpand();
+            }}
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full overflow-hidden bg-gradient-to-b from-orange-50 to-amber-100 flex items-center justify-center shadow-inner hover:scale-110 transition-transform"
+            title="Expand Momo"
+          >
             <MomoMascot size={36} isWaving={false} playSoundOnClick={false} />
           </div>
 
@@ -186,7 +185,10 @@ export const MomoScreenCompanion: React.FC = () => {
               <span>Momo</span>
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <p className="text-xs font-extrabold text-slate-800">Find Vendors</p>
+            <p className="text-xs font-extrabold text-slate-800 flex items-center gap-1">
+              <span>Find Vendors</span>
+              <ChevronRight className="w-3 h-3 text-orange-500" />
+            </p>
           </div>
         </button>
       )}

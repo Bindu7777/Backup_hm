@@ -172,7 +172,7 @@ const Hero = () => {
   };
 
   const handleSmartRequestClick = () => {
-    setShowSmartRequest(true);
+    navigate('/smart-request');
   };
 
   const handleRequestParsed = (request: ParsedRequest) => {
