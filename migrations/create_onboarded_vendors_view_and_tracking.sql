@@ -47,3 +47,4 @@ WHERE
   OR v.vendor_id IN (1060, 1064, 1067, 1068, 1069, 1070, 1071, 1072, 1073);
 
 COMMENT ON VIEW public.onboarded_vendors IS 'Official view of all approved real onboarded vendors on Happy Moments';
+

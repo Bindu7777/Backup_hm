@@ -46,21 +46,24 @@ export const AdminMomoChat: React.FC<AdminMomoChatProps> = ({
       content: `### 🐱 Purr-fect! Welcome to Momo Admin Cat!
 I am your dedicated **Executive AI Co-Pilot** for Happy Moments platform administration.
 
-I have complete, real-time knowledge of all **${vendors.length || PLATFORM_STATS.totalVendors} vendors**, database records, onboarding applications, credentials, and Excel exports.
+I have complete, real-time knowledge of all **${vendors.length || PLATFORM_STATS.totalVendors} vendors**, database records, onboarding applications, credentials, and our **9 reliable verified partners**.
 
 **Quick Platform Snapshot:**
 - 🏷️ **Total Vendors:** ${vendors.length || PLATFORM_STATS.totalVendors}
-- 📦 **Sample Seed Vendors:** 983 (tagged with orange \`Sample\` label)
-- 🌟 **Real Onboarded Vendors:** 2 (*Hima #1051 - Approved*, *Testinf #1052 - Pending review*)
-- 🟢 **Verified Vendors:** 905 (904 Sample, 1 Real)
+- 🌟 **Reliable Onboarded Partners:** 9 Active Approved Vendors
+- 🔑 **Active Credentials:** Passwords & usernames live in database
+- 🟢 **Verified Vendors:** 913 (904 Sample + 9 Real Verified Partners)
 
-How can I assist you today? Click any quick question below or ask me anything!`,
+How can I assist you today? Click any quick question below or ask me about any vendor or category!`,
       timestamp: new Date(),
       actions: [
-        { label: '📋 Review Pending Applications', tab: 'approvals', actionType: 'switch_tab' },
-        { label: '📊 Real vs Sample Vendors', tab: 'vendors', actionType: 'filter_real' },
-        { label: '🔑 Vendor Credentials Guide', tab: 'credentials', actionType: 'switch_tab' },
-        { label: '📑 Open Excel Spreadsheet', tab: 'excel', actionType: 'switch_tab' }
+        { label: '⭐ Reliable Vendors (Category-wise)', actionType: 'custom', payload: 'all_reliable' },
+        { label: '📸 Photographers', actionType: 'custom', payload: 'photography' },
+        { label: '🎪 Event Planners', actionType: 'custom', payload: 'planner' },
+        { label: '🌸 Decor & DJ', actionType: 'custom', payload: 'decor' },
+        { label: '💄 Bridal Makeup', actionType: 'custom', payload: 'makeup' },
+        { label: '🎁 Return Favours', actionType: 'custom', payload: 'gifting' },
+        { label: '🔑 Credentials Manager', tab: 'credentials', actionType: 'switch_tab' }
       ]
     }
   ]);
@@ -122,7 +125,23 @@ How can I assist you today? Click any quick question below or ask me anything!`,
   };
 
   const handleActionClick = (action: AdminCatAction) => {
-    if (action.actionType === 'filter_real') {
+    if (action.actionType === 'open_url' && action.payload) {
+      window.open(action.payload, '_blank');
+    } else if (action.actionType === 'custom' && action.payload) {
+      if (action.payload === 'photography') {
+        handleSendMessage('Give me reliable photography and film vendors');
+      } else if (action.payload === 'planner') {
+        handleSendMessage('Give me reliable luxury event planners and destination wedding organizers');
+      } else if (action.payload === 'decor') {
+        handleSendMessage('Give me reliable stage decorators, lighting, DJ and sound vendors');
+      } else if (action.payload === 'makeup') {
+        handleSendMessage('Give me reliable bridal makeup and hair styling artists');
+      } else if (action.payload === 'gifting') {
+        handleSendMessage('Give me reliable custom gifting and return favour vendors');
+      } else {
+        handleSendMessage('Give me the list of reliable vendors category wise with full contact details');
+      }
+    } else if (action.actionType === 'filter_real') {
       if (onFilterChange) onFilterChange('real');
       if (onNavigateTab) onNavigateTab('vendors');
     } else if (action.tab && onNavigateTab) {
@@ -136,25 +155,30 @@ How can I assist you today? Click any quick question below or ask me anything!`,
         id: `welcome_${Date.now()}`,
         role: 'cat',
         content: `### 🐱 Momo Admin Cat ready for new tasks!
-Ask me anything about your vendors, applications, credentials, or operations.`,
+Ask me anything about your reliable vendors, applications, credentials, or operations.`,
         timestamp: new Date(),
         actions: [
-          { label: '📋 Pending Applications', tab: 'approvals', actionType: 'switch_tab' },
-          { label: '📊 Real vs Sample Vendors', tab: 'vendors', actionType: 'filter_real' },
-          { label: '🔑 Credentials Guide', tab: 'credentials', actionType: 'switch_tab' }
+          { label: '⭐ Reliable Vendors (Category-wise)', actionType: 'custom', payload: 'all_reliable' },
+          { label: '📸 Photographers', actionType: 'custom', payload: 'photography' },
+          { label: '🎪 Event Planners', actionType: 'custom', payload: 'planner' },
+          { label: '🌸 Decor & DJ', actionType: 'custom', payload: 'decor' },
+          { label: '💄 Bridal Makeup', actionType: 'custom', payload: 'makeup' },
+          { label: '🎁 Return Favours', actionType: 'custom', payload: 'gifting' }
         ]
       }
     ]);
   };
 
   const QUICK_QUESTIONS = [
-    { label: '📋 Pending Applications', text: 'Who are the pending vendor applications and how do I review them?' },
-    { label: '📊 Real vs Sample Stats', text: 'Show me the breakdown between real and sample vendors.' },
-    { label: '🔑 Vendor Credentials', text: 'How do I generate, view, and send login credentials to vendors?' },
-    { label: '📷 Hima Profile (#1051)', text: 'Show me details about Hima (#1051).' },
-    { label: '🌸 Testinf Application (#1052)', text: 'What is the status of Testinf (#1052)?' },
-    { label: '📥 Excel Export', text: 'How do I filter and export real vendors to Excel?' },
-    { label: '🛡️ Database Health Check', text: 'Check database schema, constraints, and onboarding form safety.' }
+    { label: '⭐ Reliable Vendors (Category-wise)', text: 'Give me the list of reliable vendors who just onboarded category wise with full contact details.' },
+    { label: '📸 Reliable Photographers', text: 'Who are our reliable photography and film vendors?' },
+    { label: '🎪 Reliable Event Planners', text: 'Who are our reliable luxury event planning and destination wedding organizers?' },
+    { label: '🌸 Reliable Decor & DJ', text: 'Who are our reliable stage decoration, lighting, and sound/DJ vendors?' },
+    { label: '💄 Reliable Makeup Artists', text: 'Who are our reliable bridal makeup and hair styling artists?' },
+    { label: '🎁 Reliable Return Gifts', text: 'Who are our reliable custom gifting and return favour vendors?' },
+    { label: '🔑 Vendor Credentials', text: 'How do I view and manage login credentials for our onboarded vendors?' },
+    { label: '📋 Pending Applications', text: 'Who are the vendor applications and what is their status?' },
+    { label: '📥 Excel Export', text: 'How do I filter and export real vendors to Excel?' }
   ];
 
   return (
