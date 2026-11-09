@@ -17,6 +17,7 @@ import {
   ShieldCheck, 
   Clock, 
   HelpCircle,
+  Smartphone,
   ChevronRight,
   TrendingUp,
   Camera,
@@ -24,6 +25,7 @@ import {
   Award
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import VendorMobileWalkthroughVideo from '../components/vendor/VendorMobileWalkthroughVideo';
 
 interface Chapter {
   title: string;
@@ -105,6 +107,7 @@ const VendorTutorial: React.FC = () => {
   const [duration, setDuration] = useState(256);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
+  const [walkthroughMode, setWalkthroughMode] = useState<'mobile' | 'mp4'>('mobile');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -250,7 +253,37 @@ const VendorTutorial: React.FC = () => {
         {/* Video Player & Chapters Section */}
         <section className="relative -mt-10 pb-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Walkthrough Mode Switcher */}
+            <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8">
+              <button
+                onClick={() => setWalkthroughMode('mobile')}
+                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer ${
+                  walkthroughMode === 'mobile'
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-orange-500/25 scale-102 ring-2 ring-orange-300'
+                    : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                }`}
+              >
+                <Smartphone className="w-4 h-4 text-orange-200" />
+                <span>📱 Mobile Walkthrough Video (Login & All Features)</span>
+              </button>
+
+              <button
+                onClick={() => setWalkthroughMode('mp4')}
+                className={`px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm transition-all cursor-pointer ${
+                  walkthroughMode === 'mp4'
+                    ? 'bg-gradient-to-r from-orange-500 to-amber-600 text-white shadow-orange-500/25 scale-102 ring-2 ring-orange-300'
+                    : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
+                }`}
+              >
+                <Play className="w-4 h-4" />
+                <span>🎥 Recorded MP4 Video</span>
+              </button>
+            </div>
+
+            {walkthroughMode === 'mobile' ? (
+              <VendorMobileWalkthroughVideo />
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
               
               {/* Left/Center: Video Player Showcase */}
               <div className="lg:col-span-7 flex flex-col items-center">
@@ -475,6 +508,7 @@ const VendorTutorial: React.FC = () => {
                 </div>
               </div>
             </div>
+            )}
           </div>
         </section>
 
