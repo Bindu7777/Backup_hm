@@ -1678,7 +1678,7 @@ const VendorsPage = () => {
                 <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 py-3 px-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
                     <div
-                      onClick={() => momoSound.playRandomCuteSound()}
+                      onClick={() => momoSound.playRandomCuteSound(true)}
                       className="flex items-center gap-2.5 cursor-pointer group"
                       title="Click Momo to hear cute sounds!"
                     >

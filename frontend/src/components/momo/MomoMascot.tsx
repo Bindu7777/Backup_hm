@@ -42,8 +42,9 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
   const [popParticles, setPopParticles] = useState<{ id: number; emoji: string }[]>([]);
 
   const handleMascotClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     if (playSoundOnClick) {
-      momoSound.playRandomCuteSound();
+      momoSound.playRandomCuteSound(true);
       const cuteEmojis = ['🎵', '✨', '💖', '🐹', '⭐'];
       const picked = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
       const newId = Date.now();
@@ -54,6 +55,13 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
     }
     if (onClick) {
       onClick(e);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (interactive && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      momoSound.playRandomCuteSound(true);
     }
   };
 
@@ -69,7 +77,11 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
   return (
     <div
       onClick={handleMascotClick}
+      onKeyDown={handleKeyDown}
       onMouseEnter={handleMouseEnter}
+      role={interactive ? 'button' : 'img'}
+      tabIndex={interactive ? 0 : undefined}
+      aria-label={title}
       className={`relative inline-flex items-center justify-center select-none ${
         interactive ? 'cursor-pointer transform hover:scale-105 active:scale-95 transition-transform duration-200' : ''
       } ${className}`}
@@ -77,8 +89,6 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
         width: typeof size === 'number' ? `${size}px` : size,
         height: typeof size === 'number' ? `${(size * 1.08).toFixed(0)}px` : 'auto'
       }}
-      role="img"
-      aria-label={title}
     >
       {/* Floating cute reactions when tapped */}
       {popParticles.map((p) => (
@@ -94,7 +104,7 @@ export const MomoMascot: React.FC<MomoMascotProps> = ({
         viewBox="0 0 200 216"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full overflow-visible transition-transform duration-300"
+        className="w-full h-full overflow-visible transition-transform duration-300 pointer-events-none"
       >
         <defs>
           {/* Hamster Coat: Warm Golden Apricot to Soft Peach */}

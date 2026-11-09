@@ -369,7 +369,7 @@ const Hero = () => {
                     {/* Welcoming Momo Speech Bubble Banner */}
                     <div
                       onClick={() => {
-                        momoSound.playRandomCuteSound();
+                        momoSound.playRandomCuteSound(true);
                       }}
                       className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/90 backdrop-blur-md px-5 py-3 rounded-2xl md:rounded-full border-2 border-orange-200/90 shadow-md max-w-xl mx-auto cursor-pointer hover:shadow-lg hover:border-orange-300 transition-all hover:scale-102 active:scale-95 group"
                       title="Click Momo to hear cute sounds!"

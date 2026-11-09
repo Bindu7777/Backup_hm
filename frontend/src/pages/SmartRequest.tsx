@@ -213,7 +213,7 @@ const SmartRequest: React.FC = () => {
         {/* Hero Section with Momo Mascot */}
         <div className="text-center mb-10">
           <div
-            onClick={() => momoSound.playRandomCuteSound()}
+            onClick={() => momoSound.playRandomCuteSound(true)}
             className="inline-flex flex-col sm:flex-row items-center justify-center gap-3 bg-white/95 backdrop-blur-md px-6 py-3.5 rounded-3xl border-2 border-orange-200/90 shadow-md max-w-xl mx-auto mb-6 cursor-pointer hover:shadow-lg hover:border-orange-300 transition-all hover:scale-102 active:scale-95 group"
             title="Click Momo to hear cute sounds!"
           >

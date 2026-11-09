@@ -72,8 +72,8 @@ export const MomoScreenCompanion: React.FC = () => {
   };
 
   const handleExpand = () => {
-    momoSound.playBubblePop();
-    momoSound.playHamsterSqueak();
+    momoSound.playBubblePop(true);
+    momoSound.playHamsterSqueak(true);
     setIsMinimized(false);
   };
 
@@ -92,7 +92,11 @@ export const MomoScreenCompanion: React.FC = () => {
         <div className="flex items-end gap-3 max-w-[340px] sm:max-w-[420px] animate-in fade-in slide-in-from-bottom-3 duration-300">
           {/* Momo Mascot (Click to hear cute hamster sound & see sparkles) */}
           <div
-            className="flex-shrink-0 relative group"
+            onClick={(e) => {
+              e.stopPropagation();
+              momoSound.playRandomCuteSound(true);
+            }}
+            className="flex-shrink-0 relative group cursor-pointer"
             title="Click Momo to hear cute sounds!"
           >
             <MomoMascot size={80} isWaving={true} playSoundOnClick={true} interactive={true} />
