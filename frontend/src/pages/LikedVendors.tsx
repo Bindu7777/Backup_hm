@@ -6,6 +6,10 @@ import { useCustomerAuth } from '@/contexts/CustomerAuthContext';
 import { getLikedVendors } from '@/services/likedVendorsApiService';
 import VendorShortCard from '@/components/VendorShortCard';
 import { Vendor } from '@/lib/supabase';
+import { logger } from '@/utils/logger';
+
+// ─── Logger ───────────────────────────────────────────────────────────────────
+const log = logger('LikedVendors');
 
 interface LikedVendor extends Vendor {
   liked_at: string;
@@ -18,38 +22,67 @@ const LikedVendors = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // ─── Mount / customer change ───────────────────────────────────────────────
   useEffect(() => {
+    log.info('useEffect[customer]', 'Customer auth state changed', {
+      customerId: customer?.id ?? null,
+      timestamp: new Date().toISOString(),
+    });
+
     if (customer) {
       fetchLikedVendors();
+    } else {
+      log.warn('useEffect[customer]', 'No logged-in customer — skipping fetch');
     }
   }, [customer]);
 
+  // ─── fetchLikedVendors ────────────────────────────────────────────────────
+  /**
+   * Loads the full list of liked vendors for the current customer.
+   * Logs: start, success count, empty result, and any error.
+   */
   const fetchLikedVendors = async () => {
+    const FN = 'fetchLikedVendors';
+    log.info(FN, '▶ START — fetching liked vendors', {
+      customerId: customer?.id,
+      timestamp: new Date().toISOString(),
+    });
+
+    const start = performance.now();
     try {
       setLoading(true);
-      
-      console.log('Fetching liked vendors for customer:', customer?.id);
-      const result = await getLikedVendors(customer?.id || 0);
 
+      const result = await getLikedVendors(customer?.id || 0);
+      const ms = (performance.now() - start).toFixed(1);
+
+      // Service-level error
       if (result.error) {
-        console.error('Error fetching liked vendors:', result.error);
+        log.error(FN, `API returned error after ${ms}ms`, result.error);
         setError(result.error);
         return;
       }
 
+      // Empty result
       if (!result.data || result.data.length === 0) {
+        log.info(FN, `No liked vendors found for customer ${customer?.id} (${ms}ms)`);
         setLikedVendors([]);
         return;
       }
 
-      console.log('Got liked vendors:', result.data);
-      console.log('First vendor data structure:', result.data?.[0]);
+      // Success
+      log.success(FN, `Loaded ${result.data.length} liked vendor(s) in ${ms}ms`, {
+        vendorIds: result.data.map((v: any) => v.vendor_id),
+        firstVendor: result.data[0],
+      });
       setLikedVendors(result.data as LikedVendor[]);
-    } catch (error) {
-      console.error('Error:', error);
+
+    } catch (err) {
+      const ms = (performance.now() - start).toFixed(1);
+      log.error(FN, `Unexpected exception after ${ms}ms`, err);
       setError('An unexpected error occurred');
     } finally {
       setLoading(false);
+      log.info(FN, '■ END');
     }
   };
 
