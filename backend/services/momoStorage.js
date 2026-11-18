@@ -2,12 +2,22 @@ const fs = require('fs');
 const path = require('path');
 const { supabase } = require('../config/supabase');
 
-const DATA_DIR = path.resolve(__dirname, '../data');
+const os = require('os');
+const log = require('../utils/logger')('momoStorage');
+
+// On Vercel the code's folder is read-only, and backend/data/ is not deployed (it is in .gitignore),
+// so creating it at startup crashed the whole backend. Vercel allows writing only under /tmp.
+const DATA_DIR = process.env.MOMO_DATA_DIR
+  || (process.env.VERCEL ? path.join(os.tmpdir(), 'momo-data') : path.resolve(__dirname, '../data'));
 const STORE_FILE = path.join(DATA_DIR, 'momo_store.json');
 
-// Ensure data directory exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+// Ensure data directory exists; if it cannot be created, log why instead of crashing the backend.
+try {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+} catch (err) {
+  log.error('init', 'Could not create the Momo data folder; local Momo storage will not work', { dir: DATA_DIR, code: err.code, message: err.message });
 }
 
 // Initial knowledge base seed for Happy Moments
