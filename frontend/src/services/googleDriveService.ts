@@ -42,16 +42,11 @@ class GoogleDriveService {
       scope: 'https://www.googleapis.com/auth/drive.file'
     };
     
-    // Log configuration status for debugging
+    // ⚠️ SECURITY: Never log actual key/token values — only log whether they are set.
     console.log('Google Drive Service Configuration:');
     console.log('API Key:', this.config.apiKey ? '✅ Set' : '❌ Missing');
     console.log('Client ID:', this.config.clientId ? '✅ Set' : '❌ Missing');
     console.log('Root Folder ID:', import.meta.env.VITE_GOOGLE_DRIVE_ROOT_FOLDER_ID ? '✅ Set' : '❌ Missing');
-    console.log('All env vars:', {
-      API_KEY: import.meta.env.VITE_GOOGLE_DRIVE_API_KEY,
-      CLIENT_ID: import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID,
-      ROOT_FOLDER_ID: import.meta.env.VITE_GOOGLE_DRIVE_ROOT_FOLDER_ID
-    });
   }
 
   // Initialize Google Drive API
