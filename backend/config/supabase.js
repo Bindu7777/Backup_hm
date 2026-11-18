@@ -4,18 +4,28 @@ const { createClient } = require('@supabase/supabase-js');
 const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseKey) {
-  console.error('Missing Supabase environment variables');
-  console.error('Required: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY');
-  console.error('URL:', supabaseUrl ? 'Set' : 'Missing');
-  console.error('Key:', supabaseKey ? 'Set' : 'Missing');
-  throw new Error('Missing Supabase environment variables');
+const log = require('../utils/logger')('supabase');
+
+const supabaseConfigured = Boolean(supabaseUrl && supabaseKey);
+
+// Missing settings are logged clearly instead of crashing the whole backend, so
+// /api/health still answers and every request that needs the database says why it failed.
+if (!supabaseConfigured) {
+  log.error('config', 'Missing Supabase environment variables: set SUPABASE_URL and SUPABASE_ANON_KEY (or the VITE_ names) in this Vercel project', {
+    url: supabaseUrl ? 'set' : 'missing',
+    key: supabaseKey ? 'set' : 'missing',
+  });
+} else {
+  log.info('config', 'Supabase client configured');
 }
 
-console.log('Backend Supabase URL:', supabaseUrl ? 'Set' : 'Missing');
-console.log('Backend Supabase Key:', supabaseKey ? 'Set' : 'Missing');
+// Create Supabase client (a stand-in that throws a clear error when settings are missing)
+const supabase = supabaseConfigured
+  ? createClient(supabaseUrl, supabaseKey)
+  : new Proxy({}, {
+      get() {
+        throw new Error('Supabase is not configured: SUPABASE_URL / SUPABASE_ANON_KEY are missing');
+      },
+    });
 
-// Create Supabase client
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-module.exports = { supabase };
+module.exports = { supabase, supabaseConfigured };

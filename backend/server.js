@@ -13,8 +13,32 @@ const adminNotificationsRoutes = require('./routes/adminNotifications');
 const momoRoutes = require('./routes/momo');
 const { initializeEmailService } = require('./services/emailService');
 
+const logger = require('./utils/logger');
+const { errorFields } = require('./utils/logger');
+const { supabaseConfigured } = require('./config/supabase');
+
+const httpLog = logger('http');
+const serverLog = logger('server');
+
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// One log line per request: method, path, status, time taken and Vercel's request id.
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on('finish', () => {
+    const data = {
+      status: res.statusCode,
+      ms: Date.now() - start,
+      requestId: req.headers['x-vercel-id'] || null,
+    };
+    const message = `${req.method} ${req.originalUrl}`;
+    if (res.statusCode >= 500) httpLog.error('request', message, data);
+    else if (res.statusCode >= 400) httpLog.warn('request', message, data);
+    else httpLog.info('request', message, data);
+  });
+  next();
+});
 
 // Security middleware
 // Basic helmet is applied above or specifically configured
@@ -64,7 +88,8 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
     timestamp: new Date().toISOString(),
-    service: 'Event Vendor Email API'
+    service: 'Event Vendor Email API',
+    supabase: supabaseConfigured ? 'configured' : 'missing settings'
   });
 });
 
@@ -73,7 +98,7 @@ initializeEmailService();
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
+  serverLog.error('errorHandler', err.message, { method: req.method, path: req.originalUrl, error: errorFields(err) });
   res.status(500).json({
     success: false,
     error: 'Internal server error',
@@ -97,5 +122,10 @@ if (process.env.VERCEL !== '1') {
     console.log(`🌐 CORS enabled for: ${process.env.FRONTEND_URL || 'http://localhost:5173'}`);
   });
 }
+
+// Errors that escape every handler: logged so they show up in Vercel's logs.
+process.on('unhandledRejection', (reason) => {
+  serverLog.error('unhandledRejection', String(reason && reason.message ? reason.message : reason), { error: errorFields(reason) });
+});
 
 module.exports = app;

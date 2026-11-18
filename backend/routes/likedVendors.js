@@ -1,6 +1,8 @@
 const express = require('express');
 const { supabase } = require('../config/supabase');
 const { sendLikeNotificationEmail } = require('../services/emailService');
+const log = require('../utils/logger')('likedVendors');
+const { errorFields } = require('../utils/logger');
 const router = express.Router();
 
 // Save like vendor API
@@ -16,7 +18,7 @@ router.post('/save-like', async (req, res) => {
       });
     }
 
-    console.log(`Saving like: Customer ${customer_id} likes Vendor ${vendor_id}`);
+    log.info('saveLike', 'Saving like', { customer_id, vendor_id });
 
     // Check if the like already exists
     const { data: existingLike, error: checkError } = await supabase
@@ -27,7 +29,7 @@ router.post('/save-like', async (req, res) => {
       .single();
 
     if (checkError && checkError.code !== 'PGRST116') {
-      console.error('Error checking existing like:', checkError);
+      log.error('saveLike', 'Checking for an existing like failed', { customer_id, vendor_id, error: errorFields(checkError) });
       return res.status(500).json({
         success: false,
         error: 'Failed to check existing like'
@@ -54,14 +56,14 @@ router.post('/save-like', async (req, res) => {
       .single();
 
     if (error) {
-      console.error('Error saving like:', error);
+      log.error('saveLike', 'Inserting the like failed', { customer_id, vendor_id, error: errorFields(error) });
       return res.status(500).json({
         success: false,
         error: 'Failed to save like'
       });
     }
 
-    console.log('Like saved successfully:', data);
+    log.info('saveLike', 'Like saved', { customer_id, vendor_id });
 
     // Fetch vendor and customer details for notifications
     const { data: vendorData } = await supabase
@@ -93,7 +95,7 @@ router.post('/save-like', async (req, res) => {
       });
 
     if (notifError) {
-      console.error('⚠️ Failed to insert like notification (non-fatal):', notifError);
+      log.warn('saveLike', 'Inserting the in-app notification failed (non-fatal)', { vendor_id, error: errorFields(notifError) });
     } else {
       console.log(`✅ In-app like notification created for vendor ${vendor_id}`);
     }
@@ -122,7 +124,7 @@ router.post('/save-like', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in save-like endpoint:', error);
+    log.error('saveLike', 'Unexpected error', { error: errorFields(error) });
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -143,7 +145,7 @@ router.delete('/remove-like', async (req, res) => {
       });
     }
 
-    console.log(`Removing like: Customer ${customer_id} unlikes Vendor ${vendor_id}`);
+    log.info('removeLike', 'Removing like', { customer_id, vendor_id });
 
     // Delete the like
     const { error } = await supabase
@@ -153,14 +155,14 @@ router.delete('/remove-like', async (req, res) => {
       .eq('vendor_id', vendor_id);
 
     if (error) {
-      console.error('Error removing like:', error);
+      log.error('removeLike', 'Deleting the like failed', { customer_id, vendor_id, error: errorFields(error) });
       return res.status(500).json({
         success: false,
         error: 'Failed to remove like'
       });
     }
 
-    console.log('Like removed successfully');
+    log.info('removeLike', 'Like removed', { customer_id, vendor_id });
 
     res.json({
       success: true,
@@ -168,7 +170,7 @@ router.delete('/remove-like', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in remove-like endpoint:', error);
+    log.error('removeLike', 'Unexpected error', { error: errorFields(error) });
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -188,7 +190,7 @@ router.get('/get-liked-vendors/:customer_id', async (req, res) => {
       });
     }
 
-    console.log(`Getting liked vendors for customer: ${customer_id}`);
+    log.info('getLikedVendors', 'Getting liked vendors', { customer_id });
 
     // First, get all liked vendor IDs for this customer
     const { data: likedData, error: likedError } = await supabase
@@ -198,7 +200,7 @@ router.get('/get-liked-vendors/:customer_id', async (req, res) => {
       .order('liked_at', { ascending: false });
 
     if (likedError) {
-      console.error('Error fetching liked vendors:', likedError);
+      log.error('getLikedVendors', 'Reading customer_liked_vendors failed', { customer_id, error: errorFields(likedError) });
       return res.status(500).json({
         success: false,
         error: 'Failed to fetch liked vendors'
@@ -268,7 +270,7 @@ router.get('/get-liked-vendors/:customer_id', async (req, res) => {
     }
 
     if (vendorsError) {
-      console.error('Error fetching vendor details:', vendorsError);
+      log.error('getLikedVendors', 'Reading vendor details failed', { customer_id, error: errorFields(vendorsError) });
       return res.status(500).json({
         success: false,
         error: 'Failed to fetch vendor details'
@@ -326,7 +328,7 @@ router.get('/get-liked-vendors/:customer_id', async (req, res) => {
       }
     });
 
-    console.log(`Found ${combinedData.length} liked vendors for customer ${customer_id}`);
+    log.info('getLikedVendors', 'Liked vendors found', { customer_id, count: combinedData.length });
 
     res.json({
       success: true,
@@ -336,7 +338,7 @@ router.get('/get-liked-vendors/:customer_id', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in get-liked-vendors endpoint:', error);
+    log.error('getLikedVendors', 'Unexpected error', { error: errorFields(error) });
     res.status(500).json({
       success: false,
       error: 'Internal server error'
@@ -356,7 +358,7 @@ router.get('/check-like/:customer_id/:vendor_id', async (req, res) => {
       });
     }
 
-    console.log(`Checking if customer ${customer_id} likes vendor ${vendor_id}`);
+    log.info('checkLike', 'Checking like', { customer_id, vendor_id });
 
     const { data, error } = await supabase
       .from('customer_liked_vendors')
@@ -366,7 +368,7 @@ router.get('/check-like/:customer_id/:vendor_id', async (req, res) => {
       .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error checking like status:', error);
+      log.error('checkLike', 'Reading the like failed', { customer_id, vendor_id, error: errorFields(error) });
       return res.status(500).json({
         success: false,
         error: 'Failed to check like status'
@@ -382,7 +384,7 @@ router.get('/check-like/:customer_id/:vendor_id', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error in check-like endpoint:', error);
+    log.error('checkLike', 'Unexpected error', { error: errorFields(error) });
     res.status(500).json({
       success: false,
       error: 'Internal server error'

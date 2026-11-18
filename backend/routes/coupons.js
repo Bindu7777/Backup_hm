@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL,
-  process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY
-);
+// The shared client: when the Supabase settings are missing it logs why instead of crashing the backend.
+const { supabase } = require('../config/supabase');
 
 // Get all active coupons
 router.get('/active', async (req, res) => {
