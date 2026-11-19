@@ -75,7 +75,25 @@ export type VendorMatch = {
   price_min?: number | null;
   price_max?: number | null;
   highlights?: string[] | null;
+  logo?: string | null;
 };
+
+/** Photos come back as full URLs or as "bucket/path" in public storage. */
+export function photoUrl(p: string | null | undefined): string {
+  if (!p) return "";
+  if (/^https?:\/\//.test(p)) return p;
+  const slash = p.indexOf("/");
+  return supabase.storage.from(p.slice(0, slash)).getPublicUrl(p.slice(slash + 1)).data.publicUrl;
+}
+
+/** The chosen vendor's photos and logo, same rules as the matches. */
+export async function vendorPhotosAndLogo(vendorId: number): Promise<{ photos: string[]; logo: string | null }> {
+  const [ph, lg] = await Promise.all([
+    supabase.rpc("vendor_photos", { p_vendor_id: vendorId, p_limit: 4 }),
+    supabase.rpc("vendor_logo", { p_vendor_id: vendorId }),
+  ]);
+  return { photos: (ph.data as string[]) || [], logo: (lg.data as string) || null };
+}
 
 export type VendorCardStats = Pick<VendorMatch,
   "rating" | "review_count" | "review_source" | "events_done" | "experience" | "price_min" | "price_max" | "highlights">;

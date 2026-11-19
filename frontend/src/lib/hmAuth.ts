@@ -1,6 +1,9 @@
 // Sign-in for the Phase 1 customer journey, group chats and the Super Vendor team.
-// Everyone signs in with Supabase Auth using a one-time email code, so the
-// database knows who is asking and its row level security decides what they see.
+// Customers: email + password accounts (no email verification; the project
+// auto-confirms sign-ups). Vendors: emailed sign-in link/code, because their access
+// comes from their email and a password account can't be made with a vendor email
+// (database guard hm_guard_vendor_email_accounts). Row level security decides what
+// each signed-in person sees.
 
 import { useEffect, useState } from "react";
 import type { Session } from "@supabase/supabase-js";
@@ -34,11 +37,37 @@ export async function verifyEmailCode(email: string, code: string) {
   return data.session;
 }
 
+export const PASSWORD_MIN = 8;
+
+/** Creates a customer account and signs in straight away (no verification email). */
+export async function signUpWithPassword(email: string, password: string) {
+  const { data, error } = await supabase.auth.signUp({ email: email.trim().toLowerCase(), password });
+  if (error) throw friendlyAuthError(error.message);
+  // Supabase hides "already registered" behind an empty identities list.
+  if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    throw new Error("You already have an account with this email. Sign in instead.");
+  }
+  if (!data.session) throw new Error("Account created. Please sign in.");
+  return data.session;
+}
+
+export async function signInWithPassword(email: string, password: string) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+  if (error || !data.session) throw friendlyAuthError(error?.message || "Wrong email or password.");
+  return data.session;
+}
+
 export async function signOutHm() {
   await supabase.auth.signOut();
 }
 
 function friendlyAuthError(message: string) {
+  if (/database error saving new user|hm_vendor_email/i.test(message)) {
+    return new Error("This email belongs to a Happy Moments vendor. Vendors sign in from My celebrations with \"Email me a sign-in link\".");
+  }
+  if (/already registered|already exists/i.test(message)) return new Error("You already have an account with this email. Sign in instead.");
+  if (/invalid login credentials/i.test(message)) return new Error("Wrong email or password.");
+  if (/password should be|weak password/i.test(message)) return new Error(`Use a password with at least ${PASSWORD_MIN} characters.`);
   if (/rate limit|too many|security purposes/i.test(message)) {
     return new Error("Too many codes requested. Please wait a minute and try again.");
   }

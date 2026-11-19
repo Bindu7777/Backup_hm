@@ -53,6 +53,7 @@ export const MomoScreenCompanion: React.FC = () => {
     location.pathname === '/plan' ||
     location.pathname.startsWith('/chat/') ||
     location.pathname === '/my-chats' ||
+    location.pathname === '/my-celebrations' ||
     location.pathname.startsWith('/team');
 
   if (isExcluded || hasDismissed) {

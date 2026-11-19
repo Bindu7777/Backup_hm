@@ -9,7 +9,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import type { VendorMatch } from "@/services/enquiryService";
+import { photoUrl, type VendorMatch } from "@/services/enquiryService";
 
 type Props = {
   vendor: VendorMatch;
@@ -33,7 +33,8 @@ const formatExperience = (raw?: string | null) => {
 const formatCount = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(n));
 
 export const MatchCard: React.FC<Props> = ({ vendor, busy, onRequestQuote }) => {
-  const photos = (vendor.photos || []).filter(Boolean).slice(0, 3);
+  const photos = (vendor.photos || []).filter(Boolean).slice(0, 3).map(photoUrl);
+  const logo = vendor.logo ? photoUrl(vendor.logo) : "";
   const tags = (vendor.highlights && vendor.highlights.length > 0 ? vendor.highlights : vendor.categories || []).slice(0, 2);
   const rating = vendor.rating != null ? Number(vendor.rating) : null;
   const experience = formatExperience(vendor.experience);
@@ -49,12 +50,21 @@ export const MatchCard: React.FC<Props> = ({ vendor, busy, onRequestQuote }) => 
           <div key={i} className={`relative overflow-hidden bg-gradient-to-br from-[#FFF3DC] to-[#F7E2BC] ${i === 0 ? "col-span-2 row-span-2" : ""}`}>
             {photos[i] ? (
               <img src={photos[i]} alt={`${vendor.brand_name} work ${i + 1}`} loading="lazy" decoding="async"
+                onError={(e) => { e.currentTarget.style.display = "none"; }}
                 className="absolute inset-0 h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full flex-col items-center justify-center text-[#B88A2E]" aria-hidden>
-                <span className={i === 0 ? "text-3xl" : "text-lg"}>🌼</span>
-                {i === 0 && photos.length === 0 && <span className="mt-1 text-[11px] font-medium">Photos coming soon</span>}
-              </div>
+              i === 0 && photos.length === 0 && logo ? (
+                <div className="flex h-full flex-col items-center justify-center gap-2 p-3">
+                  <img src={logo} alt={`${vendor.brand_name} logo`} loading="lazy" decoding="async"
+                    className="h-20 w-20 rounded-2xl bg-white object-contain p-1 shadow-sm ring-1 ring-[#EFDDBD]" />
+                  <span className="text-[11px] font-medium text-[#B88A2E]">Work photos coming soon</span>
+                </div>
+              ) : (
+                <div className="flex h-full flex-col items-center justify-center text-[#B88A2E]" aria-hidden>
+                  <span className={i === 0 ? "text-3xl" : "text-lg"}>🌼</span>
+                  {i === 0 && photos.length === 0 && <span className="mt-1 text-[11px] font-medium">Photos coming soon</span>}
+                </div>
+              )
             )}
           </div>
         ))}

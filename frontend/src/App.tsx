@@ -247,6 +247,7 @@ const App = () => {
                 <Route path="/smart-request-classic" element={<SmartRequest />} />
                 <Route path="/chat/:groupId" element={<ChatGroup />} />
                 <Route path="/my-chats" element={<MyChats />} />
+                <Route path="/my-celebrations" element={<MyChats />} />
                 <Route path="/team" element={<TeamDashboard />} />
                 <Route path="/team/photos" element={<TeamPhotos />} />
                 <Route path="/voice-search" element={<SmartVoiceRequest />} />

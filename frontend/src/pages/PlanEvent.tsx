@@ -6,8 +6,9 @@
 // the enquiry or in the browser.
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
+import { momoSound } from "@/utils/momoSoundEffects";
 import Header from "@/components/layout/Header";
 import SignUpGate from "@/components/enquiry/SignUpGate";
 import MatchCard from "@/components/enquiry/MatchCard";
@@ -16,7 +17,7 @@ import { MomoBuddy, momoStyles, type MomoMood } from "@/components/enquiry/MomoB
 import { getMyCustomerProfile, normaliseIndianMobile, useHmSession } from "@/lib/hmAuth";
 import {
   BUDGETS, EVENT_TYPES, SERVICES, STYLES, budgetLabel, claimPendingEnquiry, createEnquiry,
-  getPendingEnquiry, matchVendors, openChatGroup, serviceLabel, vendorCardStats,
+  getPendingEnquiry, matchVendors, openChatGroup, serviceLabel, vendorCardStats, vendorPhotosAndLogo,
   type EnquiryAnswers, type VendorMatch,
 } from "@/services/enquiryService";
 
@@ -29,10 +30,22 @@ const PER_SERVICE = 2;
 const HYD_AREAS = ["Gachibowli", "HITEC City", "Madhapur", "Kondapur", "Jubilee Hills", "Banjara Hills",
   "Kukatpally", "Miyapur", "Manikonda", "Secunderabad", "LB Nagar", "Shamshabad"];
 const BUDGET_TICKS = ["Not sure", "< 1L", "1–3L", "3–5L", "5–10L", "10L+"];
+// Real event photos for the style cards: a Happy Moments stock photo and two
+// vendor decor photos. If a photo can't load, the colour pattern behind it shows.
+const STYLE_PHOTO: Record<string, string> = {
+  traditional: "/images/decor1.jpg",
+  modern: supabase.storage.from("vendor-images").getPublicUrl("1040/catalog/sm_events_catalog_1.png").data.publicUrl,
+  minimal: supabase.storage.from("vendor-images").getPublicUrl("71/catalog/1773595191403_compressed_1773595191091.jpeg").data.publicUrl,
+};
 const STYLE_ART: Record<string, string> = {
   traditional: "radial-gradient(circle at 50% 120%, #D4A63A 0 22%, transparent 23%), radial-gradient(circle at 50% 120%, #7A1F3D 0 38%, transparent 39%), repeating-conic-gradient(from 0deg at 50% 120%, #F3C969 0 6deg, #FBE3A6 6deg 12deg)",
   modern: "linear-gradient(135deg, #2B2D42 0 34%, transparent 34%), linear-gradient(45deg, #D4A63A 0 30%, transparent 30%), linear-gradient(180deg, #F2E9E4, #E7D3C6)",
   minimal: "radial-gradient(circle at 70% 35%, #FFFFFF 0 16%, transparent 17%), linear-gradient(180deg, #F7F3EC, #ECE4D6)",
+};
+const STYLE_LINE: Record<string, string> = {
+  traditional: "Marigolds, mandaps, rich colours",
+  modern: "Pastels, lights, clean lines",
+  minimal: "Whites, greens, quiet elegance",
 };
 
 const today = () => new Date().toISOString().slice(0, 10);
@@ -71,18 +84,28 @@ const PlanEvent: React.FC = () => {
       .maybeSingle()
       .then(async ({ data }) => {
         if (!data) return;
-        const stats = await vendorCardStats(data.vendor_id).catch(() => null);
-        const photos = Array.isArray(data.catalog_images_metadata)
-          ? data.catalog_images_metadata.map((m: any) => m?.media_url).filter(Boolean).slice(0, 4)
-          : [];
+        const [stats, media] = await Promise.all([
+          vendorCardStats(data.vendor_id).catch(() => null),
+          vendorPhotosAndLogo(data.vendor_id).catch(() => ({ photos: [] as string[], logo: null })),
+        ]);
+        const photos = media.photos;
         setChosen({
           service: "chosen", vendor_id: data.vendor_id, slug: data.slug, brand_name: data.brand_name,
           area_label: "Hyderabad", categories: data.categories || [], starting_price: data.starting_price || null,
           good_for: (data.quick_intro || data.caption || "").slice(0, 120) || null, verified: Boolean(data.verified), photos, score: 0,
           ...(stats || {}),
+          logo: media.logo,
         });
       });
   }, [chosenId]);
+
+  // Signed in (or just signed in): attach a card made while signed out to the account,
+  // so it shows up in My celebrations.
+  useEffect(() => {
+    if (!session) return;
+    const pending = getPendingEnquiry();
+    if (pending?.claimToken) claimPendingEnquiry(pending).catch(() => undefined);
+  }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Coming back (e.g. after the email sign-in link): restore the saved enquiry.
   useEffect(() => {
@@ -96,7 +119,19 @@ const PlanEvent: React.FC = () => {
     matchVendors(pending.answers).then(setMatches).catch(() => setMatches([]));
   }, []);
 
-  const react = (mood: MomoMood, say: string) => setMomo((m) => ({ mood, say, beat: m.beat + 1 }));
+  // Momo reacts with a move and a little sound (sounds follow the 🔊 switch).
+  const react = (mood: MomoMood, say: string) => {
+    setMomo((m) => ({ mood, say, beat: m.beat + 1 }));
+    if (mood === "bounce") momoSound.playHamsterSqueak();
+    else if (mood === "dance" || mood === "celebrate") momoSound.playCuteGiggle();
+    else momoSound.playBubblePop();
+  };
+  const [soundOn, setSoundOn] = useState(() => momoSound.isEnabled());
+  useEffect(() => momoSound.subscribe(setSoundOn), []);
+  const tapMomo = () => {
+    const lines = ["Hehe, that tickles! 🐹", "I'm so excited for your event! 💃", "Let's make it magical ✨", "Nom nom… I mean, next question! 🌸"];
+    react("dance", lines[Math.floor(Math.random() * lines.length)]);
+  };
   const set = <K extends keyof EnquiryAnswers>(key: K, value: EnquiryAnswers[K]) =>
     setAnswers((a) => ({ ...a, [key]: value }));
   const toggle = (key: "services" | "style_tags", value: string) =>
@@ -259,16 +294,23 @@ const PlanEvent: React.FC = () => {
       momo: "Choose one or mix them, it's your day.",
       valid: true,
       body: (
-        <div className="grid grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
           {STYLES.map((s) => {
             const on = answers.style_tags.includes(s.key);
             return (
               <button key={s.key} type="button" aria-pressed={on}
                 onClick={() => { toggle("style_tags", s.key); if (!on) react("bounce", `${s.label} it is ${s.emoji}`); }}
                 className={`${pressable} overflow-hidden rounded-2xl bg-white text-left ${on ? "ring-[3px] ring-[#7A1F3D]" : "ring-1 ring-[#E8D3AE]"}`}>
-                <span className="block aspect-[4/5] w-full" style={{ backgroundImage: STYLE_ART[s.key] }} aria-hidden />
+                <span className="relative block aspect-[4/5] w-full overflow-hidden" style={{ backgroundImage: STYLE_ART[s.key] }} aria-hidden>
+                  <img src={STYLE_PHOTO[s.key]} alt="" loading="lazy" decoding="async"
+                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    className={`absolute inset-0 h-full w-full object-cover transition duration-300 ${on ? "scale-105" : ""}`} />
+                  <span className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span className="absolute inset-x-2 bottom-2 text-[10px] font-medium leading-tight text-white/95 sm:text-[11px]">{STYLE_LINE[s.key]}</span>
+                  {on && <span className="absolute right-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full bg-[#7A1F3D] text-xs text-white ring-2 ring-white">✓</span>}
+                </span>
                 <span className="flex items-center justify-between gap-1 px-2.5 py-2 text-[13px] font-semibold text-[#5A1E33]">
-                  {s.label} <span aria-hidden>{on ? "✓" : s.emoji}</span>
+                  {s.label} <span aria-hidden>{s.emoji}</span>
                 </span>
               </button>
             );
@@ -319,6 +361,7 @@ const PlanEvent: React.FC = () => {
       const pending = await createEnquiry(answers);
       setEnquiryId(pending.id);
       setPhase("invite");
+      momoSound.playCelebrationChime();
       window.scrollTo({ top: 0 });
       matchVendors(answers).then(setMatches).catch(() => setMatches([]));
     } catch (e: any) {
@@ -383,7 +426,14 @@ const PlanEvent: React.FC = () => {
                   </p>
                 )}
 
-                <MomoBuddy className="mt-3 min-h-[76px]" size={62} mood={momo.mood} beat={momo.beat} say={momo.say || current.momo} />
+                <div className="mt-3 flex items-start justify-between gap-2">
+                  <MomoBuddy className="min-h-[76px]" size={62} mood={momo.mood} beat={momo.beat} say={momo.say || current.momo} onTap={tapMomo} />
+                  <button type="button" onClick={() => momoSound.toggleSound()} aria-pressed={soundOn}
+                    aria-label={soundOn ? "Mute Momo's sounds" : "Turn on Momo's sounds"}
+                    className={`${pressable} grid h-9 w-9 shrink-0 place-items-center rounded-full text-base ring-1 ring-[#EAD7B7] hover:bg-[#FFF3DC]`}>
+                    <span aria-hidden>{soundOn ? "🔊" : "🔇"}</span>
+                  </button>
+                </div>
 
                 <div key={step} className={`hm-step-${dir} mt-2`}>
                   <h1 ref={headingRef} tabIndex={-1} className="mb-4 font-['Lora',serif] text-[26px] font-semibold leading-tight text-[#7A1F3D] outline-none sm:text-3xl">
@@ -399,14 +449,19 @@ const PlanEvent: React.FC = () => {
                     className={`${pressable} rounded-2xl px-4 py-3 text-sm font-semibold text-[#7A1F3D] hover:bg-[#FFF3DC] disabled:invisible`}>
                     ← Back
                   </button>
-                  <button onClick={() => (last ? submit() : go(step + 1))} disabled={!current.valid || saving}
+                  <button onClick={() => { momoSound.playBubblePop(); if (last) submit(); else go(step + 1); }} disabled={!current.valid || saving}
                     className={`${pressable} rounded-2xl bg-[#7A1F3D] px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_16px_rgba(122,31,61,0.25)] hover:bg-[#661833] disabled:opacity-40 disabled:shadow-none`}>
                     {last ? (saving ? "Sealing your card…" : "Make my card 💌") : "Next →"}
                   </button>
                 </div>
               </div>
             </div>
-            <p className="mt-4 text-center text-xs text-[#6D4A55]">No login needed to see your matches.</p>
+            <p className="mt-4 text-center text-xs text-[#6D4A55]">
+              No login needed to see your matches.{" "}
+              {session
+                ? <Link to="/my-celebrations" className="font-semibold text-[#7A1F3D] underline">My celebrations</Link>
+                : <>Have an account? <Link to="/my-celebrations" className="font-semibold text-[#7A1F3D] underline">Sign in</Link></>}
+            </p>
           </section>
         )}
 
@@ -428,7 +483,7 @@ const PlanEvent: React.FC = () => {
         {phase === "results" && (
           <section>
             <div className="mb-7 flex flex-col gap-3 rounded-3xl bg-white p-5 ring-1 ring-[#F0DFC0] sm:flex-row sm:items-center sm:p-6">
-              <MomoBuddy size={58} mood="celebrate" beat={1} />
+              <MomoBuddy size={58} mood="dance" beat={1} onTap={() => momoSound.playCuteGiggle()} />
               <div className="flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#A8792A]">Picked for you</p>
                 <h1 className="mt-0.5 font-['Lora',serif] text-[26px] font-semibold text-[#7A1F3D] sm:text-3xl">Your top matches</h1>
@@ -440,7 +495,10 @@ const PlanEvent: React.FC = () => {
                   {` · ${budgetLabel(answers.budget_range)}`}
                 </p>
               </div>
-              <button onClick={startOver} className="self-start text-sm font-medium text-[#7A1F3D] underline sm:self-center">Start a new card</button>
+              <div className="flex flex-wrap gap-x-4 gap-y-1 self-start text-sm font-medium sm:self-center">
+                <button onClick={startOver} className="text-[#7A1F3D] underline">Start a new card</button>
+                {session && <Link to="/my-celebrations" className="text-[#7A1F3D] underline">My celebrations</Link>}
+              </div>
             </div>
 
             {error && <p role="alert" className="mb-4 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
