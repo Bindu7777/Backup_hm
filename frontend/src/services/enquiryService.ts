@@ -66,7 +66,24 @@ export type VendorMatch = {
   verified: boolean;
   photos: string[];
   score: number;
+  // Card facts (see vendor_card_stats in the database). Null when not trustworthy.
+  rating?: number | string | null;
+  review_count?: number | null;
+  review_source?: "happy_moments" | "vendor" | null;
+  events_done?: number | null;
+  experience?: string | null;
+  price_min?: number | null;
+  price_max?: number | null;
+  highlights?: string[] | null;
 };
+
+export type VendorCardStats = Pick<VendorMatch,
+  "rating" | "review_count" | "review_source" | "events_done" | "experience" | "price_min" | "price_max" | "highlights">;
+
+export async function vendorCardStats(vendorId: number): Promise<VendorCardStats | null> {
+  const { data } = await supabase.rpc("vendor_card_stats", { p_vendor_id: vendorId });
+  return (Array.isArray(data) ? data[0] : data) || null;
+}
 
 type PendingEnquiry = { id: string; claimToken: string | null; answers: EnquiryAnswers; savedAt: string };
 const PENDING_KEY = "hm_pending_enquiry";

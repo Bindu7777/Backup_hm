@@ -16,7 +16,7 @@ import { MomoBuddy, momoStyles, type MomoMood } from "@/components/enquiry/MomoB
 import { getMyCustomerProfile, normaliseIndianMobile, useHmSession } from "@/lib/hmAuth";
 import {
   BUDGETS, EVENT_TYPES, SERVICES, STYLES, budgetLabel, claimPendingEnquiry, createEnquiry,
-  getPendingEnquiry, matchVendors, openChatGroup, serviceLabel,
+  getPendingEnquiry, matchVendors, openChatGroup, serviceLabel, vendorCardStats,
   type EnquiryAnswers, type VendorMatch,
 } from "@/services/enquiryService";
 
@@ -69,8 +69,9 @@ const PlanEvent: React.FC = () => {
       .select("vendor_id, slug, brand_name, categories, starting_price, quick_intro, caption, verified, catalog_images_metadata")
       .eq("vendor_id", chosenId)
       .maybeSingle()
-      .then(({ data }) => {
+      .then(async ({ data }) => {
         if (!data) return;
+        const stats = await vendorCardStats(data.vendor_id).catch(() => null);
         const photos = Array.isArray(data.catalog_images_metadata)
           ? data.catalog_images_metadata.map((m: any) => m?.media_url).filter(Boolean).slice(0, 4)
           : [];
@@ -78,6 +79,7 @@ const PlanEvent: React.FC = () => {
           service: "chosen", vendor_id: data.vendor_id, slug: data.slug, brand_name: data.brand_name,
           area_label: "Hyderabad", categories: data.categories || [], starting_price: data.starting_price || null,
           good_for: (data.quick_intro || data.caption || "").slice(0, 120) || null, verified: Boolean(data.verified), photos, score: 0,
+          ...(stats || {}),
         });
       });
   }, [chosenId]);
