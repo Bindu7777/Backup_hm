@@ -23,7 +23,7 @@ export const MatchCard: React.FC<Props> = ({ vendor, busy, onRequestQuote }) => 
     <article className="group flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_8px_30px_rgba(29,60,106,0.08)] ring-1 ring-[#F3E3C3] transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(29,60,106,0.14)]">
       <div className="relative aspect-[4/3] bg-gradient-to-br from-[#FFF3D6] to-[#FDE7C2]">
         {photos.length > 0 ? (
-          <img src={photos[photo]} alt={`${vendor.brand_name} work ${photo + 1}`} loading="lazy" className="h-full w-full object-cover" />
+          <img src={photos[photo]} alt={`${vendor.brand_name} work ${photo + 1}`} loading="lazy" className="absolute inset-0 h-full w-full object-cover" />
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-1 text-[#B88A2E]">
             <span className="text-4xl" aria-hidden>🌼</span>

@@ -46,7 +46,14 @@ export const MomoScreenCompanion: React.FC = () => {
     location.pathname === '/vendor-login' ||
     location.pathname === '/signup' ||
     location.pathname === '/forgot-password' ||
-    location.pathname.startsWith('/admin');
+    location.pathname.startsWith('/admin') ||
+    // Phase 1 pages: Momo's "Find Vendors" leads to the greeting card itself, and the
+    // bubble would cover the card's buttons and the chat message box.
+    location.pathname === '/smart-request' ||
+    location.pathname === '/plan' ||
+    location.pathname.startsWith('/chat/') ||
+    location.pathname === '/my-chats' ||
+    location.pathname.startsWith('/team');
 
   if (isExcluded || hasDismissed) {
     return null;

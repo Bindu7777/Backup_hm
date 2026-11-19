@@ -102,7 +102,7 @@ const TeamDashboard: React.FC = () => {
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="font-serif text-3xl font-semibold text-[#1D3C6A]">Team dashboard</h1>
-            {session && <p className="text-sm text-[#6E7A8A]">{session.user.email} · <button className="underline" onClick={signOutHm}>Sign out</button></p>}
+            {session && <p className="text-sm text-[#6E7A8A]">{session.user.email} · <button className="underline" onClick={signOutHm}>Sign out</button>{staff?.staff && <> · <Link to="/team/photos" className="font-medium text-[#1D3C6A] underline">Vendor photos</Link></>}</p>}
           </div>
           {staff?.staff && loadedAt && <p className="text-xs text-[#8A94A3]">Updated {loadedAt.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" })}</p>}
         </div>

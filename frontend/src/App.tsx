@@ -38,6 +38,7 @@ import PlanEvent from "./pages/PlanEvent";
 import ChatGroup from "./pages/ChatGroup";
 import MyChats from "./pages/MyChats";
 import TeamDashboard from "./pages/TeamDashboard";
+import TeamPhotos from "./pages/TeamPhotos";
 import SmartVoiceRequest from "./pages/SmartVoiceRequest";
 import VendorsPage from "./pages/vendors";
 import TestSignup from "./pages/TestSignup";
@@ -247,6 +248,7 @@ const App = () => {
                 <Route path="/chat/:groupId" element={<ChatGroup />} />
                 <Route path="/my-chats" element={<MyChats />} />
                 <Route path="/team" element={<TeamDashboard />} />
+                <Route path="/team/photos" element={<TeamPhotos />} />
                 <Route path="/voice-search" element={<SmartVoiceRequest />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />

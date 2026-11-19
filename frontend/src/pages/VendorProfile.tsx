@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { withoutHiddenPhotos } from '@/services/photoFlags';
 import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, MapPin, Phone, Mail, Instagram, Facebook, Heart, Share2, Clock, CheckCircle, Camera, Video, Users, Award, MessageCircle, Zap, Trophy, Sparkles, ArrowRight, Play, Pause, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -126,7 +127,7 @@ const VendorProfile = () => {
 
         // Load highlighted catalog images
         try {
-          const highlighted = await getHighlightedCatalogImages(parseInt(vendorData.vendor_id));
+          const highlighted = await withoutHiddenPhotos(await getHighlightedCatalogImages(parseInt(vendorData.vendor_id)), (m: any) => m?.media_url || m?.url || m?.image_url);
           console.log('Loaded highlighted images:', highlighted);
           setHighlightedImages(highlighted);
         } catch (imgError) {
@@ -136,7 +137,7 @@ const VendorProfile = () => {
 
         // Load all catalog images for gallery
         try {
-          const allImages = await getAllCatalogImages(parseInt(vendorData.vendor_id));
+          const allImages = await withoutHiddenPhotos(await getAllCatalogImages(parseInt(vendorData.vendor_id)), (m: any) => m?.media_url || m?.url || m?.image_url);
           console.log('Loaded all catalog images:', allImages);
           setAllCatalogImages(allImages);
         } catch (imgError) {

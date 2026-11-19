@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { withoutHiddenPhotos } from '@/services/photoFlags';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -48,7 +49,7 @@ const VendorShortCard: React.FC<VendorShortCardProps> = ({
 
         // If no cover/avatar, try to get from catalog images
         if (vendor.vendor_id) {
-          const catalogImages = await getAllCatalogImages(Number(vendor.vendor_id));
+          const catalogImages = await withoutHiddenPhotos(await getAllCatalogImages(Number(vendor.vendor_id)), (m: any) => m?.media_url || m?.url || m?.image_url);
           if (catalogImages && catalogImages.length > 0) {
             // Use the first image as cover
             setCoverImage(catalogImages[0].url || catalogImages[0].image_url || null);

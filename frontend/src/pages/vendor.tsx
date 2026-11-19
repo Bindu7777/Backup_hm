@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { withoutHiddenPhotos } from '@/services/photoFlags';
 import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { Vendor } from '@/lib/supabase';
@@ -200,10 +201,19 @@ const VendorProfile = () => {
           throw new Error("Vendor not found");
         }
 
+        // Photos the team hid from customers (e.g. flyers with phone numbers) are dropped here.
+        if (Array.isArray(vendorData.catalog_images_metadata)) {
+          vendorData.catalog_images_metadata = await withoutHiddenPhotos(vendorData.catalog_images_metadata, (m: any) => m?.media_url || m?.url || m?.image_url);
+        }
+        const [visibleMedia, visibleHighlighted, visibleCatalog] = await Promise.all([
+          withoutHiddenPhotos(mediaData, (m: any) => m?.media_url || m?.url || m?.image_url),
+          withoutHiddenPhotos(highlightedCatalog, (m: any) => m?.media_url || m?.url || m?.image_url),
+          withoutHiddenPhotos(allCatalogImages, (m: any) => m?.media_url || m?.url || m?.image_url),
+        ]);
         setVendor(hideVendorContact(vendorData));
 
         // Categorize media
-        const highlights = mediaData.filter(m => m.category === 'highlights');
+        const highlights = visibleMedia.filter(m => m.category === 'highlights');
         
         console.log('Fetched vendor media:', mediaData);
         console.log('Fetched highlighted catalog images:', highlightedCatalog);
@@ -214,8 +224,8 @@ const VendorProfile = () => {
         console.log('Contact person image loaded from storage:', contactPersonImage);
         
         setHighlightImages(highlights);
-        setHighlightedCatalogImages(highlightedCatalog);
-        setCatalogImages(allCatalogImages);
+        setHighlightedCatalogImages(visibleHighlighted);
+        setCatalogImages(visibleCatalog);
         setCustomerReviews(reviewsData);
         // Reset logo error state when new logo is loaded
         setLogoError(false);
