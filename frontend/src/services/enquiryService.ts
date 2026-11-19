@@ -126,7 +126,7 @@ export async function matchVendors(a: EnquiryAnswers): Promise<VendorMatch[]> {
     p_guests: a.guests,
     p_budget_range: a.budget_range,
     p_style_tags: a.style_tags,
-    p_per_service: 5,
+    p_per_service: 2, // the matches page shows at most 2 vendors per service
   });
   if (error) throw error;
   return (data || []) as VendorMatch[];

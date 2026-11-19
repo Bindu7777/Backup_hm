@@ -18,6 +18,7 @@ type Props = {
   open: boolean;
   mode?: "customer" | "signin";
   defaultName?: string;
+  defaultMobile?: string;
   title?: string;
   onClose: () => void;
   onDone: () => void;
@@ -25,17 +26,24 @@ type Props = {
 
 type Step = "email" | "code" | "profile";
 
-export const SignUpGate: React.FC<Props> = ({ open, mode = "customer", defaultName = "", title, onClose, onDone }) => {
+export const SignUpGate: React.FC<Props> = ({ open, mode = "customer", defaultName = "", defaultMobile = "", title, onClose, onDone }) => {
   const session = useHmSession();
   const [step, setStep] = useState<Step>("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [name, setName] = useState(defaultName);
-  const [mobile, setMobile] = useState("");
+  const [mobile, setMobile] = useState(defaultMobile);
   const [consent, setConsent] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [cooldown, setCooldown] = useState(0);
+
+  // The gate is mounted before the card is filled: pick up the card's name and mobile.
+  useEffect(() => {
+    if (!open) return;
+    if (defaultName) setName((n) => n || defaultName);
+    if (defaultMobile) setMobile((m) => m || defaultMobile);
+  }, [open, defaultName, defaultMobile]);
 
   // Already signed in: skip straight to the profile step (or finish).
   useEffect(() => {
