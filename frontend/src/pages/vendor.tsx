@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useParams, Navigate, useNavigate } from 'react-router-dom';
 import { Vendor } from '@/lib/supabase';
 import { getVendorByFieldId, getVendorMedia, getHighlightedCatalogImages, getAllCatalogImages, getCustomerReviews } from '../services/supabaseService';
@@ -32,19 +33,9 @@ const VendorProfile = () => {
   // Check if customer is logged in - redirect to login if not
   // But skip if vendor is logged in (vendor should be able to view their own profile)
   // Only check after initial load is complete
-  useEffect(() => {
-    // Wait a bit for customer auth to initialize, then check
-    const checkAuth = setTimeout(() => {
-      const loggedInVendor = getLoggedInVendor();
-      // If vendor is logged in, allow access without customer login
-      if (!customer && !loggedInVendor && !isLoading && vendorId) {
-        // Redirect to login with redirect parameter
-        navigate(`/customer-login?redirect=${encodeURIComponent(`/vendor/${vendorId}`)}`);
-      }
-    }, 500);
-    
-    return () => clearTimeout(checkAuth);
-  }, [customer, isLoading, navigate, vendorId]);
+  // Phase 1: vendor profiles are viewable by anyone. Contact details are hidden
+  // (hideVendorContact) and contacting a vendor goes through sign-up + a group chat.
+
   const [contactStatus, setContactStatus] = useState<string>('Contacted');
   const [isContacted, setIsContacted] = useState(false);
   const [highlightImages, setHighlightImages] = useState<any[]>([]);
@@ -209,7 +200,7 @@ const VendorProfile = () => {
           throw new Error("Vendor not found");
         }
 
-        setVendor(vendorData);
+        setVendor(hideVendorContact(vendorData));
 
         // Categorize media
         const highlights = mediaData.filter(m => m.category === 'highlights');
@@ -595,10 +586,9 @@ const VendorProfile = () => {
                 {/* Call Button */}
                 <Button
                   onClick={() => {
-                    if (vendor?.phone_number) {
-                      window.location.href = `tel:${vendor.phone_number}`;
-                    }
+                    // No direct calls: "Request a call" lives inside the Happy Moments group.
                     setMobileMenuOpen(false);
+                    navigate(quoteLink(vendor));
                   }}
                   className="w-full justify-start bg-blue-500 hover:bg-blue-600 text-white h-11"
                 >
@@ -2230,13 +2220,13 @@ const VendorProfile = () => {
                   Contact Information
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg hover:from-purple-100 hover:to-indigo-100 transition-colors border border-purple-200">
+                  {vendor.phone_number && <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg hover:from-purple-100 hover:to-indigo-100 transition-colors border border-purple-200">
                     <Phone className="w-6 h-6 text-purple-600" />
                     <div>
                       <span className="font-semibold text-gray-800">{vendor.phone_number}</span>
                       <p className="text-sm text-gray-600">Call for immediate response</p>
                     </div>
-                  </div>
+                  </div>}
                   {vendor.whatsapp_number && (
                     <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg hover:from-amber-100 hover:to-orange-100 transition-colors border border-amber-200">
                       <MessageCircle className="w-6 h-6 text-amber-600" />

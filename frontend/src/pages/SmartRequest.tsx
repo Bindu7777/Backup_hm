@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { quoteLink } from '@/utils/vendorPrivacy';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, ShoppingCart, Users, Calendar, MessageCircle, Star, Zap, Save, Filter } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -132,9 +133,7 @@ const SmartRequest: React.FC = () => {
   };
 
   const handleContactVendor = (vendor: any) => {
-    // Open WhatsApp or contact modal
-    const phoneNumber = vendor.whatsapp_number || vendor.phone_number;
-    if (phoneNumber) {
+    {
       // Track contact if customer is logged in
       if (customer && customer.id) {
         console.log('Tracking contact for customer:', customer.id, 'vendor:', vendor.vendor_id);
@@ -143,9 +142,8 @@ const SmartRequest: React.FC = () => {
           .catch(err => console.error('Contact tracking error:', err));
       }
 
-      const message = `Hi ${vendor.spoc_name}, I found your ${vendor.category} services via Happy Moments and I'm interested in learning more about your packages. Could you please share your availability and pricing details?`;
-      const whatsappUrl = `https://wa.me/${phoneNumber.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, '_blank');
+      // No direct WhatsApp to vendors: contact goes through a Happy Moments group.
+      navigate(quoteLink(vendor));
     }
   };
 

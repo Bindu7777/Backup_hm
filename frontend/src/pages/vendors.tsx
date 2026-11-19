@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Star, MapPin, Phone, Mail, Instagram, Heart, MessageCircle, Camera, Award, Users, Zap, Clock, ChevronLeft, Search, Filter, SlidersHorizontal, TrendingUp, DollarSign, ChevronDown, ChevronUp, User, Shield, X, Mic, MicOff, Send, Loader2, Edit3, Check, Volume2, Languages, Trash2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -375,7 +376,7 @@ const VendorsPage = () => {
         console.log('Fetched vendors:', vendorData);
         console.log('Total vendors fetched:', vendorData.length);
         
-        setVendors(vendorData);
+        setVendors(hideVendorsContact(vendorData));
         
         // CRITICAL: After vendors load, force scroll to top again
         // This prevents scroll that might happen when content renders
@@ -2209,7 +2210,7 @@ const VendorsPage = () => {
           </p>
           <Button 
             className="bg-white text-amber-600 hover:bg-amber-50 px-8 py-3 text-lg font-semibold rounded-xl shadow-lg"
-            onClick={() => window.open('https://wa.me/1234567890?text=Hi! I need personalized vendor recommendations for my event.', '_blank')}
+            onClick={() => navigate('/smart-request')}
           >
             <MessageCircle className="w-5 h-5 mr-2" />
             Get Personalized Recommendations

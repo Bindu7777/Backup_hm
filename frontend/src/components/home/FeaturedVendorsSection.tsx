@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   CheckCircle2, 
@@ -47,7 +48,7 @@ const FeaturedVendorsSection: React.FC = () => {
         const verifiedOnly = (all || []).filter(
           (v) => v.verified === true && v.currently_available !== false
         );
-        setVendors(verifiedOnly);
+        setVendors(hideVendorsContact(verifiedOnly));
       } catch (err) {
         console.error('Error fetching approved vendors for homepage:', err);
       } finally {
@@ -104,15 +105,10 @@ const FeaturedVendorsSection: React.FC = () => {
     return 'Hyderabad, Telangana';
   };
 
+  // Contact goes through a Happy Moments group, never straight to the vendor's WhatsApp.
   const handleWhatsAppChat = (e: React.MouseEvent, vendor: Vendor) => {
     e.stopPropagation();
-    const phone = vendor.whatsapp_number || vendor.phone_number || '919550793698';
-    const cleanPhone = phone.replace(/[^0-9]/g, '');
-    const fullPhone = cleanPhone.length === 10 ? `91${cleanPhone}` : cleanPhone;
-    const msg = encodeURIComponent(
-      `Hello ${vendor.brand_name || 'Vendor'}, I found your profile on Happy Moments! I'd love to inquire about your event availability and pricing.`
-    );
-    window.open(`https://wa.me/${fullPhone}?text=${msg}`, '_blank');
+    navigate(quoteLink(vendor));
   };
 
   return (
@@ -263,7 +259,7 @@ const FeaturedVendorsSection: React.FC = () => {
                         className="flex-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200 text-xs font-bold h-9 rounded-xl transition-all"
                       >
                         <MessageCircle className="w-3.5 h-3.5 mr-1 text-emerald-600" />
-                        WhatsApp
+                        Request quote
                       </Button>
 
                       <Button

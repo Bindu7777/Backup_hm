@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { quoteLink } from '@/utils/vendorPrivacy';
 import { Button } from './ui/button';
 import { 
   MessageCircle, 
@@ -46,18 +48,18 @@ const VendorActionButtons: React.FC<VendorActionButtonsProps> = ({
   };
 
   const currentSize = sizeClasses[size];
+  const navigate = useNavigate();
   const [isCalling, setIsCalling] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
   const [showShareAnimation, setShowShareAnimation] = useState(false);
 
   // Handle call action with loading animation
+  // Calls are requested inside the Happy Moments group (the vendor then calls the
+  // customer); the vendor's number is never shown here.
   const handleCall = async () => {
     setIsCalling(true);
-    // Simulate call action
-    setTimeout(() => {
-      setIsCalling(false);
-    }, 2000);
+    navigate(quoteLink(vendor as any));
   };
 
   // Handle share action with animation
@@ -98,7 +100,7 @@ const VendorActionButtons: React.FC<VendorActionButtonsProps> = ({
         onClick={handleCall}
         disabled={isCalling}
         className={`bg-blue-500 hover:bg-blue-600 active:bg-blue-700 disabled:bg-blue-400 text-white ${currentSize.button} font-semibold shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-200 relative overflow-hidden group`}
-        title="Call vendor"
+        title="Request a call through Happy Moments"
       >
         <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-100 transition-transform duration-150 rounded-lg"></div>
         {isCalling ? (
@@ -106,7 +108,7 @@ const VendorActionButtons: React.FC<VendorActionButtonsProps> = ({
         ) : (
           <Phone className={`${currentSize.icon} ${currentSize.iconMargin} relative z-10`} />
         )}
-        <span className="relative z-10">{isCalling ? 'Calling...' : 'Call'}</span>
+        <span className="relative z-10">{isCalling ? 'Opening…' : 'Request a call'}</span>
       </Button>
 
       {/* Favorite Button */}

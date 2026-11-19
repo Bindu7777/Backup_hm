@@ -933,12 +933,7 @@ const EventSpaceProfile: React.FC = () => {
                 <Send className="w-4 h-4" /> Request Custom Quote
               </button>
 
-              <a 
-                href={`tel:${space.contactPhone}`}
-                className="w-full py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-sm rounded-xl transition-all flex items-center justify-center gap-2"
-              >
-                <Phone className="w-4 h-4 text-emerald-600" /> Call Venue Manager ({space.contactPhone})
-              </a>
+              {/* Direct venue phone removed: contact goes through Request Custom Quote. */}
             </div>
 
             {/* Source Reference Note */}

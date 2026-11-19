@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { Star, MapPin, Phone, Mail, Instagram, Facebook, Heart, Share2, Calendar, Clock, CheckCircle, Camera, Video, Users, Award, MessageCircle, Zap, Trophy, Sparkles, ArrowRight, Play, Pause, Building2, Flower2, Youtube, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Card, CardContent } from '../components/ui/card';
@@ -10,6 +12,7 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 
 const DecorProfile = () => {
+  const navigate = useNavigate();
   const [isSaved, setIsSaved] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -101,25 +104,8 @@ const DecorProfile = () => {
 
   const portfolioImages = decorator.portfolio;
 
-  // WhatsApp integration with friendly message
-  const openWhatsApp = () => {
-    const message = `Hi ${decorator.ownerName}! I just saw your amazing decoration work and I'm super interested in your event decoration services 🎨
-
-💬 I'd love to talk with you and understand more before booking.
-👉 Please send me:
-
-My ELEGANTDECOR10 coupon code
-
-Available slots for a quick call / chat this week
-
-Package details with the discount
-
-How I can move forward after our discussion
-
-I'm really excited to connect and explore working with you soon! ✨`;
-    const whatsappUrl = `https://wa.me/${decorator.contact.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
+  // No direct WhatsApp to vendors: contact goes through the greeting card + group chat.
+  const openWhatsApp = () => navigate(quoteLink());
 
   // Countdown timer
   useEffect(() => {
@@ -269,7 +255,7 @@ I'm really excited to connect and explore working with you soon! ✨`;
         .animate-fade-in-up:nth-child(3) { animation-delay: 0.3s; }
         .animate-fade-in-up:nth-child(4) { animation-delay: 0.4s; }
       `}</style>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-pink-50" onClick={openWhatsApp}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-pink-50">
       {/* Mobile Header - Compact */}
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm lg:hidden">
         <div className="container mx-auto px-3 py-2">
@@ -351,7 +337,7 @@ I'm really excited to connect and explore working with you soon! ✨`;
               >
                 <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-100 transition-transform duration-150 rounded-xl"></div>
                 <MessageCircle className="w-4 h-4 mr-2 relative z-10" />
-                <span className="relative z-10">WhatsApp</span>
+                <span className="relative z-10">Request quote</span>
               </Button>
               <Button 
                 onClick={(e) => { e.stopPropagation(); openWhatsApp(); }}
@@ -997,7 +983,7 @@ I'm really excited to connect and explore working with you soon! ✨`;
                   >
                     <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-100 transition-transform duration-200 rounded-2xl"></div>
                     <MessageCircle className="w-8 h-8 mr-4 relative z-10" />
-                    <span className="relative z-10">💬 WhatsApp Quick Chat</span>
+                    <span className="relative z-10">💬 Request quote</span>
                     <div className="absolute top-0 right-0 text-3xl animate-bounce">🚀</div>
                   </Button>
                   

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, MapPin, Phone, Mail, Instagram, Facebook, Heart, Share2, Clock, CheckCircle, Camera, Video, Users, Award, MessageCircle, Zap, Trophy, Sparkles, ArrowRight, Play, Pause, Building2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -74,7 +75,7 @@ const VendorProfile = () => {
 
       const vendorData = await getVendorByFieldId(vendorIdNum.toString());
       if (vendorData) {
-        setVendor(vendorData);
+        setVendor(hideVendorContact(vendorData));
       }
 
       // Also refresh customer reviews
@@ -121,7 +122,7 @@ const VendorProfile = () => {
           throw new Error("Vendor not found");
         }
 
-        setVendor(vendorData);
+        setVendor(hideVendorContact(vendorData));
 
         // Load highlighted catalog images
         try {
@@ -297,40 +298,12 @@ const VendorProfile = () => {
 
   const portfolioImages = photographer.portfolio;
 
-  // WhatsApp integration with friendly message
+  // No direct WhatsApp to vendors: every contact goes through a Happy Moments group.
   const openWhatsApp = () => {
-    // Track contact if customer is logged in
     if (customer && customer.id && vendor) {
-      console.log('Tracking contact for customer:', customer.id, 'vendor:', vendor.vendor_id);
-      saveContactVendor(customer.id, vendor.vendor_id.toString())
-        .then(result => console.log('Contact tracking result:', result))
-        .catch(err => console.error('Contact tracking error:', err));
+      saveContactVendor(customer.id, vendor.vendor_id.toString()).catch(() => {});
     }
-
-    const whatsappNumber = photographer.contact.whatsapp.replace(/[^0-9]/g, '');
-    if (!whatsappNumber) {
-      alert('Sorry, this vendor does not have a valid WhatsApp number listed.');
-      return;
-    }
-
-    const brandName = vendor?.brand_name || 'there';
-    const message = `Hi ${brandName}, I just saw your amazing work on Happy Moments and I'm super interested in your services 📸
-
-💬 I'd love to talk with you and understand more before booking.
-👉 Please send me:
-
-My HAPPYMOMENTS10 coupon code
-
-Available slots for a quick call / chat this week
-
-Package details with the discount
-
-How I can move forward after our discussion
-
-I'm really excited to connect and explore working with you soon! ✨`;
-
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+    navigate(quoteLink(vendor));
   };
 
 
@@ -480,7 +453,7 @@ I'm really excited to connect and explore working with you soon! ✨`;
         .animate-fade-in-up:nth-child(3) { animation-delay: 0.3s; }
         .animate-fade-in-up:nth-child(4) { animation-delay: 0.4s; }
       `}</style>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50" onClick={openWhatsApp}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
         {/* Mobile Header - Compact */}
         <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm lg:hidden">
           <div className="container mx-auto px-3 py-2">
@@ -639,7 +612,7 @@ I'm really excited to connect and explore working with you soon! ✨`;
                 >
                   <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-100 transition-transform duration-150 rounded-xl"></div>
                   <MessageCircle className="w-4 h-4 mr-2 relative z-10" />
-                  <span className="relative z-10">WhatsApp</span>
+                  <span className="relative z-10">Request quote</span>
                 </Button>
                 <Button
                   onClick={(e) => { e.stopPropagation(); openWhatsApp(); }}
@@ -1314,7 +1287,7 @@ I'm really excited to connect and explore working with you soon! ✨`;
                     >
                       <div className="absolute inset-0 bg-white/20 scale-0 group-active:scale-100 transition-transform duration-200 rounded-2xl"></div>
                       <MessageCircle className="w-8 h-8 mr-4 relative z-10" />
-                      <span className="relative z-10">💬 WhatsApp Quick Chat</span>
+                      <span className="relative z-10">💬 Request quote</span>
                       <div className="absolute top-0 right-0 text-3xl animate-bounce">🚀</div>
                     </Button>
 

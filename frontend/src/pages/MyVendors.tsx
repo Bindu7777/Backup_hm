@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useNavigate } from 'react-router-dom';
 import { MessageCircle, Star, MapPin, Phone, Mail, X, Filter, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -275,7 +276,7 @@ const MyVendors: React.FC = () => {
             <MessageCircle className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No Contacted Vendors</h3>
             <p className="text-gray-600 mb-6">
-              You haven't contacted any vendors yet. Start by browsing vendors and using WhatsApp to contact them.
+              You haven't contacted any vendors yet. Start by browsing vendors and tapping Request quote.
             </p>
             <Button 
               onClick={() => navigate('/vendors')}
@@ -453,17 +454,13 @@ const MyVendors: React.FC = () => {
                       {/* Action Buttons */}
                       <div className="flex space-x-1.5 sm:space-x-2">
                         <Button 
-                          className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs sm:text-sm py-1.5 sm:py-2 px-2 sm:px-4"
+                          className="flex-1 bg-[#F57C00] hover:bg-[#E26A00] text-white text-xs sm:text-sm py-1.5 sm:py-2 px-2 sm:px-4"
                           onClick={(e) => {
                             e.stopPropagation();
-                            // WhatsApp functionality
-                            const phoneNumber = vendor.whatsapp_number || vendor.phone_number;
-                            if (phoneNumber) {
-                              window.open(`https://wa.me/${phoneNumber}`, '_blank');
-                            }
+                            navigate('/my-chats');
                           }}
                         >
-                          <span className="hidden sm:inline">WhatsApp </span>Again
+                          <span className="hidden sm:inline">Open </span>chat
                         </Button>
                         <Button 
                           variant="outline"

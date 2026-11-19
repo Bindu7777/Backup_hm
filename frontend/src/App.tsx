@@ -34,6 +34,10 @@ import VendorDashboard from "./pages/VendorDashboard";
 import VendorProfileEdit from "./pages/VendorProfileEdit";
 import ImageUploadTestPage from "./pages/ImageUploadTestPage";
 import SmartRequest from "./pages/SmartRequest";
+import PlanEvent from "./pages/PlanEvent";
+import ChatGroup from "./pages/ChatGroup";
+import MyChats from "./pages/MyChats";
+import TeamDashboard from "./pages/TeamDashboard";
 import SmartVoiceRequest from "./pages/SmartVoiceRequest";
 import VendorsPage from "./pages/vendors";
 import TestSignup from "./pages/TestSignup";
@@ -235,7 +239,14 @@ const App = () => {
                 <Route path="/vendors" element={<VendorsPage />} />
                 <Route path="/event-space-profile" element={<EventSpaceProfile />} />
                 <Route path="/event-space/:spaceId" element={<EventSpaceProfile />} />
-                <Route path="/smart-request" element={<SmartRequest />} />
+                {/* Phase 1: greeting-card enquiry -> matches -> group chat. The old free-text
+                    page stays reachable at /smart-request-classic. */}
+                <Route path="/smart-request" element={<PlanEvent />} />
+                <Route path="/plan" element={<PlanEvent />} />
+                <Route path="/smart-request-classic" element={<SmartRequest />} />
+                <Route path="/chat/:groupId" element={<ChatGroup />} />
+                <Route path="/my-chats" element={<MyChats />} />
+                <Route path="/team" element={<TeamDashboard />} />
                 <Route path="/voice-search" element={<SmartVoiceRequest />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />

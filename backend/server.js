@@ -11,6 +11,7 @@ const contactedVendorsRoutes = require('./routes/contactedVendors');
 const couponsRoutes = require('./routes/coupons');
 const adminNotificationsRoutes = require('./routes/adminNotifications');
 const momoRoutes = require('./routes/momo');
+const chatNotifyRoutes = require('./routes/chatNotify');
 const { initializeEmailService } = require('./services/emailService');
 
 const logger = require('./utils/logger');
@@ -21,6 +22,8 @@ const httpLog = logger('http');
 const serverLog = logger('server');
 
 const app = express();
+// Behind Vercel's proxy: use the real client IP for rate limiting.
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 // One log line per request: method, path, status, time taken and Vercel's request id.
@@ -82,6 +85,7 @@ app.use('/api/contacted-vendors', contactedVendorsRoutes);
 app.use('/api/coupons', couponsRoutes);
 app.use('/api/admin-notifications', adminNotificationsRoutes);
 app.use('/api/momo', momoRoutes);
+app.use('/api/chat', chatNotifyRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

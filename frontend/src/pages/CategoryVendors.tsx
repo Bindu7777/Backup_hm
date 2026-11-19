@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { hideVendorContact, hideVendorsContact, quoteLink } from '@/utils/vendorPrivacy';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Star, MapPin, Phone, Mail, Instagram, Heart, MessageCircle, Camera, Award, Users, Zap, Clock, ChevronLeft, Search, Filter, SlidersHorizontal, ChevronDown, User, Calendar, Shield, X, Check } from 'lucide-react';
 import { Button } from '../components/ui/button';
@@ -132,7 +133,7 @@ const CategoryVendors = () => {
           }
         }
         
-        setVendors(vendorData);
+        setVendors(hideVendorsContact(vendorData));
       } catch (error) {
         console.error('Error fetching vendors by category:', error);
       } finally {
@@ -412,13 +413,8 @@ const CategoryVendors = () => {
     navigate(`/vendor/${vendorId}`);
   };
 
-  // WhatsApp integration
-  const openWhatsApp = (vendor: Vendor) => {
-    const message = `Hi ${vendor.spoc_name}, I found your ${vendor.category} services via Happy Moments and I'm interested in learning more about your packages. Could you please share your availability and pricing details?`;
-    const phoneNumber = vendor.whatsapp_number || vendor.phone_number;
-    const whatsappUrl = `https://wa.me/${phoneNumber?.replace(/[^\d]/g, '')}?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-  };
+  // Contact goes through a Happy Moments group, never straight to the vendor's WhatsApp.
+  const openWhatsApp = (vendor: Vendor) => navigate(quoteLink(vendor));
 
   const formatCategoryName = (cat: string) => {
     return cat
@@ -955,7 +951,7 @@ const CategoryVendors = () => {
                         className="w-full border-green-500 text-green-600 hover:bg-green-50 py-2 text-sm font-semibold rounded-lg"
                       >
                         <MessageCircle className="w-4 h-4 mr-1" />
-                        WhatsApp
+                        Request quote
                       </Button>
                     </div>
                   </div>
