@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { signInWithPassword } from '@/lib/hmAuth';
 import { createUnverifiedUser, createVerifiedUser, verifyEmailWithToken, resendVerificationEmail as resendVerificationEmailService, generateVerificationToken } from '@/services/emailVerificationService';
 import { getLikedVendors } from '@/services/likedVendorsApiService';
 
@@ -164,6 +165,9 @@ export const CustomerAuthProvider: React.FC<CustomerAuthProviderProps> = ({ chil
     };
 
     checkCustomerSession();
+    // The Phase 1 account flow (hmAuth) signs people in or out: reload.
+    window.addEventListener('hm-customer-session', checkCustomerSession);
+    return () => window.removeEventListener('hm-customer-session', checkCustomerSession);
   }, []);
 
   const signUp = async (fullName: string, email: string, password: string, gender?: string, mobileNumber: string, isEmailPreVerified: boolean = false) => {
@@ -214,6 +218,20 @@ export const CustomerAuthProvider: React.FC<CustomerAuthProviderProps> = ({ chil
 
   const signIn = async (email: string, password: string) => {
     try {
+      // New customer accounts (email + password in Supabase Auth). Older accounts
+      // fall through to the check below and are moved to Supabase Auth by hmAuth.
+      try {
+        await signInWithPassword(email, password);
+        const { data: linked } = await supabase.from('customers').select('*').ilike('email', email.trim()).maybeSingle();
+        if (linked) {
+          localStorage.setItem('customer_id', String(linked.id));
+          setCustomer(linked);
+          return { customer: linked, error: null };
+        }
+      } catch {
+        /* not a new-style account, or wrong password: try the older check */
+      }
+
       const passwordHash = btoa(password); // Simple base64 encoding for demo - use proper hashing in production
       
       const { data, error } = await supabase
@@ -263,6 +281,7 @@ export const CustomerAuthProvider: React.FC<CustomerAuthProviderProps> = ({ chil
 
   const signOut = async () => {
     try {
+      await supabase.auth.signOut().catch(() => undefined);
       localStorage.removeItem('customer_id');
       setCustomer(null);
       return { error: null };

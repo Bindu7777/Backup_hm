@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import {
   PASSWORD_MIN,
   getMyCustomerProfile,
+  linkSiteCustomer,
   normaliseIndianMobile,
   saveMyCustomerProfile,
   sendEmailCode,
@@ -111,6 +112,7 @@ export const SignUpGate: React.FC<Props> = ({ open, mode = "customer", defaultNa
       try {
         await signUpWithPassword(email, password);
         await saveMyCustomerProfile({ full_name: name, mobile: ten, email });
+        await linkSiteCustomer(email);
       } finally {
         creating.current = false;
       }
@@ -143,6 +145,7 @@ export const SignUpGate: React.FC<Props> = ({ open, mode = "customer", defaultNa
     run(async () => {
       const ten = checkProfileFields();
       await saveMyCustomerProfile({ full_name: name, mobile: ten, email: session?.user?.email });
+      await linkSiteCustomer(session?.user?.email);
       onDone();
     });
 

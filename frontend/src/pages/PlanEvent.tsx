@@ -9,6 +9,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { momoSound } from "@/utils/momoSoundEffects";
+import { cardSounds } from "@/utils/cardSounds";
 import Header from "@/components/layout/Header";
 import SignUpGate from "@/components/enquiry/SignUpGate";
 import MatchCard from "@/components/enquiry/MatchCard";
@@ -66,7 +67,10 @@ const PlanEvent: React.FC = () => {
   const [matches, setMatches] = useState<VendorMatch[] | null>(null);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
-  const [gateFor, setGateFor] = useState<VendorMatch | null>(null);
+  // Who the sign-up box is for: a vendor to contact, or seeing the matches at all.
+  const [gateFor, setGateFor] = useState<VendorMatch | "matches" | null>(null);
+  // Signed in with a customer account (needed to see matches). null while checking.
+  const [hasAccount, setHasAccount] = useState<boolean | null>(null);
   const [opening, setOpening] = useState<number | null>(null);
   const [momo, setMomo] = useState<{ mood: MomoMood; say: string; beat: number }>({ mood: "wave", say: "", beat: 0 });
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -107,6 +111,24 @@ const PlanEvent: React.FC = () => {
     if (pending?.claimToken) claimPendingEnquiry(pending).catch(() => undefined);
   }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (session === undefined) return;
+    if (!session) { setHasAccount(false); return; }
+    getMyCustomerProfile().then((p) => setHasAccount(Boolean(p))).catch(() => setHasAccount(false));
+  }, [session?.user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Matches are only for signed-in customers (the database enforces it too).
+  useEffect(() => {
+    if (phase !== "results" || !hasAccount || matches !== null || !answers.event_type) return;
+    matchVendors(answers).then(setMatches).catch(() => setMatches([]));
+  }, [phase, hasAccount]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const seeMatches = () => {
+    window.scrollTo({ top: 0 });
+    if (hasAccount) setPhase("results");
+    else setGateFor("matches");
+  };
+
   // Coming back (e.g. after the email sign-in link): restore the saved enquiry.
   useEffect(() => {
     const pending = getPendingEnquiry();
@@ -116,15 +138,14 @@ const PlanEvent: React.FC = () => {
     setAnswers(pending.answers);
     setEnquiryId(pending.id);
     setPhase("results");
-    matchVendors(pending.answers).then(setMatches).catch(() => setMatches([]));
   }, []);
 
   // Momo reacts with a move and a little sound (sounds follow the 🔊 switch).
   const react = (mood: MomoMood, say: string) => {
     setMomo((m) => ({ mood, say, beat: m.beat + 1 }));
-    if (mood === "bounce") momoSound.playHamsterSqueak();
-    else if (mood === "dance" || mood === "celebrate") momoSound.playCuteGiggle();
-    else momoSound.playBubblePop();
+    if (mood === "bounce") cardSounds.select();
+    else if (mood === "dance" || mood === "celebrate") cardSounds.momo();
+    else cardSounds.tap();
   };
   const [soundOn, setSoundOn] = useState(() => momoSound.isEnabled());
   useEffect(() => momoSound.subscribe(setSoundOn), []);
@@ -187,7 +208,7 @@ const PlanEvent: React.FC = () => {
               }}
               className={`${fieldInput} py-4 text-lg`} />
           </label>
-          <Chip active={!answers.event_date} onClick={() => { set("event_date", null); react("nod", "We'll fill it in later ✨"); }}>
+          <Chip active={!answers.event_date} onClick={() => { set("event_date", null); react("nod", "We'll fill it in later ✨"); setTimeout(() => go(2), 450); }}>
             Not decided yet
           </Chip>
         </div>
@@ -361,9 +382,8 @@ const PlanEvent: React.FC = () => {
       const pending = await createEnquiry(answers);
       setEnquiryId(pending.id);
       setPhase("invite");
-      momoSound.playCelebrationChime();
+      cardSounds.celebrate();
       window.scrollTo({ top: 0 });
-      matchVendors(answers).then(setMatches).catch(() => setMatches([]));
     } catch (e: any) {
       setError(e?.message || "We couldn't save your card. Please try again.");
     } finally {
@@ -428,7 +448,7 @@ const PlanEvent: React.FC = () => {
 
                 <div className="mt-3 flex items-start justify-between gap-2">
                   <MomoBuddy className="min-h-[76px]" size={62} mood={momo.mood} beat={momo.beat} say={momo.say || current.momo} onTap={tapMomo} />
-                  <button type="button" onClick={() => momoSound.toggleSound()} aria-pressed={soundOn}
+                  <button type="button" onClick={() => { momoSound.setSoundEnabled(!soundOn); if (!soundOn) setTimeout(() => cardSounds.select(), 0); }} aria-pressed={soundOn}
                     aria-label={soundOn ? "Mute Momo's sounds" : "Turn on Momo's sounds"}
                     className={`${pressable} grid h-9 w-9 shrink-0 place-items-center rounded-full text-base ring-1 ring-[#EAD7B7] hover:bg-[#FFF3DC]`}>
                     <span aria-hidden>{soundOn ? "🔊" : "🔇"}</span>
@@ -445,11 +465,11 @@ const PlanEvent: React.FC = () => {
                 {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-800">{error}</p>}
 
                 <div className="mt-7 flex items-center justify-between gap-3">
-                  <button onClick={() => go(Math.max(0, step - 1))} disabled={step === 0}
+                  <button onClick={() => { cardSounds.back(); go(Math.max(0, step - 1)); }} disabled={step === 0}
                     className={`${pressable} rounded-2xl px-4 py-3 text-sm font-semibold text-[#7A1F3D] hover:bg-[#FFF3DC] disabled:invisible`}>
                     ← Back
                   </button>
-                  <button onClick={() => { momoSound.playBubblePop(); if (last) submit(); else go(step + 1); }} disabled={!current.valid || saving}
+                  <button onClick={() => { if (last) submit(); else { cardSounds.next(); go(step + 1); } }} disabled={!current.valid || saving}
                     className={`${pressable} rounded-2xl bg-[#7A1F3D] px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_16px_rgba(122,31,61,0.25)] hover:bg-[#661833] disabled:opacity-40 disabled:shadow-none`}>
                     {last ? (saving ? "Sealing your card…" : "Make my card 💌") : "Next →"}
                   </button>
@@ -457,10 +477,9 @@ const PlanEvent: React.FC = () => {
               </div>
             </div>
             <p className="mt-4 text-center text-xs text-[#6D4A55]">
-              No login needed to see your matches.{" "}
-              {session
-                ? <Link to="/my-celebrations" className="font-semibold text-[#7A1F3D] underline">My celebrations</Link>
-                : <>Have an account? <Link to="/my-celebrations" className="font-semibold text-[#7A1F3D] underline">Sign in</Link></>}
+              {hasAccount
+                ? <>Signed in · <Link to="/my-celebrations" className="font-semibold text-[#7A1F3D] underline">My celebrations</Link></>
+                : <>A free account is needed to see your vendor matches. Have one? <Link to="/my-celebrations" className="font-semibold text-[#7A1F3D] underline">Sign in</Link></>}
             </p>
           </section>
         )}
@@ -474,16 +493,31 @@ const PlanEvent: React.FC = () => {
               date={answers.event_date}
               area={answers.area}
               city={answers.city}
-              matchesReady={matches !== null}
-              onSeeMatches={() => { setPhase("results"); window.scrollTo({ top: 0 }); }}
+              matchesReady
+              onSeeMatches={seeMatches}
             />
           </>
         )}
 
-        {phase === "results" && (
+        {phase === "results" && hasAccount === false && (
+          <section className="mx-auto max-w-md rounded-3xl bg-white p-6 text-center shadow-[0_8px_26px_rgba(122,31,61,0.08)] ring-1 ring-[#EFDDBD]">
+            <div className="flex justify-center"><MomoBuddy size={66} mood="wave" beat={0} onTap={() => cardSounds.momo()} /></div>
+            <h1 className="mt-2 font-['Lora',serif] text-2xl font-semibold text-[#7A1F3D]">Your matches are ready!</h1>
+            <p className="mt-1 text-sm text-[#5A4A50]">
+              Create a free account (or sign in) to see the vendors we picked for your {answers.event_type.toLowerCase() || "event"}. Your card is saved.
+            </p>
+            <button onClick={() => setGateFor("matches")}
+              className="mt-4 w-full rounded-2xl bg-[#7A1F3D] py-3.5 text-[15px] font-semibold text-white shadow-[0_6px_16px_rgba(122,31,61,0.25)] hover:bg-[#661833] active:scale-[.98]">
+              See my matches
+            </button>
+            <button onClick={startOver} className="mt-3 text-sm text-[#7A1F3D] underline">Start a new card</button>
+          </section>
+        )}
+
+        {phase === "results" && hasAccount && (
           <section>
             <div className="mb-7 flex flex-col gap-3 rounded-3xl bg-white p-5 ring-1 ring-[#F0DFC0] sm:flex-row sm:items-center sm:p-6">
-              <MomoBuddy size={58} mood="dance" beat={1} onTap={() => momoSound.playCuteGiggle()} />
+              <MomoBuddy size={58} mood="dance" beat={1} onTap={() => cardSounds.momo()} />
               <div className="flex-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#A8792A]">Picked for you</p>
                 <h1 className="mt-0.5 font-['Lora',serif] text-[26px] font-semibold text-[#7A1F3D] sm:text-3xl">Your top matches</h1>
@@ -551,13 +585,16 @@ const PlanEvent: React.FC = () => {
       <SignUpGate
         open={Boolean(gateFor)}
         mode="customer"
+        title={gateFor === "matches" ? "See your matches" : undefined}
         defaultName={answers.customer_name}
         defaultMobile={normaliseIndianMobile(mobile) || ""}
         onClose={() => setGateFor(null)}
         onDone={() => {
           const v = gateFor;
           setGateFor(null);
-          if (v) openGroup(v);
+          setHasAccount(true);
+          if (v === "matches") { setPhase("results"); cardSounds.celebrate(); }
+          else if (v) openGroup(v);
         }}
       />
       <style>{`

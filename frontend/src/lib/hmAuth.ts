@@ -52,13 +52,52 @@ export async function signUpWithPassword(email: string, password: string) {
 }
 
 export async function signInWithPassword(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
-  if (error || !data.session) throw friendlyAuthError(error?.message || "Wrong email or password.");
-  return data.session;
+  const cleanEmail = email.trim().toLowerCase();
+  const { data, error } = await supabase.auth.signInWithPassword({ email: cleanEmail, password });
+  if (data?.session) {
+    await linkSiteCustomer(cleanEmail);
+    return data.session;
+  }
+  // Someone with an account from the site's older customer login: move them to a
+  // proper (hashed-password) account with the same email and password.
+  const legacy = await findLegacyCustomer(cleanEmail, password);
+  if (legacy) {
+    const session = await signUpWithPassword(cleanEmail, password);
+    const mobile = normaliseIndianMobile(legacy.mobile_number || "");
+    if (mobile) await saveMyCustomerProfile({ full_name: legacy.full_name, mobile, email: cleanEmail });
+    await linkSiteCustomer(cleanEmail);
+    return session;
+  }
+  throw friendlyAuthError(error?.message || "Wrong email or password.");
+}
+
+/** Older site accounts store base64 of the password in customers.password_hash. */
+async function findLegacyCustomer(email: string, password: string) {
+  let encoded = "";
+  try { encoded = btoa(password); } catch { return null; }
+  const { data } = await supabase.from("customers").select("id, full_name, mobile_number")
+    .ilike("email", email).eq("password_hash", encoded).maybeSingle();
+  return data as { id: number; full_name: string; mobile_number: string | null } | null;
+}
+
+/**
+ * Signs the same person into the site's existing customer session (header,
+ * liked vendors, notifications), which reads localStorage customer_id. The
+ * customers row is kept in step by the database (sync_customer_from_profile).
+ */
+export async function linkSiteCustomer(email?: string | null) {
+  const e = (email || (await supabase.auth.getUser()).data.user?.email || "").trim().toLowerCase();
+  if (!e) return;
+  const { data } = await supabase.from("customers").select("id").ilike("email", e).maybeSingle();
+  if (!data) return;
+  try { localStorage.setItem("customer_id", String(data.id)); } catch { /* private mode */ }
+  window.dispatchEvent(new Event("hm-customer-session"));
 }
 
 export async function signOutHm() {
   await supabase.auth.signOut();
+  try { localStorage.removeItem("customer_id"); } catch { /* ignore */ }
+  window.dispatchEvent(new Event("hm-customer-session"));
 }
 
 function friendlyAuthError(message: string) {

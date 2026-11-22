@@ -8,7 +8,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MomoBuddy } from "@/components/enquiry/MomoBuddy";
 import { EVENT_TYPES } from "@/services/enquiryService";
-import { momoSound } from "@/utils/momoSoundEffects";
+import { cardSounds } from "@/utils/cardSounds";
 
 type Props = {
   eventType: string;
@@ -43,7 +43,7 @@ export const DigitalInvite: React.FC<Props> = ({ eventType, firstName, date, are
     if (opened) return;
     const t = setTimeout(() => {
       setOpened(true);
-      momoSound.playCuteGiggle();
+      cardSounds.momo();
     }, 1500);
     return () => clearTimeout(t);
   }, [opened]);
@@ -73,7 +73,7 @@ export const DigitalInvite: React.FC<Props> = ({ eventType, firstName, date, are
   const fileName = `happy-moments-${eventType.toLowerCase().replace(/[^a-z0-9]+/g, "-")}.png`;
 
   const save = async () => {
-    momoSound.playBubblePop();
+    cardSounds.tap();
     setBusy("save"); setNote("");
     try {
       const blob = await toPng();
@@ -83,7 +83,7 @@ export const DigitalInvite: React.FC<Props> = ({ eventType, firstName, date, are
       a.href = url; a.download = fileName; a.click();
       setTimeout(() => URL.revokeObjectURL(url), 2000);
       setNote("Saved! Check your downloads.");
-      momoSound.playCelebrationChime();
+      cardSounds.sparkle();
     } catch {
       setNote("Couldn't make the image. A screenshot works too!");
     } finally {
@@ -92,7 +92,7 @@ export const DigitalInvite: React.FC<Props> = ({ eventType, firstName, date, are
   };
 
   const share = async () => {
-    momoSound.playBubblePop();
+    cardSounds.tap();
     setBusy("share"); setNote("");
     try {
       if (navigator.share) {
@@ -115,7 +115,7 @@ export const DigitalInvite: React.FC<Props> = ({ eventType, firstName, date, are
 
   const danceAgain = () => {
     setBeat((b) => b + 1);
-    momoSound.playCuteGiggle();
+    cardSounds.momo();
   };
 
   return (
@@ -190,7 +190,7 @@ export const DigitalInvite: React.FC<Props> = ({ eventType, firstName, date, are
       </div>
 
       <div className={`mt-5 grid w-full max-w-[340px] gap-2.5 transition-opacity duration-500 ${opened ? "opacity-100" : "pointer-events-none opacity-0"}`}>
-        <button onClick={() => { momoSound.playBubblePop(); onSeeMatches(); }} className={`${btn} bg-[#7A1F3D] text-white hover:bg-[#661833]`}>
+        <button onClick={() => { cardSounds.next(); onSeeMatches(); }} className={`${btn} bg-[#7A1F3D] text-white hover:bg-[#661833]`}>
           {matchesReady ? "See my matches →" : "Finding your matches…"}
         </button>
         <div className="grid grid-cols-2 gap-2.5">
